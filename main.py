@@ -27,9 +27,10 @@ def main():
             break
         '''
         # visualization
-        q.put(curAgent)
-        if nTest % 2 != 0: # after maleAgent moves
+        # measure distance between agents after maleAgent moves
+        if nTest % 2 != 0:
             print(distance([1,2,3], [4,5,6])) # 9
+        q.put(curAgent)
         nTest += 1
 
 if __name__ == "__main__":
