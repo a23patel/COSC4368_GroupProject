@@ -3,8 +3,9 @@ import numpy as np
 class Cell:
     def __init__(self):
         self.type = 'Basic'
-        self.occupancy = ['None'] # better way to do this?
+        self.occupancy = []
         self.numBlocks = 0
+        # cost? = -1 for Basic & = -2 for Risk cells
     
     # type methods
     def getType(self): # Basic, Pickup, Dropoff, Risk
@@ -15,17 +16,17 @@ class Cell:
         self.type = _type
     
     # agent methods
-    def isOccupied(self):
-        return self.occupancy[0] != 'None' # returns false if unoccupied
+    def occupied(self):
+        return self.occupancy # returns false if occupancy list is empty
     def whichAgent(self):
-        if self.isOccupied: # unnecessary check w/ current implementation
+        if self.occupied():
             return self.occupancy[0]
     def addAgent(self, _agent):
-        self.occupancy.remove('None')
-        self.occupancy.append(_agent)
+        if not(self.occupied()):
+            self.occupancy.append(_agent)
     def rmAgent(self, _agent):
-        self.occupancy.remove(_agent)
-        self.occupancy.append('None')
+        if self.occupied():
+            self.occupancy.remove(_agent)
 
     # block methods
     def getNumBlocks(self):
@@ -61,11 +62,11 @@ StateSpace[0,0,2].setType('Dropoff')
 StateSpace[2,0,0].setType('Dropoff')
 StateSpace[2,1,2].setType('Dropoff')
 
-# visualize SS
+# visualize SS to compare to assignment description
 for z in range(StateSpace.shape[0]):
     for y in range(StateSpace.shape[1]):
         for x in range(StateSpace.shape[2]):
             cell = StateSpace[x,y,z]
-            print(f"location: ({x},{y},{z})\n\ttype: {cell.getType()}\n" +
+            print(f"location: ({x+1},{y+1},{z+1})\n\ttype: {cell.getType()}\n" +
                   f"\tnumber of blocks: {cell.getNumBlocks()}\n" +
                   f"\twhich agent: {cell.whichAgent()}\n")
