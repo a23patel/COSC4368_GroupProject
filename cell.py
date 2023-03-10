@@ -34,7 +34,7 @@ class Cell:
         if self.type == 'Dropoff' and self.numBlocks < 5: # capacity is 5 blocks
             self.numBlocks += 1
     def rmBlock(self):
-        if self.numBlocks < 0:
+        if self.numBlocks > 0:
             self.numBlocks -= 1
 
 StateSpace = np.empty(shape=(3,3,3), dtype=object, order='C') # 'C' means row-major order in memory
