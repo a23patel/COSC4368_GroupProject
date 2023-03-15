@@ -68,32 +68,32 @@ class Action:
 
         def moveEast(self, _agentLocation, _stateSpace):
             # perform bounds check
-            if self.isEastApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
+            if self.isEastApplicable(_agentLocation, _stateSpace): 
                 _agentLocation = [_agentLocation[0] + 1, _agentLocation[1], _agentLocation[2]]
         
         def moveWest(self, _agentLocation, _stateSpace):
             # perform bounds check
-            if self.isWestApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
+            if self.isWestApplicable(_agentLocation, _stateSpace):
                 _agentLocation = [_agentLocation[0] - 1, _agentLocation[1], _agentLocation[2]]
 
         def moveNorth(self, _agentLocation, _stateSpace):
             # perform bounds check
-            if self.isNorthApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
+            if self.isNorthApplicable(_agentLocation, _stateSpace): 
                 _agentLocation = [_agentLocation[0], _agentLocation[1] + 1, _agentLocation[2]]
 
         def moveSouth(self, _agentLocation, _stateSpace):
             # perform bounds check
-            if self.isSouthApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
+            if self.isSouthApplicable(_agentLocation, _stateSpace): 
                 _agentLocation = [_agentLocation[0], _agentLocation[1] - 1, _agentLocation[2]]
 
         def moveUp(self, _agentLocation, _stateSpace):
             # perform bounds check
-            if self.isUpApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
+            if self.isUpApplicable(_agentLocation, _stateSpace): 
                 _agentLocation = [_agentLocation[0], _agentLocation[1], _agentLocation[2] + 1]
 
         def moveDown(self, _agentLocation, _stateSpace):
             # perform bounds check
-            if self.isDownApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
+            if self.isDownApplicable(_agentLocation, _stateSpace): 
                 _agentLocation = [_agentLocation[0], _agentLocation[1], _agentLocation[2] - 1]
 
         # def pickupBlock(Agent, StateSpace):
