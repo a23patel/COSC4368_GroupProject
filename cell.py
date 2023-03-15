@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 
 class Cells:
     def __init__(self):
@@ -13,9 +14,7 @@ class Cells:
     def setType(self, _type):
         if _type == 'Pickup':
             self.numBlocks = 10
-        if _type == 'Basic':
-            self.cost = -1
-        elif _type == 'Risk':
+        if _type == 'Risk':
             self.cost = -2
         self.type = _type
     
@@ -42,45 +41,99 @@ class Cells:
         if self.numBlocks > 0:
             self.numBlocks -= 1
     def getCost(self):
-        if self.is_occupied():
-            return None
-        elif self.type == 'Basic' or self.type == 'Risk':
-            return self.cost
-        else:
-            return self.num_blocks    
+        return self.cost
 
 
-#creating the state space
-StateSpace = np.empty(shape=(3,3,3), dtype=object, order='C')    # 'C' means row-major order in memory
+class StateSpace:
+    def __init__(self):
+        self.state_space = np.empty(shape=(3,3,3), dtype=object, order='C')   # 'C' means row-major order in memory
 
-# initialize StateSpace as all basic cells
-for x in range(StateSpace.shape[0]):
-    for y in range(StateSpace.shape[1]):
-        for z in range(StateSpace.shape[2]):
-            StateSpace[x,y,z] = Cells()
+        # initializing StateSpace as all basic cells
+        for x in range(self.state_space.shape[0]):
+            for y in range(self.state_space.shape[1]):
+                for z in range(self.state_space.shape[2]):
+                    self.state_space[x,y,z] = Cells()
+        
 
-# update cells according to http://www2.cs.uh.edu/~ceick/ai/2023-World.pptx
+        # agent locations
+        agent1 = Cells()
+        agent1.addAgent('F')
+        self.state_space[0, 0, 0] = agent1
 
-# agent locations
-StateSpace[0,0,0].addAgent('F')
-StateSpace[2,1,2].addAgent('M')
+        agent2 = Cells()
+        agent2.addAgent('M')
+        self.state_space[2, 1, 2] = agent2
+        
+        #pickup cells
+        pickup1 = Cells()
+        pickup1.setType('Pickup')
+        self.state_space[1, 1, 0] = pickup1
 
-# pickup cells
-StateSpace[1,1,0].setType('Pickup')
-StateSpace[2,2,1].setType('Pickup')
+        pickup2 = Cells()
+        pickup2.setType('Pickup')
+        self.state_space[2, 2, 1] = pickup2
+        # dropoff cells
+        dropoff1 = Cells()
+        dropoff1.setType('Dropoff')
+        self.state_space[0, 0, 1] = dropoff1
 
-# dropoff cells
-StateSpace[0,0,1].setType('Dropoff')
-StateSpace[0,0,2].setType('Dropoff')
-StateSpace[2,0,0].setType('Dropoff')
-StateSpace[2,1,2].setType('Dropoff')
+        dropoff2 = Cells()
+        dropoff2.setType('Dropoff')
+        self.state_space[0, 0, 2] = dropoff2
 
-# visualizing state space to compare to project description
-for x in range(StateSpace.shape[0]):
-    for y in range(StateSpace.shape[1]):
-        for z in range(StateSpace.shape[2]):
-            cell = StateSpace[x,y,z]
-            print(f"Location of blocks: ({x+1},{y+1},{z+1})\n\tType of Block: {cell.getType()}\n" +
-                  f"\tNumber of blocks: {cell.getNumBlocks()}\n" +
-                  f"\tAgent: {cell.whichAgent()}\n" +
-                  f"\tCost of traversing blocks: {cell.getCost()}\n")
+        dropoff3 = Cells()
+        dropoff3.setType('Dropoff')
+        self.state_space[2, 0, 0] = dropoff3
+
+        dropoff4 = Cells()
+        dropoff4.setType('Dropoff')
+        self.state_space[2, 1, 2] = dropoff4
+    
+    def getLocation(self, agent):
+        for x in range(self.state_space.shape[0]):
+            for y in range(self.state_space.shape[1]):
+                for z in range(self.state_space.shape[2]):
+                    if self.state_space[x,y,z].whichAgent() == agent:
+                        return (x+1,y+1,z+1)
+                    
+    def visualize(self):
+        block_size = 50  # size of each cell in pixels
+        grid_width = self.state_space.shape[0] * block_size
+        grid_height = self.state_space.shape[1] * block_size
+
+        grid = np.zeros((grid_height, grid_width, 3), dtype=np.uint8)  # initialize grid as black image
+
+        cell = Cells()
+
+        # draw cells onto the grid
+        for x in range(self.state_space.shape[0]):
+            for y in range(self.state_space.shape[1]):
+                for z in range(self.state_space.shape[2]):
+                    self.state_space[x,y,z]
+                    agent = cell.whichAgent()
+                    block_type = cell.getType()
+
+                    # calculate top-left corner of cell
+                    top_left = (x * block_size, y * block_size)
+
+                    # draw cell as a rectangle
+                    color = (255, 255, 255)  # white color for basic cell
+                    if block_type == 'Pickup':
+                        color = (0, 255, 0)  # green color for pickup cell
+                    elif block_type == 'Dropoff':
+                        color = (0, 0, 255)  # red color for dropoff cell
+                    cv2.rectangle(grid, top_left, (top_left[0] + block_size, top_left[1] + block_size), color, -1)
+
+                    # draw agent in a cell
+                    if agent is not None:
+                        self.getLocation(agent)
+                        cv2.circle(grid, (int(top_left[0] + block_size/2), int(top_left[1] + block_size/2)), int(block_size/4), (255, 255, 0), -1)  # yellow circle for agent
+
+        cv2.imshow('State Space', grid)
+        cv2.waitKey(0)
+
+# create a StateSpace instance
+ss = StateSpace()
+
+# visualize the StateSpace
+ss.visualize()
