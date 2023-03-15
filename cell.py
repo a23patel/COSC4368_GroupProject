@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-class Cells:
+class Cell:
     def __init__(self):
         self.type = 'Basic'
         self.occupancy = []
@@ -47,54 +47,72 @@ class Cells:
 class StateSpace:
     def __init__(self):
         self.state_space = np.empty(shape=(3,3,3), dtype=object, order='C')   # 'C' means row-major order in memory
+        self.agentLocation_F = None
+        self.agentLocation_M = None
+        self.agentLocations = []
 
         # initializing StateSpace as all basic cells
         for x in range(self.state_space.shape[0]):
             for y in range(self.state_space.shape[1]):
                 for z in range(self.state_space.shape[2]):
-                    self.state_space[x,y,z] = Cells()
+                    self.state_space[x,y,z] = Cell()
         
 
         # agent locations
-        agent1 = Cells()
-        agent1.addAgent('F')
-        self.state_space[0, 0, 0] = agent1
+        # agent1 = Cell() # an agent is not a Cell obj
+        # agent1.addAgent('F')
+        # self.state_space[0, 0, 0] = agent1
+        # simpler
+        self.state_space[0, 0, 0].addAgent('F')
+        self.agentLocation_F = [0,0,0]
+        self.agentLocations.append(self.agentLocation_F)
 
-        agent2 = Cells()
-        agent2.addAgent('M')
-        self.state_space[2, 1, 2] = agent2
+        # agent2 = Cell()
+        # agent2.addAgent('M')
+        # self.state_space[2, 1, 2] = agent2
+        self.state_space[2, 1, 2].addAgent('M')
+        self.agentLocation_M = [2,1,2]
+        self.agentLocations.append(self.agentLocation_M)
         
         #pickup cells
-        pickup1 = Cells()
-        pickup1.setType('Pickup')
-        self.state_space[1, 1, 0] = pickup1
+        # pickup1 = Cell()
+        # pickup1.setType('Pickup')
+        # self.state_space[1, 1, 0] = pickup1
+        self.state_space[1, 1, 0].setType('Pickup')
 
-        pickup2 = Cells()
-        pickup2.setType('Pickup')
-        self.state_space[2, 2, 1] = pickup2
+        # pickup2 = Cell()
+        # pickup2.setType('Pickup')
+        # self.state_space[2, 2, 1] = pickup2
+        self.state_space[2, 2, 1].setType('Pickup')
+
         # dropoff cells
-        dropoff1 = Cells()
-        dropoff1.setType('Dropoff')
-        self.state_space[0, 0, 1] = dropoff1
+        # dropoff1 = Cell()
+        # dropoff1.setType('Dropoff')
+        # self.state_space[0, 0, 1] = dropoff1
+        self.state_space[0, 0, 1].setType('Dropoff')
 
-        dropoff2 = Cells()
-        dropoff2.setType('Dropoff')
-        self.state_space[0, 0, 2] = dropoff2
+        # dropoff2 = Cell()
+        # dropoff2.setType('Dropoff')
+        # self.state_space[0, 0, 2] = dropoff2
+        self.state_space[0, 0, 2].setType('Dropoff')
 
-        dropoff3 = Cells()
-        dropoff3.setType('Dropoff')
-        self.state_space[2, 0, 0] = dropoff3
+        # dropoff3 = Cell()
+        # dropoff3.setType('Dropoff')
+        # self.state_space[2, 0, 0] = dropoff3
+        self.state_space[2, 0, 0].setType('Dropoff')
 
-        dropoff4 = Cells()
-        dropoff4.setType('Dropoff')
-        self.state_space[2, 1, 2] = dropoff4
-    
+        # dropoff4 = Cell()
+        # dropoff4.setType('Dropoff')
+        # self.state_space[2, 1, 2] = dropoff4
+        self.state_space[2, 1, 2].setType('Dropoff')
+
     def getLocation(self, agent):
         for x in range(self.state_space.shape[0]):
             for y in range(self.state_space.shape[1]):
                 for z in range(self.state_space.shape[2]):
                     if self.state_space[x,y,z].whichAgent() == agent:
-                        return (x+1,y+1,z+1)
+                        # return (x+1,y+1,z+1)
+                        return [x,y,z]
                     
     def visualize(self):
         block_size = 50  # size of each cell in pixels
@@ -103,7 +121,7 @@ class StateSpace:
 
         grid = np.zeros((grid_height, grid_width, 3), dtype=np.uint8)  # initialize grid as black image
 
-        cell = Cells()
+        cell = Cell()
 
         # draw cells onto the grid
         for x in range(self.state_space.shape[0]):
@@ -136,4 +154,4 @@ class StateSpace:
 ss = StateSpace()
 
 # visualize the StateSpace
-ss.visualize()
+# ss.visualize()
