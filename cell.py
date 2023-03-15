@@ -57,54 +57,28 @@ class StateSpace:
                 for z in range(self.state_space.shape[2]):
                     self.state_space[x,y,z] = Cell()
         
-
         # agent locations
-        # agent1 = Cell() # an agent is not a Cell obj
-        # agent1.addAgent('F')
-        # self.state_space[0, 0, 0] = agent1
-        # simpler
         self.state_space[0, 0, 0].addAgent('F')
         self.agentLocation_F = [0,0,0]
         self.agentLocations.append(self.agentLocation_F)
 
-        # agent2 = Cell()
-        # agent2.addAgent('M')
-        # self.state_space[2, 1, 2] = agent2
         self.state_space[2, 1, 2].addAgent('M')
         self.agentLocation_M = [2,1,2]
         self.agentLocations.append(self.agentLocation_M)
         
         #pickup cells
-        # pickup1 = Cell()
-        # pickup1.setType('Pickup')
-        # self.state_space[1, 1, 0] = pickup1
         self.state_space[1, 1, 0].setType('Pickup')
-
-        # pickup2 = Cell()
-        # pickup2.setType('Pickup')
-        # self.state_space[2, 2, 1] = pickup2
         self.state_space[2, 2, 1].setType('Pickup')
 
         # dropoff cells
-        # dropoff1 = Cell()
-        # dropoff1.setType('Dropoff')
-        # self.state_space[0, 0, 1] = dropoff1
         self.state_space[0, 0, 1].setType('Dropoff')
-
-        # dropoff2 = Cell()
-        # dropoff2.setType('Dropoff')
-        # self.state_space[0, 0, 2] = dropoff2
         self.state_space[0, 0, 2].setType('Dropoff')
-
-        # dropoff3 = Cell()
-        # dropoff3.setType('Dropoff')
-        # self.state_space[2, 0, 0] = dropoff3
         self.state_space[2, 0, 0].setType('Dropoff')
-
-        # dropoff4 = Cell()
-        # dropoff4.setType('Dropoff')
-        # self.state_space[2, 1, 2] = dropoff4
         self.state_space[2, 1, 2].setType('Dropoff')
+
+        # risk cells
+        self.state_space[1, 1,  1].setType('Risk')
+        self.state_space[2, 1,  0].setType('Risk')
 
     def getLocation(self, agent):
         for x in range(self.state_space.shape[0]):
@@ -150,8 +124,19 @@ class StateSpace:
         cv2.imshow('State Space', grid)
         cv2.waitKey(0)
 
+    def printSS(self):
+        for z in range(3):
+            for y in range(3):
+                for x in range(3):
+                    cell = self.state_space[x,y,z]
+                    print(f"({x},{y},{z})\n"
+                          f"\ttype:\t{cell.getType()}\n"
+                          f"\tagent:\t{cell.whichAgent()}\n"
+                          f"\tblocks:\t{cell.getNumBlocks()}\n"
+                          f"\tcost:\t{cell.getCost()}")
+
 # create a StateSpace instance
-ss = StateSpace()
+# ss = StateSpace() # moved to main.py
 
 # visualize the StateSpace
 # ss.visualize()

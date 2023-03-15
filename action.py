@@ -1,6 +1,6 @@
 class Action:
         
-        def isEastApplicable( _agentLocation, _stateSpace):
+        def isEastApplicable(_agentLocation, _stateSpace):
             # bounds check
             if _agentLocation[0] >= 2:
                 return False
@@ -67,36 +67,36 @@ class Action:
             return True
 
         def moveEast(self, _agentLocation, _stateSpace):
-            # perform bounds check
+            # perform check
             if self.isEastApplicable(_agentLocation, _stateSpace): 
                 _agentLocation = [_agentLocation[0] + 1, _agentLocation[1], _agentLocation[2]]
         
         def moveWest(self, _agentLocation, _stateSpace):
-            # perform bounds check
+            # perform check
             if self.isWestApplicable(_agentLocation, _stateSpace):
                 _agentLocation = [_agentLocation[0] - 1, _agentLocation[1], _agentLocation[2]]
 
         def moveNorth(self, _agentLocation, _stateSpace):
-            # perform bounds check
+            # perform check
             if self.isNorthApplicable(_agentLocation, _stateSpace): 
                 _agentLocation = [_agentLocation[0], _agentLocation[1] + 1, _agentLocation[2]]
 
         def moveSouth(self, _agentLocation, _stateSpace):
-            # perform bounds check
+            # perform check
             if self.isSouthApplicable(_agentLocation, _stateSpace): 
                 _agentLocation = [_agentLocation[0], _agentLocation[1] - 1, _agentLocation[2]]
 
         def moveUp(self, _agentLocation, _stateSpace):
-            # perform bounds check
+            # perform check
             if self.isUpApplicable(_agentLocation, _stateSpace): 
                 _agentLocation = [_agentLocation[0], _agentLocation[1], _agentLocation[2] + 1]
 
         def moveDown(self, _agentLocation, _stateSpace):
-            # perform bounds check
+            # perform check
             if self.isDownApplicable(_agentLocation, _stateSpace): 
                 _agentLocation = [_agentLocation[0], _agentLocation[1], _agentLocation[2] - 1]
 
-        # def pickupBlock(Agent, StateSpace):
+        # def pickupBlock(agent, stateSpace):
             # check Cell type == 'Pickup'
             # check numBlocks in Cell > 0
             # check is agent carrying a block == 0

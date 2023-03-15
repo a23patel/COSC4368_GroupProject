@@ -1,4 +1,5 @@
 from queue import Queue
+from cell import StateSpace
 
 # Manhattan
 def distance(locF, locM):
@@ -32,6 +33,11 @@ def main():
             print(distance([1,2,3], [4,5,6])) # 9
         q.put(curAgent)
         nTest += 1
+
+
+        # testing StateSpace class
+        RW = StateSpace()
+        RW.printSS()
 
 if __name__ == "__main__":
     main()
