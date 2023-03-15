@@ -77,16 +77,20 @@ class StateSpace:
         self.state_space[2, 1, 2].setType('Dropoff')
 
         # risk cells
-        self.state_space[1, 1,  1].setType('Risk')
-        self.state_space[2, 1,  0].setType('Risk')
+        self.state_space[1, 1, 1].setType('Risk')
+        self.state_space[2, 1, 0].setType('Risk')
 
     def getLocation(self, agent):
-        for x in range(self.state_space.shape[0]):
-            for y in range(self.state_space.shape[1]):
-                for z in range(self.state_space.shape[2]):
-                    if self.state_space[x,y,z].whichAgent() == agent:
-                        # return (x+1,y+1,z+1)
-                        return [x,y,z]
+        if agent == 'F':
+            return self.agentLocation_F
+        if agent == 'M':
+            return self.agentLocation_M
+        # for x in range(self.state_space.shape[0]):
+        #     for y in range(self.state_space.shape[1]):
+        #         for z in range(self.state_space.shape[2]):
+        #             if self.state_space[x,y,z].whichAgent() == agent:
+        #                 # return (x+1,y+1,z+1)
+        #                 return [x,y,z]
                     
     def visualize(self):
         block_size = 50  # size of each cell in pixels
