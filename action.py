@@ -1,6 +1,6 @@
 class Action:
         
-        def isEastApplicable(self, _agentLocation, _stateSpace):
+        def isEastApplicable( _agentLocation, _stateSpace):
             # bounds check
             if _agentLocation[0] >= 2:
                 return False
@@ -66,34 +66,34 @@ class Action:
             
             return True
 
-        def moveEast(_agentLocation, _stateSpace):
+        def moveEast(self, _agentLocation, _stateSpace):
             # perform bounds check
-            if isEastApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
+            if self.isEastApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
                 _agentLocation = [_agentLocation[0] + 1, _agentLocation[1], _agentLocation[2]]
         
-        def moveWest(_agentLocation, _stateSpace):
+        def moveWest(self, _agentLocation, _stateSpace):
             # perform bounds check
-            if isWestApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
+            if self.isWestApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
                 _agentLocation = [_agentLocation[0] - 1, _agentLocation[1], _agentLocation[2]]
 
-        def moveNorth(_agentLocation, _stateSpace):
+        def moveNorth(self, _agentLocation, _stateSpace):
             # perform bounds check
-            if isNorthApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
+            if self.isNorthApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
                 _agentLocation = [_agentLocation[0], _agentLocation[1] + 1, _agentLocation[2]]
 
-        def moveSouth(_agentLocation, _stateSpace):
+        def moveSouth(self, _agentLocation, _stateSpace):
             # perform bounds check
-            if isSouthApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
+            if self.isSouthApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
                 _agentLocation = [_agentLocation[0], _agentLocation[1] - 1, _agentLocation[2]]
 
-        def moveUp(_agentLocation, _stateSpace):
+        def moveUp(self, _agentLocation, _stateSpace):
             # perform bounds check
-            if isUpApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
+            if self.isUpApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
                 _agentLocation = [_agentLocation[0], _agentLocation[1], _agentLocation[2] + 1]
 
-        def moveDown(_agentLocation, _stateSpace):
+        def moveDown(self, _agentLocation, _stateSpace):
             # perform bounds check
-            if isDownApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
+            if self.isDownApplicable(_agentLocation, _stateSpace): # TODO fix undefined error
                 _agentLocation = [_agentLocation[0], _agentLocation[1], _agentLocation[2] - 1]
 
         # def pickupBlock(Agent, StateSpace):
