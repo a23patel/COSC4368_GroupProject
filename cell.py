@@ -49,7 +49,7 @@ class StateSpace:
         self.state_space = np.empty(shape=(3,3,3), dtype=object, order='C')   # 'C' means row-major order in memory
         self.agentLocation_F = None
         self.agentLocation_M = None
-        self.agentLocations = []
+        self.dropoffLocations = []
 
         # initializing StateSpace as all basic cells
         for x in range(self.state_space.shape[0]):
@@ -72,9 +72,13 @@ class StateSpace:
 
         # dropoff cells
         self.state_space[0, 0, 1].setType('Dropoff')
+        self.dropoffLocations.append([0, 0, 1])
         self.state_space[0, 0, 2].setType('Dropoff')
+        self.dropoffLocations.append([0, 0, 2])
         self.state_space[2, 0, 0].setType('Dropoff')
+        self.dropoffLocations.append([2, 0, 0])
         self.state_space[2, 1, 2].setType('Dropoff')
+        self.dropoffLocations.append([2, 1, 2])
 
         # risk cells
         self.state_space[1, 1, 1].setType('Risk')
@@ -138,6 +142,19 @@ class StateSpace:
                           f"\tagent:\t{cell.whichAgent()}\n"
                           f"\tblocks:\t{cell.getNumBlocks()}\n"
                           f"\tcost:\t{cell.getCost()}")
+                    
+    def complete(self):
+        loc = self.dropoffLocations
+        if self.state_space[loc[0, 0], loc[0, 1], loc[0, 2]].numBlocks != 5:
+            return False
+        if self.state_space[loc[1, 0], loc[1, 1], loc[1, 2]].numBlocks != 5:
+            return False
+        if self.state_space[loc[2, 0], loc[2, 1], loc[2, 2]].numBlocks != 5:
+            return False
+        if self.state_space[loc[3, 0], loc[3, 1], loc[3, 2]].numBlocks != 5:
+            return False
+        
+        return True
 
 # create a StateSpace instance
 # ss = StateSpace() # moved to main.py
