@@ -170,7 +170,7 @@ class VSAgent(Agent):
         super().__init__(agent, VSSpace(), policy, init_state)
 
 # Here are defined the basic agents used for testing:
-# TODO just one for now
+# TODO implement more later
 
 class VSQRandomAgent(VSAgent, QLAgent):
     """

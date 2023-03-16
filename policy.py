@@ -33,6 +33,7 @@ class Policy:
         """
         Returns True if the given action is applicable given the current state
         """
+        # TODO this is going to get replaced with something in the Action module?
         a = Action()
         # Location of this agent
         loc = state.getLocation(self.agent)
@@ -100,14 +101,13 @@ class PRandom(Policy):
         self.pi = lambda s, _: self.random(s)
 
     def random(self, state):
-        if state == 'pickup':
-            return 'pickup'
-        elif state == 'dropoff':
-            return 'dropoff'
+        valid_actions = self.get_applicable_actions(state)
+        if 'Pickup' in valid_actions:
+            return 'Pickup'
+        elif 'Dropoff' in valid_actions:
+            return 'Dropoff'
         else:
-            valid_actions = self.get_applicable_actions(state)
-            action_taken = self.rng.choice(valid_actions)
-            return action_taken
+            return self.rng.choice(valid_actions)
         
 class PGreedy(Policy):
     """
@@ -118,15 +118,20 @@ class PGreedy(Policy):
         self.pi = lambda s, rs, qs: self.greedy(s, rs, qs)
 
     def greedy(self, state, rlstate, table):
-        # TODO fix this sketch
-        if state == 'pickup':
-            return 'pickup'
-        elif state == 'dropoff':
-            return 'dropoff'
+        valid_actions = self.get_applicable_actions(state)
+        if 'Pickup' in valid_actions:
+            return 'Pickup'
+        elif 'Dropoff' in valid_actions:
+            return 'Dropoff'
         else:
-            valid_actions = self.get_applicable_actions(state)
-            # TODO implement choose greedy option
-            return None
+            best_q = -2**32
+            best_a = None
+            for action in valid_actions:
+                this_q = table[action][rlstate]
+                if this_q > best_q:
+                    best_q = this_q
+                    best_a = action
+            return best_a
 
 class PExploit(PRandom, PGreedy):
     """
@@ -137,13 +142,7 @@ class PExploit(PRandom, PGreedy):
         self.pi = lambda s, rs, qs: self.exploit(s, rs, qs)
 
     def exploit(self, state, rlstate, table):
-        if state == 'pickup':
-            return 'pickup'
-        elif state == 'dropoff':
-            return 'dropoff'
+        if self.rng.random() >= 0.8:
+            return self.random(state)
         else:
-            use_random = self.rng.random() > 0.8
-            if use_random:
-                return self.random(state)
-            else:
-                return self.greedy(state, rlstate, table)
+            return self.greedy(state, rlstate, table)
