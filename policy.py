@@ -142,7 +142,7 @@ class PExploit(PRandom, PGreedy):
         self.pi = lambda s, rs, qs: self.exploit(s, rs, qs)
 
     def exploit(self, state, rlstate, table):
-        if self.rng.random() >= 0.8:
+        if self.rng.random() >= 0.85:
             return self.random(state)
         else:
             return self.greedy(state, rlstate, table)
