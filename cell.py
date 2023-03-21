@@ -49,7 +49,12 @@ class StateSpace:
         self.state_space = np.empty(shape=(3,3,3), dtype=object, order='C')   # 'C' means row-major order in memory
         self.agentLocation_F = None
         self.agentLocation_M = None
+        self.package = None
+        self.agentLocations = []
+        self.pickupLocations = []
         self.dropoffLocations = []
+
+
 
         # initializing StateSpace as all basic cells
         for x in range(self.state_space.shape[0]):
@@ -68,7 +73,10 @@ class StateSpace:
         
         #pickup cells
         self.state_space[1, 1, 0].setType('Pickup')
+        self.pickupLocations.append([1, 1, 0])
         self.state_space[2, 2, 1].setType('Pickup')
+        self.pickupLocations.append([2, 2, 1])
+
 
         # dropoff cells
         self.state_space[0, 0, 1].setType('Dropoff')
@@ -95,7 +103,65 @@ class StateSpace:
         #             if self.state_space[x,y,z].whichAgent() == agent:
         #                 # return (x+1,y+1,z+1)
         #                 return [x,y,z]
+
+    def isCarrying(self):
+        return self.package is not None
+    
+    # checking if an agent is carrying a package/block corresponding to the location of the agent
+    def isAgentCarrying(self, agent):
+        if agent == 'F':
+            return self.state_space[self.agentLocation_F[0], self.agentLocation_F[1], self.agentLocation_F[2]].isCarrying()
+        if agent == 'M':
+            return self.state_space[self.agentLocation_M[0], self.agentLocation_M[1], self.agentLocation_M[2]].isCarrying()
+
+    # checking if cell at given location is pickup cell   
+    def isPickup(self, loc):
+        return self.state_space[loc[0], loc[1], loc[2]].getType() == 'Pickup'
+    
+    # checking if cell at given location is dropoff cell   
+    def isDropoff(self, loc):
+        return self.state_space[loc[0], loc[1], loc[2]].getType() == 'Dropoff'
+    
+    def modifyLocation(self, old_loc, new_loc):
+        # getting the cell object at the old location
+        old_cell = self.state_space[old_loc[0], old_loc[1], old_loc[2]]
+        
+        # getting the cell object at the new location
+        new_cell = self.state_space[new_loc[0], new_loc[1], new_loc[2]]
+        
+        # check if the new location is already occupied
+        if new_cell.is_occupied():
+            return False
+        
+        # updating the list of pickup or dropoff locations
+        if new_cell.getType() == 'Pickup':
+            self.pickupLocations.remove(old_loc)
+            self.pickupLocations.append(new_loc)
+        else:
+            self.dropoffLocations.remove(old_loc)
+            self.dropoffLocations.append(new_loc)
+        
+        
+        return True
                     
+    def moveAgent(self, agent_type, new_location):
+        if agent_type == 'F':
+            current_location = self.agentLocation_F
+        elif agent_type == 'M':
+            current_location = self.agentLocation_M
+
+        # Moving the agent to the new location
+        self.state_space[current_location[0], current_location[1], current_location[2]].removeAgent()
+        self.state_space[new_location[0], new_location[1], new_location[2]].addAgent(agent_type)
+    
+        # Updating the agent location
+        if agent_type == 'F':
+            self.agentLocation_F = new_location
+            self.agentLocations.append(self.agentLocation_F)
+        elif agent_type == 'M':
+            self.agentLocation_M = new_location
+            self.agentLocations.append(self.agentLocation_M)
+
     def visualize(self):
         block_size = 50  # size of each cell in pixels
         grid_width = self.state_space.shape[0] * block_size

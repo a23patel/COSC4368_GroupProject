@@ -69,32 +69,44 @@ class Action:
         def moveEast(self, _agentLocation, _stateSpace):
             # perform check
             if self.isEastApplicable(_agentLocation, _stateSpace): 
-                _agentLocation = [_agentLocation[0] + 1, _agentLocation[1], _agentLocation[2]]
+                new_location = [self._agentLocation[0] + 1, self._agentLocation[1], self._agentLocation[2]]
+                _stateSpace.moveAgent('F', new_location)
+            return new_location
         
         def moveWest(self, _agentLocation, _stateSpace):
             # perform check
             if self.isWestApplicable(_agentLocation, _stateSpace):
-                _agentLocation = [_agentLocation[0] - 1, _agentLocation[1], _agentLocation[2]]
-
+                new_location = [self._agentLocation[0] - 1, self._agentLocation[1], self._agentLocation[2]]
+                _stateSpace.moveAgent('F', new_location)
+            return new_location
+                
         def moveNorth(self, _agentLocation, _stateSpace):
             # perform check
             if self.isNorthApplicable(_agentLocation, _stateSpace): 
-                _agentLocation = [_agentLocation[0], _agentLocation[1] + 1, _agentLocation[2]]
+                new_location = [self._agentLocation[0] , self._agentLocation[1] + 1, self._agentLocation[2]]
+                _stateSpace.moveAgent('F', new_location)
+            return new_location
 
         def moveSouth(self, _agentLocation, _stateSpace):
             # perform check
             if self.isSouthApplicable(_agentLocation, _stateSpace): 
-                _agentLocation = [_agentLocation[0], _agentLocation[1] - 1, _agentLocation[2]]
+                new_location = [self._agentLocation[0] , self._agentLocation[1] - 1 , self._agentLocation[2]]
+                _stateSpace.moveAgent('F', new_location)
+            return new_location
 
         def moveUp(self, _agentLocation, _stateSpace):
             # perform check
             if self.isUpApplicable(_agentLocation, _stateSpace): 
-                _agentLocation = [_agentLocation[0], _agentLocation[1], _agentLocation[2] + 1]
+               new_location = [self._agentLocation[0] , self._agentLocation[1], self._agentLocation[2] + 1]
+               _stateSpace.moveAgent('F', new_location)
+            return new_location
 
         def moveDown(self, _agentLocation, _stateSpace):
             # perform check
             if self.isDownApplicable(_agentLocation, _stateSpace): 
-                _agentLocation = [_agentLocation[0], _agentLocation[1], _agentLocation[2] - 1]
+               new_location = [self._agentLocation[0] + 1, self._agentLocation[1], self._agentLocation[2] - 1]
+               _stateSpace.moveAgent('F', new_location)
+            return new_location
 
         # def pickupBlock(agent, stateSpace):
             # check Cell type == 'Pickup'
