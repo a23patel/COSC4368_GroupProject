@@ -45,12 +45,12 @@ def main():
     # move to nearest pickup cell
     RW.printSS()
     print('##################################################')
-    a.moveNorth(RW.locF, RW)
-    a.moveEast(RW.locF, RW)
-    a.pickupBlock(RW.locF, RW)
-    a.moveSouth(RW.locF, RW)
-    a.moveEast(RW.locF, RW)
-    a.dropoffBlock(RW.locF, RW)
+    a.moveNorth('F', RW)
+    a.moveEast('F', RW)
+    a.pickupBlock('F', RW)
+    a.moveSouth('F', RW)
+    a.moveEast('F', RW)
+    a.dropoffBlock('F', RW)
     RW.printSS()
 
     # visualize the StateSpace
