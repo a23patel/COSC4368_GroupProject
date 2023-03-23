@@ -8,11 +8,11 @@ class Action:
     ssObj - StateSpace Class object
     """
     def isPickupApplicable(self, agent, ssObj):
-        if agent == 'F':
-            loc = ssObj.locF
-        if agent == 'M':
-            loc = ssObj.locM
-
+        """
+        returns True if agent can validly pick up a block and False otherwise
+        """
+        loc = ssObj.getLocation(agent)
+        
         # check cell type
         if ssObj.state_space[loc[0], loc[1], loc[2]].getType() != 'Pickup':
             return False
@@ -32,10 +32,10 @@ class Action:
         return True
 
     def isDropoffApplicable(self, agent, ssObj):
-        if agent == 'F':
-            loc = ssObj.locF
-        if agent == 'M':
-            loc = ssObj.locM
+        """
+        returns True if agent can validly drop off a block and False otherwise
+        """
+        loc = ssObj.getLocation(agent)
 
         # check cell type
         if ssObj.state_space[loc[0], loc[1], loc[2]].getType() != 'Dropoff':
@@ -56,10 +56,10 @@ class Action:
         return True
 
     def isEastApplicable(self, agent, ssObj):
-        if agent == 'F':
-            loc = ssObj.locF
-        if agent == 'M':
-            loc = ssObj.locM
+        """
+        returns True if agent can validly move east and False otherwise
+        """
+        loc = ssObj.getLocation(agent)
 
         # bounds check
         if loc[0] >= 2:
@@ -72,10 +72,10 @@ class Action:
         return True
 
     def isWestApplicable(self, agent, ssObj):
-        if agent == 'F':
-            loc = ssObj.locF
-        if agent == 'M':
-            loc = ssObj.locM
+        """
+        returns True if agent can validly move west and False otherwise
+        """
+        loc = ssObj.getLocation(agent)
 
         # bounds check
         if loc[0] <= 0:
@@ -88,10 +88,10 @@ class Action:
         return True
 
     def isNorthApplicable(self, agent, ssObj):
-        if agent == 'F':
-            loc = ssObj.locF
-        if agent == 'M':
-            loc = ssObj.locM
+        """
+        returns True if agent can validly move north and False otherwise
+        """
+        loc = ssObj.getLocation(agent)
 
         # bounds check
         if loc[1] >= 2:
@@ -104,10 +104,10 @@ class Action:
         return True
 
     def isSouthApplicable(self, agent, ssObj):
-        if agent == 'F':
-            loc = ssObj.locF
-        if agent == 'M':
-            loc = ssObj.locM
+        """
+        returns True if agent can validly move south and False otherwise
+        """
+        loc = ssObj.getLocation(agent)
 
         # bounds check
         if loc[1] <= 0:
@@ -120,10 +120,10 @@ class Action:
         return True
 
     def isUpApplicable(self, agent, ssObj):
-        if agent == 'F':
-            loc = ssObj.locF
-        if agent == 'M':
-            loc = ssObj.locM
+        """
+        returns True if agent can validly move up and False otherwise
+        """
+        loc = ssObj.getLocation(agent)
 
         # bounds check
         if loc[2] >= 2:
@@ -136,10 +136,10 @@ class Action:
         return True
 
     def isDownApplicable(self, agent, ssObj):
-        if agent == 'F':
-            loc = ssObj.locF
-        if agent == 'M':
-            loc = ssObj.locM
+        """
+        returns True if agent can validly move down and False otherwise
+        """
+        loc = ssObj.getLocation(agent)
 
         # bounds check
         if loc[2] <= 0:
@@ -156,10 +156,7 @@ class Action:
         moves an agent east by updating state space object
         returns nothing
         """
-        if agent == 'F':
-            loc = ssObj.locF
-        if agent == 'M':
-            loc = ssObj.locM
+        loc = ssObj.getLocation(agent)
 
         # perform check
         if self.isEastApplicable(agent, ssObj):
@@ -181,10 +178,7 @@ class Action:
         moves an agent west by updating state space object
         returns nothing
         """
-        if agent == 'F':
-            loc = ssObj.locF
-        if agent == 'M':
-            loc = ssObj.locM
+        loc = ssObj.getLocation(agent)
 
         # perform check
         if self.isWestApplicable(agent, ssObj):
@@ -206,10 +200,7 @@ class Action:
         moves an agent north by updating state space object
         returns nothing
         """
-        if agent == 'F':
-            loc = ssObj.locF
-        if agent == 'M':
-            loc = ssObj.locM
+        loc = ssObj.getLocation(agent)
 
         # perform check
         if self.isNorthApplicable(agent, ssObj):
@@ -231,10 +222,7 @@ class Action:
         moves an agent south by updating state space object
         returns nothing
         """
-        if agent == 'F':
-            loc = ssObj.locF
-        if agent == 'M':
-            loc = ssObj.locM
+        loc = ssObj.getLocation(agent)
 
         # perform check
         if self.isSouthApplicable(agent, ssObj):
@@ -256,10 +244,7 @@ class Action:
         moves an agent up by updating state space object
         returns nothing
         """
-        if agent == 'F':
-            loc = ssObj.locF
-        if agent == 'M':
-            loc = ssObj.locM
+        loc = ssObj.getLocation(agent)
 
         # perform check
         if self.isUpApplicable(agent, ssObj):
@@ -281,10 +266,7 @@ class Action:
         moves an agent down by updating state space object
         returns nothing
         """
-        if agent == 'F':
-            loc = ssObj.locF
-        if agent == 'M':
-            loc = ssObj.locM
+        loc = ssObj.getLocation(agent)
 
         # perform check
         if self.isDownApplicable(agent, ssObj):
@@ -306,10 +288,7 @@ class Action:
         picks up a block by updating state space object
         returns nothing
         """
-        if agent == 'F':
-            loc = ssObj.locF
-        if agent == 'M':
-            loc = ssObj.locM
+        loc = ssObj.getLocation(agent)
 
         # perform check
         if self.isPickupApplicable(agent, ssObj):
@@ -326,10 +305,7 @@ class Action:
         drops off a block by updating state space object
         returns nothing
         """
-        if agent == 'F':
-            loc = ssObj.locF
-        if agent == 'M':
-            loc = ssObj.locM
+        loc = ssObj.getLocation(agent)
 
         # perform check
         if self.isDropoffApplicable(agent, ssObj):
