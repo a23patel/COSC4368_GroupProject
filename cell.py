@@ -2,6 +2,7 @@ class Cell:
     """
     Class to compose the RW state space
     """
+
     def __init__(self):
         """
         Constructor for Basic cell to initialize RW state space
@@ -16,7 +17,7 @@ class Cell:
         self.occupancy = []
         self.numBlocks = 0
         self.cost = -1
-    
+
     def getType(self):
         """
         returns the type of cell
@@ -36,13 +37,13 @@ class Cell:
         if type == 'Risk':
             self.cost = -2
         self.type = type
-    
+
     def is_occupied(self):
         """
         returns True if agent in cell and False otherwise
         """
         return bool(self.occupancy)
-    
+
     def whichAgent(self):
         """
         if occupied, returns 'M' or 'F'
@@ -50,14 +51,14 @@ class Cell:
         """
         if self.is_occupied():
             return self.occupancy[0]
-        
+
     def addAgent(self, agent):
         """
         adds agent to unoccupied cell
         argument:
         agent - 'F' for female agent; 'M' for male agent
         """
-        if not(self.is_occupied()):
+        if not (self.is_occupied()):
             self.occupancy.append(agent)
 
     def removeAgent(self, agent):
@@ -74,7 +75,7 @@ class Cell:
         returns the number of blocks in cell
         """
         return self.numBlocks
-    
+
     def addBlock(self):
         """
         adds a block to Dropoff cell by incrementing numBlocks if there are less than 5 blocks present
@@ -89,7 +90,7 @@ class Cell:
         """
         if self.type == 'Pickup' and self.numBlocks > 0:
             self.numBlocks -= 1
-            
+
     def getCost(self):
         """
         returns the cost of cell

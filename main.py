@@ -14,6 +14,7 @@ femaleAgent = 'F'
 action = 'random action'
 
 # main event loop
+# TODO rewards
 def main():
     q = Queue(maxsize=2)
     q.put(femaleAgent) # always goes first
@@ -37,7 +38,7 @@ def main():
 
 
     # testing StateSpace & Action classes
-    RW = StateSpace()
+    RW = StateSpace('original')
     a = Action()
 
     # female agent
@@ -51,6 +52,9 @@ def main():
     a.moveEast(RW.locF, RW)
     a.dropoffBlock(RW.locF, RW)
     RW.printSS()
+
+    # visualize the StateSpace
+    # ss.visualize()
 
 if __name__ == "__main__":
     main()
