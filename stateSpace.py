@@ -32,47 +32,47 @@ class StateSpace:
         self.locDrop = []
         self.locPick = []
 
-        # initializing state_space as all basic cells
+        # initializing state_space as all normal cells
         for x in range(self.state_space.shape[0]):
             for y in range(self.state_space.shape[1]):
                 for z in range(self.state_space.shape[2]):
                     self.state_space[x, y, z] = Cell()
 
         # female agent
-        self.state_space[0, 0, 0].addAgent('F')
+        self.state_space[0, 0, 0].add_agent('F')
         self.locF = [0, 0, 0]
 
         # male agent
-        self.state_space[2, 1, 2].addAgent('M')
+        self.state_space[2, 1, 2].add_agent('M')
         self.locM = [2, 1, 2]
 
         # pickup cells
         if experiment == 'original':
-            self.state_space[1, 1, 0].setType('Pickup')
+            self.state_space[1, 1, 0].set_type('Pickup')
             self.locPick.append([1, 1, 0])
-            self.state_space[2, 2, 1].setType('Pickup')
+            self.state_space[2, 2, 1].set_type('Pickup')
             self.locPick.append([2, 2, 1])
         elif experiment == 'modified':
-            self.state_space[1, 2, 2].setType('Pickup')
+            self.state_space[1, 2, 2].set_type('Pickup')
             self.locPick.append([1, 2, 2])
-            self.state_space[0, 2, 0].setType('Pickup')
+            self.state_space[0, 2, 0].set_type('Pickup')
             self.locPick.append([0, 2, 0])
 
         # dropoff cells
-        self.state_space[0, 0, 1].setType('Dropoff')
+        self.state_space[0, 0, 1].set_type('Dropoff')
         self.locDrop.append([0, 0, 1])
-        self.state_space[0, 0, 2].setType('Dropoff')
+        self.state_space[0, 0, 2].set_type('Dropoff')
         self.locDrop.append([0, 0, 2])
-        self.state_space[2, 0, 0].setType('Dropoff')
+        self.state_space[2, 0, 0].set_type('Dropoff')
         self.locDrop.append([2, 0, 0])
-        self.state_space[2, 1, 2].setType('Dropoff')
+        self.state_space[2, 1, 2].set_type('Dropoff')
         self.locDrop.append([2, 1, 2])
 
         # risk cells
-        self.state_space[1, 1, 1].setType('Risk')
-        self.state_space[2, 1, 0].setType('Risk')
+        self.state_space[1, 1, 1].set_type('Risk')
+        self.state_space[2, 1, 0].set_type('Risk')
 
-    def getLocation(self, agent):
+    def get_location(self, agent):
         """
         returns (x,y,z) coordinates of agent
         argument:
@@ -82,8 +82,34 @@ class StateSpace:
             return self.locF
         if agent == 'M':
             return self.locM
+        
+    def update_agent_loc(self, agent, loc):
+        """
+        updates the location of agent
+        returns nothing
+        arguments:
+        agent - 'F' for female agent; 'M' for male agent
+        loc - (x,y,z) coordinates to assign to agent locaction
+        """
+        if agent == 'F':
+            self.locF = loc
+        if agent == 'M':
+            self.locM = loc
 
-    def isAgentCarrying(self, agent):
+    def update_agent_carrying(self, agent, bool):
+        """
+        updates whether agent is carrying block
+        returns nothing
+        arguments:
+        agent - 'F' for female agent; 'M' for male agent
+        bool - boolean value to assign to agent carrying attribute
+        """
+        if agent == 'F':
+            self.carF = bool
+        if agent == 'M':
+            self.carM = bool
+
+    def is_agent_carrying(self, agent):
         """
         returns True if agent is carrying a block and False otherwise
         argument:
@@ -94,23 +120,23 @@ class StateSpace:
         if agent == 'M':
             return self.carM
 
-    def isPickup(self, loc):
+    def is_pickup(self, loc):
         """
         returns True if cell is Pickup and False otherwise
         argument:
         loc - (x,y,z) coordinates of a cell
         """
-        return self.state_space[loc[0], loc[1], loc[2]].getType() == 'Pickup'
+        return self.state_space[loc[0], loc[1], loc[2]].get_type() == 'Pickup'
 
-    def isDropoff(self, loc):
+    def is_dropoff(self, loc):
         """
         returns True if cell is Dropoff and False otherwise
         argument:
         loc - (x,y,z) coordinates of a cell
         """
-        return self.state_space[loc[0], loc[1], loc[2]].getType() == 'Dropoff'
+        return self.state_space[loc[0], loc[1], loc[2]].get_type() == 'Dropoff'
     
-    def performAction(self, agent, action):
+    def perform_action(self, agent, action):
         """
         performs action by calling appropriate Action method
         arguments:
@@ -119,21 +145,21 @@ class StateSpace:
         """
         a = Action()
         if action == 'Pickup':
-            a.pickupBlock(agent, self)
+            a.pickup_block(agent, self)
         if action == 'Dropoff':
-            a.dropoffBlock(agent, self)
+            a.dropoff_block(agent, self)
         if action == 'E':
-            a.moveEast(agent, self)
+            a.move_east(agent, self)
         if action == 'W':
-            a.moveWest(agent, self)
+            a.move_west(agent, self)
         if action == 'N':
-            a.moveNorth(agent, self)
+            a.move_north(agent, self)
         if action == 'S':
-            a.moveSouth(agent, self)
+            a.move_south(agent, self)
         if action == 'U':
-            a.moveUp(agent, self)
+            a.move_up(agent, self)
         if action == 'D':
-            a.moveDown(agent, self)
+            a.move_down(agent, self)
 
     def visualize(self):
         block_size = 50  # size of each cell in pixels
@@ -150,14 +176,14 @@ class StateSpace:
             for y in range(self.state_space.shape[1]):
                 for z in range(self.state_space.shape[2]):
                     self.state_space[x, y, z]
-                    agent = cell.whichAgent()
-                    block_type = cell.getType()
+                    agent = cell.which_agent()
+                    block_type = cell.get_type()
 
                     # calculate top-left corner of cell
                     top_left = (x * block_size, y * block_size)
 
                     # draw cell as a rectangle
-                    color = (255, 255, 255)  # white color for basic cell
+                    color = (255, 255, 255)  # white color for normal cell
                     if block_type == 'Pickup':
                         color = (0, 255, 0)  # green color for pickup cell
                     elif block_type == 'Dropoff':
@@ -167,14 +193,14 @@ class StateSpace:
 
                     # draw agent in a cell
                     if agent is not None:
-                        self.getLocation(agent)
+                        self.get_location(agent)
                         cv2.circle(grid, (int(top_left[0] + block_size/2), int(top_left[1] + block_size/2)), int(
                             block_size/4), (255, 255, 0), -1)  # yellow circle for agent
 
         cv2.imshow('State Space', grid)
         cv2.waitKey(0)
 
-    def printSS(self):
+    def print_ss(self):
         """
         prints information about each cell in state_space
         """
@@ -183,12 +209,12 @@ class StateSpace:
                 for x in range(3):
                     cell = self.state_space[x, y, z]
                     print(f"({x+1},{y+1},{z+1})\n"
-                          f"\ttype:\t{cell.getType()}\n"
-                          f"\tagent:\t{cell.whichAgent()}\n"
-                          f"\tblocks:\t{cell.getNumBlocks()}\n"
-                          f"\tcost:\t{cell.getCost()}")
+                          f"\ttype:\t{cell.get_type()}\n"
+                          f"\tagent:\t{cell.which_agent()}\n"
+                          f"\tblocks:\t{cell.get_num_blocks()}\n"
+                          f"\tcost:\t{cell.get_cost()}")
 
-    def complete(self):
+    def is_complete(self):
         """
         returns True if all Pickup cells contain 5 blocks and False otherwise
         """

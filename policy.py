@@ -36,13 +36,13 @@ class Policy:
         # TODO this is going to get replaced with something in the Action module?
         a = Action()
         # Location of this agent
-        loc = state.getLocation(self.agent)
+        loc = state.get_location(self.agent)
         # Location of other agent
-        oloc = state.getLocation('F' if self.agent == 'M' else 'M')
+        oloc = state.get_location('F' if self.agent == 'M' else 'M')
         # Status of agent TODO this does not match API
-        is_carrying = state.isAgentCarrying(self.agent)
-        is_in_pickup = state.isPickup(loc)
-        is_in_dropoff = state.isDropoff(loc)
+        is_carrying = state.is_agent_carrying(self.agent)
+        is_in_pickup = state.is_pickup(loc)
+        is_in_dropoff = state.is_dropoff(loc)
         # TODO purge this old code
         # other_agent_north = (loc[0] == oloc[0]) and (loc[1] == oloc[1] - 1) and (loc[2] == oloc[2])
         # other_agent_south = (loc[0] == oloc[0]) and (loc[1] == oloc[1] + 1) and (loc[2] == oloc[2])
@@ -74,17 +74,17 @@ class Policy:
         # elif action == 'D':
         #     return can_down and not other_agent_down
         elif action == 'N':
-            return a.isNorthApplicable(loc, state)
+            return a.is_north_applicable(loc, state)
         elif action == 'S':
-            return a.isSouthApplicable(loc, state)
+            return a.is_south_applicable(loc, state)
         elif action == 'W':
-            return a.isWestApplicable(loc, state)
+            return a.is_west_applicable(loc, state)
         elif action == 'E':
-            return a.isEastApplicable(loc, state)
+            return a.is_east_applicable(loc, state)
         elif action == 'U':
-            return a.isUpApplicable(loc, state)
+            return a.is_up_applicable(loc, state)
         elif action == 'D':
-            return a.isDownApplicable(loc, state)
+            return a.is_down_applicable(loc, state)
 
     def get_applicable_actions(self, state):
         """

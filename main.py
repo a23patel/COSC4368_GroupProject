@@ -44,8 +44,8 @@ def experiment_1(subExperiment):
     n = 0
     while True:
         
-        # F or M
-        whichAgent = q.get()
+        # 'F' or 'M'
+        curAgent = q.get()
         
         if RW.carF:
             i = 1
@@ -56,47 +56,47 @@ def experiment_1(subExperiment):
         else:
             iPrime = 0
 
-        # state of RW
+        # list or StateSpace object?
         state = [RW.locF[0], RW.locF[1], RW.locF[2], # x, y, z,
                  RW.locM[0], RW.locM[1], RW.locM[2], # x', y', z',
                  i, iPrime,                          # i, i',
-                 RW.locPick[0].getNumBlocks(),       # a,
-                 RW.locPick[1].getNumBlocks(),       # b,
-                 RW.locPick[2].getNumBlocks(),       # c,
-                 RW.locPick[3].getNumBlocks(),       # d,
-                 RW.locDrop[0].getNumBlocks(),       # e,
-                 RW.locDrop[1].getNumBlocks()]       # f,
+                 RW.locPick[0].get_num_blocks(),       # a,
+                 RW.locPick[1].get_num_blocks(),       # b,
+                 RW.locPick[2].get_num_blocks(),       # c,
+                 RW.locPick[3].get_num_blocks(),       # d,
+                 RW.locDrop[0].get_num_blocks(),       # e,
+                 RW.locDrop[1].get_num_blocks()]       # f,
         
         # choose action
-        if whichAgent == 'F':
-            action = agentF.chooseAction(state)
-        if whichAgent == 'M':
-            action = agentF.chooseAction(state)
+        if curAgent == 'F':
+            action = agentF.choose_action(state)
+        if curAgent == 'M':
+            action = agentF.choose_action(state)
         
         # perform action (assuming action is a character)
-        RW.performAction(whichAgent, action)
+        RW.perform_action(curAgent, action)
 
         # TODO rewards
 
         # agent updates its Qtable
-        if whichAgent == 'F':
+        if curAgent == 'F':
             agentF._update_table()
-        if whichAgent == 'M':
+        if curAgent == 'M':
             agentM._update_table()
         
         # check completion criterion
-        if RW.complete():
+        if RW.is_complete():
             break
 
-        # visualization 
-        if n % 1000 == 0: # every 1000 moves
-            RW.printSS()
+        # visualization every 5,000 moves
+        if n+1 % 5000 == 0:
+            RW.print_ss()
 
-        # store distance between agents after M moves
+        # store distance between agents after 'M' moves
         if n % 2 != 0:
             distList.append(distance(RW.locF, RW.locM))
 
-        q.put(whichAgent)
+        q.put(curAgent)
         n += 1
 
         # switch policy after first 500 moves for 1b & 1c
@@ -117,15 +117,18 @@ def main():
     
     # testing StateSpace & Action classes
     RW = StateSpace('original')
-    RW.printSS()
+    RW.print_ss()
     print('##################################################')
-    RW.performAction('F','N')
-    RW.performAction('F','E')
-    RW.performAction('F','Pickup')
-    RW.performAction('F','S')
-    RW.performAction('F','E')
-    RW.performAction('F','Dropoff')
-    RW.printSS()
+    RW.perform_action('F','N')
+    RW.perform_action('F','E')
+    RW.perform_action('F','Pickup') # TODO fix
+    RW.perform_action('F','S')
+    RW.perform_action('F','E')
+    RW.perform_action('F','Dropoff') # TODO fix
+    RW.print_ss()
+    # expecting the following:
+    # F at Dropoff (3,1,1) with 1 block
+    # Pickup (2,2,1) has 9 blocks
 
     # visualize the StateSpace
     # ss.visualize()

@@ -2,29 +2,28 @@ class Cell:
     """
     Class to compose the RW state space
     """
-
     def __init__(self):
         """
-        Constructor for Basic cell to initialize RW state space
+        Constructor for Normal cell to initialize RW state space
 
         Properties:
-        type - cells are 'Basic', 'Pickup', 'Dropoff', or 'Risk' type
+        type - cells are 'Normal', 'Pickup', 'Dropoff', or 'Risk' type
         occupancy - list to hold a single agent
         numBlocks - number of blocks
         cost - Risk cells cost -2, all other types cost -1
         """
-        self.type = 'Basic'
+        self.type = 'Normal'
         self.occupancy = []
         self.numBlocks = 0
         self.cost = -1
 
-    def getType(self):
+    def get_type(self):
         """
         returns the type of cell
         """
         return self.type
 
-    def setType(self, type):
+    def set_type(self, type):
         """
         sets type of cell
         Pickup cells start with 10 blocks
@@ -44,7 +43,7 @@ class Cell:
         """
         return bool(self.occupancy)
 
-    def whichAgent(self):
+    def which_agent(self):
         """
         if occupied, returns 'M' or 'F'
         if unoccupied, returns None
@@ -52,7 +51,7 @@ class Cell:
         if self.is_occupied():
             return self.occupancy[0]
 
-    def addAgent(self, agent):
+    def add_agent(self, agent):
         """
         adds agent to unoccupied cell
         argument:
@@ -61,7 +60,7 @@ class Cell:
         if not (self.is_occupied()):
             self.occupancy.append(agent)
 
-    def removeAgent(self, agent):
+    def remove_agent(self, agent):
         """
         removes agent from occupied cell
         argument:
@@ -70,13 +69,13 @@ class Cell:
         if self.is_occupied():
             self.occupancy.remove(agent)
 
-    def getNumBlocks(self):
+    def get_num_blocks(self):
         """
         returns the number of blocks in cell
         """
         return self.numBlocks
 
-    def addBlock(self):
+    def add_block(self):
         """
         adds a block to Dropoff cell by incrementing numBlocks if there are less than 5 blocks present
         capacity of Dropoff cells is 5 blocks
@@ -84,14 +83,14 @@ class Cell:
         if self.type == 'Dropoff' and self.numBlocks < 5:
             self.numBlocks += 1
 
-    def removeBlock(self):
+    def remove_block(self):
         """
         removes a block from Pickup cell by decrementing numBlocks if there is at least one block present
         """
         if self.type == 'Pickup' and self.numBlocks > 0:
             self.numBlocks -= 1
 
-    def getCost(self):
+    def get_cost(self):
         """
         returns the cost of cell
         """
