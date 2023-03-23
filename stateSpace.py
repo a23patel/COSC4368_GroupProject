@@ -110,6 +110,31 @@ class StateSpace:
         loc - (x,y,z) coordinates of a cell
         """
         return self.state_space[loc[0], loc[1], loc[2]].getType() == 'Dropoff'
+    
+    def performAction(self, agent, action):
+        """
+        performs action by calling appropriate Action method
+        arguments:
+        agent - 'F' for female agent; 'M' for male agent
+        action - 'Pickup', 'Dropoff', 'E', 'W', 'N', 'S', 'U', or 'D'
+        """
+        a = Action()
+        if action == 'Pickup':
+            a.pickupBlock(agent, self)
+        if action == 'Dropoff':
+            a.dropoffBlock(agent, self)
+        if action == 'E':
+            a.moveEast(agent, self)
+        if action == 'W':
+            a.moveWest(agent, self)
+        if action == 'N':
+            a.moveNorth(agent, self)
+        if action == 'S':
+            a.moveSouth(agent, self)
+        if action == 'U':
+            a.moveUp(agent, self)
+        if action == 'D':
+            a.moveDown(agent, self)
 
     def visualize(self):
         block_size = 50  # size of each cell in pixels
