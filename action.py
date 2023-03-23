@@ -1,119 +1,264 @@
 class Action:
-        
-        def isEastApplicable(_agentLocation, _stateSpace):
-            # bounds check
-            if _agentLocation[0] >= 2:
+        """
+        Class to facilitate actions taken by agents in StateSpace.
+
+        arguments: (all functions)
+        loc - location of agent
+        ssObj - StateSpace Class object
+        """
+        def isPickupApplicable(self, loc, ssObj):
+            # check cell type
+            if ssObj.state_space[loc[0],loc[1],loc[2]].getType() != 'Pickup':
                 return False
-            # occupied check
-            loc = [_agentLocation[0] + 1, _agentLocation[1], _agentLocation[2]]
-            if _stateSpace[loc[0],loc[1],loc[2]].isOccupied():
+            
+            # check carrying
+            if ssObj.state_space[loc[0],loc[1],loc[2]].whichAgent() == 'F':
+                if ssObj.carF:
+                    return False
+            if ssObj.state_space[loc[0],loc[1],loc[2]].whichAgent() == 'M':
+                if ssObj.carM:
+                    return False
+
+            # check number of blocks
+            if ssObj.state_space[loc[0],loc[1],loc[2]].getNumBlocks() <= 0:
                 return False
             
             return True
         
-        def isWestApplicable(_agentLocation, _stateSpace):
-            # bounds check
-            if _agentLocation[0] <= 0:
+        def isDropoffApplicable(self, loc, ssObj):
+            # check cell type
+            if ssObj.state_space[loc[0],loc[1],loc[2]].getType() != 'Dropoff':
                 return False
-            # occupied check
-            loc = [_agentLocation[0] - 1, _agentLocation[1], _agentLocation[2]]
-            if _stateSpace[loc[0],loc[1],loc[2]].isOccupied():
+            
+            # check carrying
+            if ssObj.state_space[loc[0],loc[1],loc[2]].whichAgent() == 'F':
+                if not ssObj.carF:
+                    return False
+            if ssObj.state_space[loc[0],loc[1],loc[2]].whichAgent() == 'M':
+                if not ssObj.carM:
+                    return False
+
+            # check number of blocks
+            if ssObj.state_space[loc[0],loc[1],loc[2]].getNumBlocks() >= 5:
                 return False
             
             return True
         
-        def isNorthApplicable(_agentLocation, _stateSpace):
+        def isEastApplicable(self, loc, ssObj):
             # bounds check
-            if _agentLocation[1] >= 2:
+            if loc[0] >= 2:
                 return False
             # occupied check
-            loc = [_agentLocation[0], _agentLocation[1] + 1, _agentLocation[2]]
-            if _stateSpace[loc[0],loc[1],loc[2]].isOccupied():
+            loc = [loc[0] + 1, loc[1], loc[2]]
+            if ssObj.state_space[loc[0],loc[1],loc[2]].is_occupied():
                 return False
             
             return True
         
-        def isSouthApplicable(_agentLocation, _stateSpace):
+        def isWestApplicable(self, loc, ssObj):
             # bounds check
-            if _agentLocation[1] <= 0:
+            if loc[0] <= 0:
                 return False
             # occupied check
-            loc = [_agentLocation[0], _agentLocation[1] - 1, _agentLocation[2]]
-            if _stateSpace[loc[0],loc[1],loc[2]].isOccupied():
+            loc = [loc[0] - 1, loc[1], loc[2]]
+            if ssObj.state_space[loc[0],loc[1],loc[2]].is_occupied():
                 return False
             
             return True
         
-        def isUpApplicable(_agentLocation, _stateSpace):
+        def isNorthApplicable(self, loc, ssObj):
             # bounds check
-            if _agentLocation[2] >= 2:
+            if loc[1] >= 2:
                 return False
             # occupied check
-            loc = [_agentLocation[0], _agentLocation[1], _agentLocation[2] + 1]
-            if _stateSpace[loc[0],loc[1],loc[2]].isOccupied():
+            loc = [loc[0], loc[1] + 1, loc[2]]
+            if ssObj.state_space[loc[0],loc[1],loc[2]].is_occupied():
                 return False
             
             return True
         
-        def isDownApplicable(_agentLocation, _stateSpace):
+        def isSouthApplicable(self, loc, ssObj):
             # bounds check
-            if _agentLocation[2] <= 0:
+            if loc[1] <= 0:
                 return False
             # occupied check
-            loc = [_agentLocation[0], _agentLocation[1], _agentLocation[2] - 1]
-            if _stateSpace[loc[0],loc[1],loc[2]].isOccupied():
+            loc = [loc[0], loc[1] - 1, loc[2]]
+            if ssObj.state_space[loc[0],loc[1],loc[2]].is_occupied():
+                return False
+            
+            return True
+        
+        def isUpApplicable(self, loc, ssObj):
+            # bounds check
+            if loc[2] >= 2:
+                return False
+            # occupied check
+            loc = [loc[0], loc[1], loc[2] + 1]
+            if ssObj.state_space[loc[0],loc[1],loc[2]].is_occupied():
+                return False
+            
+            return True
+        
+        def isDownApplicable(self, loc, ssObj):
+            # bounds check
+            if loc[2] <= 0:
+                return False
+            # occupied check
+            loc = [loc[0], loc[1], loc[2] - 1]
+            if ssObj.state_space[loc[0],loc[1],loc[2]].is_occupied():
                 return False
             
             return True
 
-        def moveEast(self, _agentLocation, _stateSpace):
+        def moveEast(self, loc, ssObj):
+            """
+            moves an agent east by updating state space object
+            returns nothing
+            """
             # perform check
-            if self.isEastApplicable(_agentLocation, _stateSpace): 
-                new_location = [self._agentLocation[0] + 1, self._agentLocation[1], self._agentLocation[2]]
-                _stateSpace.moveAgent('F', new_location)
-            return new_location
-        
-        def moveWest(self, _agentLocation, _stateSpace):
-            # perform check
-            if self.isWestApplicable(_agentLocation, _stateSpace):
-                new_location = [self._agentLocation[0] - 1, self._agentLocation[1], self._agentLocation[2]]
-                _stateSpace.moveAgent('F', new_location)
-            return new_location
+            if self.isEastApplicable(loc, ssObj): 
+                newLoc = [loc[0]+1,loc[1],loc[2]]
+                agent = ssObj.state_space[loc[0],loc[1],loc[2]].whichAgent()
                 
-        def moveNorth(self, _agentLocation, _stateSpace):
+                # update state space
+                ssObj.state_space[loc[0],loc[1],loc[2]].removeAgent(agent)
+                ssObj.state_space[newLoc[0],newLoc[1],newLoc[2]].addAgent(agent)
+                
+                # update agent location
+                if agent == 'F':
+                    ssObj.locF = newLoc
+                if agent == 'M':
+                    ssObj.locM = newLoc
+                
+
+        
+        def moveWest(self, loc, ssObj):
+            """
+            moves an agent west by updating state space object
+            returns nothing
+            """
             # perform check
-            if self.isNorthApplicable(_agentLocation, _stateSpace): 
-                new_location = [self._agentLocation[0] , self._agentLocation[1] + 1, self._agentLocation[2]]
-                _stateSpace.moveAgent('F', new_location)
-            return new_location
-
-        def moveSouth(self, _agentLocation, _stateSpace):
+            if self.isWestApplicable(loc, ssObj): 
+                newLoc = [loc[0]-1,loc[1],loc[2]]
+                agent = ssObj.state_space[loc[0],loc[1],loc[2]].whichAgent()
+                
+                # update state space
+                ssObj.state_space[loc[0],loc[1],loc[2]].removeAgent(agent)
+                ssObj.state_space[newLoc[0],newLoc[1],newLoc[2]].addAgent(agent)
+                
+                # update agent location
+                if agent == 'F':
+                    ssObj.locF = newLoc
+                if agent == 'M':
+                    ssObj.locM = newLoc
+                
+        def moveNorth(self, loc, ssObj):
+            """
+            moves an agent north by updating state space object
+            returns nothing
+            """
             # perform check
-            if self.isSouthApplicable(_agentLocation, _stateSpace): 
-                new_location = [self._agentLocation[0] , self._agentLocation[1] - 1 , self._agentLocation[2]]
-                _stateSpace.moveAgent('F', new_location)
-            return new_location
+            if self.isNorthApplicable(loc, ssObj): 
+                newLoc = [loc[0],loc[1]+1,loc[2]]
+                agent = ssObj.state_space[loc[0],loc[1],loc[2]].whichAgent()
+                
+                # update state space
+                ssObj.state_space[loc[0],loc[1],loc[2]].removeAgent(agent)
+                ssObj.state_space[newLoc[0],newLoc[1],newLoc[2]].addAgent(agent)
+                
+                # update agent location
+                if agent == 'F':
+                    ssObj.locF = newLoc
+                if agent == 'M':
+                    ssObj.locM = newLoc
 
-        def moveUp(self, _agentLocation, _stateSpace):
+        def moveSouth(self, loc, ssObj):
+            """
+            moves an agent south by updating state space object
+            returns nothing
+            """
             # perform check
-            if self.isUpApplicable(_agentLocation, _stateSpace): 
-               new_location = [self._agentLocation[0] , self._agentLocation[1], self._agentLocation[2] + 1]
-               _stateSpace.moveAgent('F', new_location)
-            return new_location
+            if self.isSouthApplicable(loc, ssObj): 
+                newLoc = [loc[0],loc[1]-1,loc[2]]
+                agent = ssObj.state_space[loc[0],loc[1],loc[2]].whichAgent()
+                
+                # update state space
+                ssObj.state_space[loc[0],loc[1],loc[2]].removeAgent(agent)
+                ssObj.state_space[newLoc[0],newLoc[1],newLoc[2]].addAgent(agent)
+                
+                # update agent location
+                if agent == 'F':
+                    ssObj.locF = newLoc
+                if agent == 'M':
+                    ssObj.locM = newLoc
 
-        def moveDown(self, _agentLocation, _stateSpace):
+        def moveUp(self, loc, ssObj):
+            """
+            moves an agent up by updating state space object
+            returns nothing
+            """
             # perform check
-            if self.isDownApplicable(_agentLocation, _stateSpace): 
-               new_location = [self._agentLocation[0] + 1, self._agentLocation[1], self._agentLocation[2] - 1]
-               _stateSpace.moveAgent('F', new_location)
-            return new_location
+            if self.isUpApplicable(loc, ssObj): 
+                newLoc = [loc[0],loc[1],loc[2]+1]
+                agent = ssObj.state_space[loc[0],loc[1],loc[2]].whichAgent()
+                
+                # update state space
+                ssObj.state_space[loc[0],loc[1],loc[2]].removeAgent(agent)
+                ssObj.state_space[newLoc[0],newLoc[1],newLoc[2]].addAgent(agent)
+                
+                # update agent location
+                if agent == 'F':
+                    ssObj.locF = newLoc
+                if agent == 'M':
+                    ssObj.locM = newLoc
 
-        # def pickupBlock(agent, stateSpace):
-            # check Cell type == 'Pickup'
-            # check numBlocks in Cell > 0
-            # check is agent carrying a block == 0
+        def moveDown(self, loc, ssObj):
+            """
+            moves an agent down by updating state space object
+            returns nothing
+            """
+            # perform check
+            if self.isDownApplicable(loc, ssObj): 
+                newLoc = [loc[0],loc[1],loc[2]-1]
+                agent = ssObj.state_space[loc[0],loc[1],loc[2]].whichAgent()
+                
+                # update state space
+                ssObj.state_space[loc[0],loc[1],loc[2]].removeAgent(agent)
+                ssObj.state_space[newLoc[0],newLoc[1],newLoc[2]].addAgent(agent)
+                
+                # update agent location
+                if agent == 'F':
+                    ssObj.locF = newLoc
+                if agent == 'M':
+                    ssObj.locM = newLoc
 
-        # def dropoffBlock(Agent, StateSpace):
-            # check Cell type == 'Dropoff'
-            # check numBlocks < 5
-            # check is agent carrying a block == 1
+        def pickupBlock(self, loc, ssObj):
+            """
+            picks up a block by updating state space object
+            returns nothing
+            """
+            # perform check
+            if self.isPickupApplicable(loc, ssObj):
+                # update .state_space
+                ssObj.state_space[loc[0],loc[1],loc[2]].removeBlock()
+                # update agent carrying
+                if ssObj.state_space[loc[0],loc[1],loc[2]].whichAgent() == 'F':
+                    ssObj.carF = True
+                if ssObj.state_space[loc[0],loc[1],loc[2]].whichAgent() == 'M':
+                    ssObj.carM = True
+
+
+        def dropoffBlock(self, loc, ssObj):
+            """
+            drops off a block by updating state space object
+            returns nothing
+            """
+            # perform check
+            if self.isDropoffApplicable(loc, ssObj):
+                # update .state_space
+                ssObj.state_space[loc[0],loc[1],loc[2]].addBlock()
+                # update agent carrying
+                if ssObj.state_space[loc[0],loc[1],loc[2]].whichAgent() == 'F':
+                    ssObj.carF = False
+                if ssObj.state_space[loc[0],loc[1],loc[2]].whichAgent() == 'M':
+                    ssObj.carM = False

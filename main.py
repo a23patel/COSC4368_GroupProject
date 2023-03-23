@@ -1,5 +1,6 @@
 from queue import Queue
-from cell import StateSpace
+from stateSpace import StateSpace
+from action import Action
 
 # Manhattan
 def distance(locF, locM):
@@ -8,8 +9,8 @@ def distance(locF, locM):
           + abs(locF[2] - locM[2]))
 
 # temporary representations
-maleAgent = 'male agent'
-femaleAgent = 'female agent'
+maleAgent = 'M'
+femaleAgent = 'F'
 action = 'random action'
 
 # main event loop
@@ -18,26 +19,38 @@ def main():
     q.put(femaleAgent) # always goes first
     q.put(maleAgent)
     nTest = 0
-    while q.full() and nTest < 10:
-        curAgent = q.get()
-        # curAgent.chooseAction()
-        print(curAgent + " performed " + action)
-        # curAgent.updateQtable()
-        '''
-        if complete():
-            break
-        '''
-        # visualization
-        # measure distance between agents after maleAgent moves
-        if nTest % 2 != 0:
-            print(distance([1,2,3], [4,5,6])) # 9
-        q.put(curAgent)
-        nTest += 1
+    # while q.full() and nTest < 10:
+    #     curAgent = q.get()
+    #     # curAgent.chooseAction()
+    #     print(curAgent + " performed " + action)
+    #     # curAgent.updateQtable()
+    #     '''
+    #     if complete():
+    #         break
+    #     '''
+    #     # visualization
+    #     # measure distance between agents after maleAgent moves
+    #     if nTest % 2 != 0:
+    #         print(distance([1,2,3], [4,5,6])) # 9
+    #     q.put(curAgent)
+    #     nTest += 1
 
 
-        # testing StateSpace class
-        RW = StateSpace()
-        RW.printSS()
+    # testing StateSpace & Action classes
+    RW = StateSpace()
+    a = Action()
+
+    # female agent
+    # move to nearest pickup cell
+    RW.printSS()
+    print('##################################################')
+    a.moveNorth(RW.locF, RW)
+    a.moveEast(RW.locF, RW)
+    a.pickupBlock(RW.locF, RW)
+    a.moveSouth(RW.locF, RW)
+    a.moveEast(RW.locF, RW)
+    a.dropoffBlock(RW.locF, RW)
+    RW.printSS()
 
 if __name__ == "__main__":
     main()
