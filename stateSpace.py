@@ -22,7 +22,6 @@ class StateSpace:
         carM - True if male agent is carrying a block and False otherwise
         locDrop - list of (x,y,z) coordinates of each Dropoff cell
         locPick - list of (x,y,z) coordinates of each Pickup cell
-        ...
         """
         self.state_space = np.empty(shape=(
             3, 3, 3), dtype=object, order='C')   # 'C' means row-major order in memory

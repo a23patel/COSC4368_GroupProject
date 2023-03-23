@@ -1,9 +1,7 @@
-# Experiment 1
-
 from queue import Queue
 from stateSpace import StateSpace
 from action import Action
-from agent import QLAgent, SARSAAgent, VSAgent, VSQRandomAgent
+from agent import QLAgent, SARSAAgent, VSAgent, VSQRandomAgent, VSSpace
 from policy import PGreedy, PExploit, PRandom
 
 # Manhattan
@@ -12,18 +10,37 @@ def distance(locF, locM):
           + abs(locF[1] - locM[1])
           + abs(locF[2] - locM[2]))
 
-# main event loop
-def main():
-    
+def experiment_1(subExperiment):
+    """
+    Implements the main event loop for experiment 1
+    argument:
+    subExperiment - 'a', 'b', or 'c' to run each sub experiment
+    """
+    alpha = 0.3
+    gamma = 0.5
+
+    # real world state space
+    RW = StateSpace('original')
+
+    # reinforcement learning world state space
+    RLW = VSSpace()
+
+    actions = ['Pickup', 'Dropoff', 'N', 'S', 'E', 'W', 'U', 'D']
+
+    policyF = PRandom('F', RLW, actions, seed=1)
+    policyM = PRandom('M', RLW, actions, seed=1)
+
+    agentF = QLAgent('F', RLW, policyF, RW)
+    agentM = QLAgent('M', RLW, policyM, RW)
+
     q = Queue(maxsize=2)
-    q.put('F') # always goes first
+    q.put('F')
     q.put('M')
 
-    RW = StateSpace('original')
-    a = Action()
-    agent = QLAgent()
+    # stores the distance between agents for analytics
     distList = []
     
+    # number of iterations
     n = 0
     while True:
         
@@ -51,7 +68,10 @@ def main():
                  RW.locDrop[1].getNumBlocks()]       # f,
         
         # choose action
-        action = agent.chooseAction(state) # or RW obj instead of state?
+        if whichAgent == 'F':
+            action = agentF.chooseAction(state)
+        if whichAgent == 'M':
+            action = agentF.chooseAction(state)
         
         # perform action (assuming action is a character)
         RW.performAction(whichAgent, action)
@@ -59,8 +79,11 @@ def main():
         # TODO rewards
 
         # agent updates its Qtable
-        agent._update_table()
-
+        if whichAgent == 'F':
+            agentF._update_table()
+        if whichAgent == 'M':
+            agentM._update_table()
+        
         # check completion criterion
         if RW.complete():
             break
@@ -76,20 +99,33 @@ def main():
         q.put(whichAgent)
         n += 1
 
+        # switch policy after first 500 moves for 1b & 1c
+        if subExperiment != 'a':
+            if n == 500:
+                if subExperiment == 'b':
+                    policyF = PGreedy('F', RLW, actions, seed=1)
+                    policyM = PGreedy('M', RLW, actions, seed=1)
+                if subExperiment == 'c':
+                    policyF = PExploit('F', RLW, actions, seed=1)
+                    policyM = PExploit('M', RLW, actions, seed=1)
+        
+        # stop after 10,000 moves
+        if n == 10000:
+            break
 
-    # testing StateSpace & Action classes
+def main():
     
-    # female agent
-    # move to nearest pickup cell
-    # RW.printSS()
-    # print('##################################################')
-    # RW.performAction('F','N')
-    # RW.performAction('F','E')
-    # RW.performAction('F','Pickup')
-    # RW.performAction('F','S')
-    # RW.performAction('F','E')
-    # RW.performAction('F','Dropoff')
-    # RW.printSS()
+    # testing StateSpace & Action classes
+    RW = StateSpace('original')
+    RW.printSS()
+    print('##################################################')
+    RW.performAction('F','N')
+    RW.performAction('F','E')
+    RW.performAction('F','Pickup')
+    RW.performAction('F','S')
+    RW.performAction('F','E')
+    RW.performAction('F','Dropoff')
+    RW.printSS()
 
     # visualize the StateSpace
     # ss.visualize()

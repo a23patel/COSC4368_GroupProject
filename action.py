@@ -1,4 +1,3 @@
-# TODO change loc parameter to agent since passing the ssObj already
 class Action:
     """
     Class to facilitate actions taken by agents in StateSpace.
@@ -7,12 +6,13 @@ class Action:
     agent - 'F' for female agent; 'M' for male agent
     ssObj - StateSpace Class object
     """
+
     def isPickupApplicable(self, agent, ssObj):
         """
         returns True if agent can validly pick up a block and False otherwise
         """
         loc = ssObj.getLocation(agent)
-        
+
         # check cell type
         if ssObj.state_space[loc[0], loc[1], loc[2]].getType() != 'Pickup':
             return False
