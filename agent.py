@@ -50,7 +50,7 @@ class Agent:
         """
         # TODO for now, this is requiring both Real-World and RL states, because Policy module needs to
         # determine whether an action is applicable even if that is impossible to know with just the RL state
-        action_taken = self.policy.execute(state, self.rlstate.map_state(state), self.table)
+        action_taken = self.policy.execute(state, self.rlstate.map_state(state, self.agent), self.table) # added self.agent arg to map_state call
         self.history[-1][1] = action_taken
         return action_taken
 
@@ -152,9 +152,15 @@ class VSSpace(RLSpace):
     "Very Simple" RL space: each agent's RL space contains only their coordinates, and whether they hold a block.
     """
     def map_state(self, state, agent):
-        loc = state.findAgent(agent)
-        is_carrying = state.isAgentCarrying(agent)
-        return (loc[0], loc[1], loc[2], 1 if is_carrying else 0)
+        # loc = state.findAgent(agent)
+        # is_carrying = state.isAgentCarrying(agent)
+        # return (loc[0], loc[1], loc[2], 1 if is_carrying else 0)
+
+        # I'm passing state representation list (see get_state_representation in stateSpace.py)
+        if agent == 'F':
+            return state[6]
+        if agent == 'M':
+            return state[7]
     
     def shape(self):
         return (3, 3, 3, 2)

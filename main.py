@@ -164,7 +164,14 @@ def main():
     # testing get_state_representation function
     # expecting [0, 0, 0, 2, 1, 2, 0, 0, 0, 0, 0, 0, 10, 10]
     RW = StateSpace('original')
-    print(RW.get_state_representation())
+    state = RW.get_state_representation()
+    print(state)
+    # # slice locF
+    # locF = state[0:3]
+    # print(locF)
+    # locM = state[3:6]
+    # print(locM)
+
 
 if __name__ == "__main__":
     main()
