@@ -160,12 +160,14 @@ class StateSpace:
         state = [self.locF[0], self.locF[1], self.locF[2], 
                  self.locM[0], self.locM[1], self.locM[2],
                  i, iPrime,                         
-                 self.locDrop[0].get_num_blocks(),     
-                 self.locDrop[1].get_num_blocks(),     
-                 self.locDrop[2].get_num_blocks(),     
-                 self.locDrop[3].get_num_blocks(),     
-                 self.locPick[0].get_num_blocks(), 
-                 self.locPick[1].get_num_blocks()]
+                 self.state_space[self.locDrop[0][0], self.locDrop[0][1], self.locDrop[0][2]].get_num_blocks(),     
+                 self.state_space[self.locDrop[1][0], self.locDrop[1][1], self.locDrop[1][2]].get_num_blocks(),     
+                 self.state_space[self.locDrop[2][0], self.locDrop[2][1], self.locDrop[2][2]].get_num_blocks(),     
+                 self.state_space[self.locDrop[3][0], self.locDrop[3][1], self.locDrop[3][2]].get_num_blocks(),     
+                 self.state_space[self.locPick[0][0], self.locPick[0][1], self.locPick[0][2]].get_num_blocks(), 
+                 self.state_space[self.locPick[1][0], self.locPick[1][1], self.locPick[1][2]].get_num_blocks()]
+        
+        return state
     
     def perform_action(self, agent, action):
         """
@@ -263,11 +265,10 @@ class StateSpace:
         """
         returns True if all Pickup cells contain 5 blocks and False otherwise
         """
-        loc = self.locDrop
-        if (self.state_space[loc[0, 0], loc[0, 1], loc[0, 2]].numBlocks == 5 and
-           self.state_space[loc[1, 0], loc[1, 1], loc[1, 2]].numBlocks == 5 and
-           self.state_space[loc[2, 0], loc[2, 1], loc[2, 2]].numBlocks == 5 and
-           self.state_space[loc[3, 0], loc[3, 1], loc[3, 2]].numBlocks == 5):
+        if (self.state_space[self.locDrop[0][0], self.locDrop[0][1], self.locDrop[0][2]].get_num_blocks() == 5 and   
+            self.state_space[self.locDrop[1][0], self.locDrop[1][1], self.locDrop[1][2]].get_num_blocks() == 5 and   
+            self.state_space[self.locDrop[2][0], self.locDrop[2][1], self.locDrop[2][2]].get_num_blocks() == 5 and   
+            self.state_space[self.locDrop[3][0], self.locDrop[3][1], self.locDrop[3][2]].get_num_blocks() == 5):
             return True
         else:
             return False
