@@ -5,8 +5,6 @@ from agent import QLAgent, SARSAAgent, VSAgent, VSQRandomAgent, VSSpace
 from policy import PGreedy, PExploit, PRandom
 
 # Manhattan
-
-
 def distance(locF, locM):
     return (abs(locF[0] - locM[0])
             + abs(locF[1] - locM[1])
@@ -39,9 +37,10 @@ def experiment(id, seed):
     policyF = PRandom('F', RLW, actions, seed=seed)
     policyM = PRandom('M', RLW, actions, seed=seed)
 
+    # TODO pass list or obj?
     iState = RW.get_state_representation()
-    agentF = QLAgent('F', RLW, policyF, iState)
-    agentM = QLAgent('M', RLW, policyM, iState)
+    agentF = QLAgent('F', RLW, policyF, iState, alpha, gamma)
+    agentM = QLAgent('M', RLW, policyM, iState, alpha, gamma)
 
     q = Queue(maxsize=2)
     q.put('F')
@@ -149,37 +148,6 @@ def main():
 
     # experiment('4', 1)
     # experiment('4', 42)
-
-    # testing rewards
-    # RW = StateSpace('original')
-    # RW.print_ss()
-    # print('##################################################')
-    # print(RW.perform_action('F','N')) # -1
-    # print(RW.perform_action('F','E')) # -1
-    # print(RW.perform_action('F','Pickup')) # 14
-    # print(RW.perform_action('F','S')) # -1
-    # print(RW.perform_action('F','E')) # -1
-    # print(RW.perform_action('F','Dropoff')) # -14
-    # RW.print_ss()
-    # # expecting the following:
-    # # F at Dropoff (3,1,1) with 1 block
-    # # Pickup (2,2,1) has 9 blocks
-
-    # # test risk reward
-    # print(RW.perform_action('F','N')) # -1
-    # print(RW.perform_action('F','N')) # -2 bc risk cell
-
-    # testing get_state_representation function
-    # expecting [0, 0, 0, 2, 1, 2, 0, 0, 0, 0, 0, 0, 10, 10]
-    # RW = StateSpace('original')
-    # state = RW.get_state_representation()
-    # print(state)
-    # # slice locF
-    # locF = state[0:3]
-    # print(locF)
-    # locM = state[3:6]
-    # print(locM)
-
 
 if __name__ == "__main__":
     main()
