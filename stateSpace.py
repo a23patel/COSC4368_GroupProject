@@ -166,19 +166,31 @@ class StateSpace:
                  self.locDrop[3].get_num_blocks(),     
                  self.locPick[0].get_num_blocks(), 
                  self.locPick[1].get_num_blocks()]
-
+    
     def perform_action(self, agent, action):
         """
         performs action by calling appropriate Action method
+        returns a reward 
+        reward is 14 if action is 'Pickup' or 'Dropoff' or
+        reward is -1 if moving from normal cell and -2 if moving from risk cell
         arguments:
         agent - 'F' for female agent; 'M' for male agent
         action - 'Pickup', 'Dropoff', 'E', 'W', 'N', 'S', 'U', or 'D'
         """
+        # check risk
+        loc = self.get_location(agent)
+        if self.state_space[loc[0], loc[1], loc[2]].get_type() == 'Risk':
+            reward = -2
+        else:
+            reward = -1
+
         a = Action()
         if action == 'Pickup':
             a.pickup_block(agent, self)
+            reward = 14
         if action == 'Dropoff':
             a.dropoff_block(agent, self)
+            reward = 14
         if action == 'E':
             a.move_east(agent, self)
         if action == 'W':
@@ -191,6 +203,8 @@ class StateSpace:
             a.move_up(agent, self)
         if action == 'D':
             a.move_down(agent, self)
+
+        return reward
 
     def visualize(self):
         block_size = 50  # size of each cell in pixels

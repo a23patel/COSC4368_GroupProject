@@ -22,7 +22,7 @@ def experiment_1(subExperiment):
     # real world state space
     RW = StateSpace('original')
 
-    # reinforcement learning world state space
+    # reinforcement learning state space
     RLW = VSSpace()
 
     actions = ['Pickup', 'Dropoff', 'N', 'S', 'E', 'W', 'U', 'D']
@@ -30,12 +30,16 @@ def experiment_1(subExperiment):
     policyF = PRandom('F', RLW, actions, seed=1)
     policyM = PRandom('M', RLW, actions, seed=1)
 
-    agentF = QLAgent('F', RLW, policyF, RW)
-    agentM = QLAgent('M', RLW, policyM, RW)
+    iState = RW.get_state_representation()
+    agentF = QLAgent('F', RLW, policyF, iState)
+    agentM = QLAgent('M', RLW, policyM, iState)
 
     q = Queue(maxsize=2)
     q.put('F')
     q.put('M')
+
+    # stores the rewards obtained for analytics
+    rewardList = []
 
     # stores the distance between agents for analytics
     distList = []
@@ -43,34 +47,34 @@ def experiment_1(subExperiment):
     # number of iterations
     n = 0
     while True:
-        
         # 'F' or 'M'
         curAgent = q.get()
        
-        state = RW.get_state_representation()
-
         # choose action
+        state = RW.get_state_representation()
         if curAgent == 'F':
             action = agentF.choose_action(state)
         if curAgent == 'M':
             action = agentF.choose_action(state)
         
-        # perform action (assuming action is a character)
-        RW.perform_action(curAgent, action)
-
-        # TODO rewards
+        # perform action
+        reward = RW.perform_action(curAgent, action)
 
         # agent updates its Qtable
+        newState = RW.get_state_representation()
         if curAgent == 'F':
-            agentF._update_table()
+            # args: new_state, reward
+            agentF.update(newState, reward)
         if curAgent == 'M':
-            agentM._update_table()
+            agentM.update(newState, reward)
+        
+        rewardList.append(reward)
         
         # check completion criterion
         if RW.is_complete():
             break
 
-        # visualization every 5,000 moves
+        # TODO visualization
         if n+1 % 5000 == 0:
             RW.print_ss()
 
