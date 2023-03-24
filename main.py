@@ -46,27 +46,9 @@ def experiment_1(subExperiment):
         
         # 'F' or 'M'
         curAgent = q.get()
-        
-        if RW.carF:
-            i = 1
-        else:
-            i = 0
-        if RW.carM:
-            iPrime = 1
-        else:
-            iPrime = 0
+       
+        state = RW.get_state_representation()
 
-        # list or StateSpace object?
-        state = [RW.locF[0], RW.locF[1], RW.locF[2], # x, y, z,
-                 RW.locM[0], RW.locM[1], RW.locM[2], # x', y', z',
-                 i, iPrime,                          # i, i',
-                 RW.locPick[0].get_num_blocks(),       # a,
-                 RW.locPick[1].get_num_blocks(),       # b,
-                 RW.locPick[2].get_num_blocks(),       # c,
-                 RW.locPick[3].get_num_blocks(),       # d,
-                 RW.locDrop[0].get_num_blocks(),       # e,
-                 RW.locDrop[1].get_num_blocks()]       # f,
-        
         # choose action
         if curAgent == 'F':
             action = agentF.choose_action(state)

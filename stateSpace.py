@@ -53,10 +53,11 @@ class StateSpace:
             self.state_space[2, 2, 1].set_type('Pickup')
             self.locPick.append([2, 2, 1])
         elif experiment == 'modified':
-            self.state_space[1, 2, 2].set_type('Pickup')
-            self.locPick.append([1, 2, 2])
             self.state_space[0, 2, 0].set_type('Pickup')
             self.locPick.append([0, 2, 0])
+            self.state_space[1, 2, 2].set_type('Pickup')
+            self.locPick.append([1, 2, 2])
+            
 
         # dropoff cells
         self.state_space[0, 0, 1].set_type('Dropoff')
@@ -136,6 +137,36 @@ class StateSpace:
         """
         return self.state_space[loc[0], loc[1], loc[2]].get_type() == 'Dropoff'
     
+    def get_state_representation(self):
+        """
+        returns a list with form:
+        [x,y,z,x',y',z',i,i',a,b,c,d,e,f], where
+        x,y,z is the location of F
+        x',y',z' is the location of M
+        i = 1 if F is carrying a block and 0 otherwise
+        i' = 1 if M is carrying a block and 0 otherwise
+        a,b,c,d are the number of blocks in the dropoff locations
+        e,f are the number of blocks in the pickup locations
+        """
+        if self.carF:
+            i = 1
+        else:
+            i = 0
+        if self.carM:
+            iPrime = 1
+        else:
+            iPrime = 0
+
+        state = [self.locF[0], self.locF[1], self.locF[2], 
+                 self.locM[0], self.locM[1], self.locM[2],
+                 i, iPrime,                         
+                 self.locDrop[0].get_num_blocks(),     
+                 self.locDrop[1].get_num_blocks(),     
+                 self.locDrop[2].get_num_blocks(),     
+                 self.locDrop[3].get_num_blocks(),     
+                 self.locPick[0].get_num_blocks(), 
+                 self.locPick[1].get_num_blocks()]
+
     def perform_action(self, agent, action):
         """
         performs action by calling appropriate Action method
