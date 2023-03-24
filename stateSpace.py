@@ -181,10 +181,7 @@ class StateSpace:
         """
         # check risk
         loc = self.get_location(agent)
-        if self.state_space[loc[0], loc[1], loc[2]].get_type() == 'Risk':
-            reward = -2
-        else:
-            reward = -1
+        reward = self.state_space[loc[0], loc[1], loc[2]].get_cost()
 
         a = Action()
         if action == 'Pickup':

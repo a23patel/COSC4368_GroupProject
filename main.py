@@ -10,7 +10,7 @@ def distance(locF, locM):
           + abs(locF[1] - locM[1])
           + abs(locF[2] - locM[2]))
 
-def experiment(id):
+def experiment(id, seed):
     """
     Implements the event loop for experiments
     argument:
@@ -32,8 +32,8 @@ def experiment(id):
 
     actions = ['Pickup', 'Dropoff', 'N', 'S', 'E', 'W', 'U', 'D']
 
-    policyF = PRandom('F', RLW, actions, seed=1)
-    policyM = PRandom('M', RLW, actions, seed=1)
+    policyF = PRandom('F', RLW, actions, seed=seed)
+    policyM = PRandom('M', RLW, actions, seed=seed)
 
     iState = RW.get_state_representation()
     agentF = QLAgent('F', RLW, policyF, iState)
@@ -64,7 +64,7 @@ def experiment(id):
         if curAgent == 'F':
             action = agentF.choose_action(state)
         if curAgent == 'M':
-            action = agentF.choose_action(state)
+            action = agentM.choose_action(state)
         
         # perform action
         reward = RW.perform_action(curAgent, action)
@@ -81,11 +81,14 @@ def experiment(id):
         # check completion criterion
         if RW.is_complete():
             terminal += 1
-            if id == '4' and terminal == 3:
+            if id == '4' and (terminal == 1 or terminal == 2):
+                RW = StateSpace('original')
+            if id == '4' and (terminal == 3 or terminal == 4 or terminal == 5):
                 RW = StateSpace('modified')
             if id == '4' and terminal == 6:
                 break
-            RW = StateSpace('original')
+            if id != '4':
+                RW = StateSpace('original')
 
         # TODO visualization
         if n+1 % 5000 == 0:
@@ -103,11 +106,11 @@ def experiment(id):
         if id != '1a':
             if n == 500:
                 if id == '1b':
-                    policyF = PGreedy('F', RLW, actions, seed=1)
-                    policyM = PGreedy('M', RLW, actions, seed=1)
+                    policyF = PGreedy('F', RLW, actions, seed=seed)
+                    policyM = PGreedy('M', RLW, actions, seed=seed)
                 if id == '1c' or id == '3' or id == '4':
-                    policyF = PExploit('F', RLW, actions, seed=1)
-                    policyM = PExploit('M', RLW, actions, seed=1)
+                    policyF = PExploit('F', RLW, actions, seed=seed)
+                    policyM = PExploit('M', RLW, actions, seed=seed)
                 # TODO
                 if id == '2':
                     # run the SARSA q-learning variation for 9500 steps
@@ -121,29 +124,29 @@ def main():
     """
     Driver code to conduct experiments
     """
-    # experiment('1a')
-    # experiment('1a')
+    experiment('1a', 1)
+    # experiment('1a', 42)
 
-    # experiment('1b')
-    # experiment('1b')
+    # experiment('1b', 1)
+    # experiment('1b', 42)
 
-    # experiment('1c')
-    # experiment('1c')
+    # experiment('1c', 1)
+    # experiment('1c', 42)
 
-    # experiment('2')
-    # experiment('2')
+    # experiment('2', 1)
+    # experiment('2', 42)
 
-    # experiment('3a')
-    # experiment('3a')
+    # experiment('3a', 1)
+    # experiment('3a', 42)
 
-    # experiment('3b')
-    # experiment('3b')
+    # experiment('3b', 1)
+    # experiment('3b', 42)
 
-    # experiment('4')
-    # experiment('4')
+    # experiment('4', 1)
+    # experiment('4', 42)
 
     # testing rewards
-    # RW = StateSpace('original')
+    RW = StateSpace('original')
     # # RW.print_ss()
     # # print('##################################################')
     # print(RW.perform_action('F','N')) # -1
@@ -163,7 +166,7 @@ def main():
 
     # testing get_state_representation function
     # expecting [0, 0, 0, 2, 1, 2, 0, 0, 0, 0, 0, 0, 10, 10]
-    RW = StateSpace('original')
+    # RW = StateSpace('original')
     state = RW.get_state_representation()
     print(state)
     # # slice locF
