@@ -19,9 +19,9 @@ def experiment(id, seed):
     """
     if id == '1a' or id == '1b' or id == '1c' or id == '2' or id == '4':
         alpha = 0.3
-    if id == '3a':
+    elif id == '3a':
         alpha = 0.1
-    if id == '3b':
+    elif id == '3b':
         alpha = 0.5
     gamma = 0.5
 
@@ -62,7 +62,7 @@ def experiment(id, seed):
         # choose action
         if curAgent == 'F':
             action = agentF.choose_action(RW)
-        if curAgent == 'M':
+        elif curAgent == 'M':
             action = agentM.choose_action(RW)
 
         # perform action
@@ -71,7 +71,7 @@ def experiment(id, seed):
         # agent updates its Qtable
         if curAgent == 'F':
             agentF.update(RW, reward)
-        if curAgent == 'M':
+        elif curAgent == 'M':
             agentM.update(RW, reward)
 
         rewardList.append(reward)
@@ -81,11 +81,11 @@ def experiment(id, seed):
             terminal += 1
             if id == '4' and (terminal == 1 or terminal == 2):
                 RW = StateSpace('original')
-            if id == '4' and (terminal == 3 or terminal == 4 or terminal == 5):
+            elif id == '4' and (terminal == 3 or terminal == 4 or terminal == 5):
                 RW = StateSpace('modified')
-            if id == '4' and terminal == 6:
+            elif id == '4' and terminal == 6:
                 break
-            if id != '4':
+            elif id != '4':
                 RW = StateSpace('original')
 
         # TODO visualization
@@ -106,11 +106,11 @@ def experiment(id, seed):
                 if id == '1b':
                     policyF = PGreedy('F', RLW, actions, seed=seed)
                     policyM = PGreedy('M', RLW, actions, seed=seed)
-                if id == '1c' or id == '3' or id == '4':
+                elif id == '1c' or id == '3' or id == '4':
                     policyF = PExploit('F', RLW, actions, seed=seed)
                     policyM = PExploit('M', RLW, actions, seed=seed)
                 # TODO
-                if id == '2':
+                elif id == '2':
                     # run the SARSA q-learning variation for 9500 steps
                     pass
 
@@ -123,7 +123,7 @@ def main():
     """
     Driver code to conduct experiments
     """
-    # experiment('1a', 1)
+    experiment('1a', 1)
     # experiment('1a', 42)
 
     # experiment('1b', 1)
