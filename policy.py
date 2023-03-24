@@ -33,58 +33,23 @@ class Policy:
         """
         Returns True if the given action is applicable given the current state
         """
-        # TODO this is going to get replaced with something in the Action module?
         a = Action()
-        # Location of this agent
-        loc = state.get_location(self.agent)
-        # Location of other agent
-        oloc = state.get_location('F' if self.agent == 'M' else 'M')
-        # Status of agent TODO this does not match API
-        is_carrying = state.is_agent_carrying(self.agent)
-        is_in_pickup = state.is_pickup(loc)
-        is_in_dropoff = state.is_dropoff(loc)
-        # TODO purge this old code
-        # other_agent_north = (loc[0] == oloc[0]) and (loc[1] == oloc[1] - 1) and (loc[2] == oloc[2])
-        # other_agent_south = (loc[0] == oloc[0]) and (loc[1] == oloc[1] + 1) and (loc[2] == oloc[2])
-        # other_agent_east = (loc[0] == oloc[0] - 1) and (loc[1] == oloc[1]) and (loc[2] == oloc[2])
-        # other_agent_west = (loc[0] == oloc[0] + 1) and (loc[1] == oloc[1]) and (loc[2] == oloc[2])
-        # other_agent_up = (loc[0] == oloc[0]) and (loc[1] == oloc[1]) and (loc[2] == oloc[2] - 1)
-        # other_agent_down = (loc[0] == oloc[0]) and (loc[1] == oloc[1]) and (loc[2] == oloc[2] + 1)
-        # can_north = loc[1] != 2
-        # can_south = loc[1] != 0
-        # can_west = loc[0] != 0
-        # can_east = loc[0] != 2
-        # can_up = loc[2] != 2
-        # can_down = loc[2] != 0
         if action == 'Pickup':
-            return not is_carrying and is_in_pickup
+            return a.is_pickup_applicable(self.agent, state)
         elif action == 'Dropoff':
-            return is_carrying and is_in_dropoff
-        # TODO purge this old code
-        # elif action == 'North':
-        #     return can_north and not other_agent_north
-        # elif action == 'S':
-        #     return can_south and not other_agent_south
-        # elif action == 'W':
-        #     return can_west and not other_agent_west
-        # elif action == 'E':
-        #     return can_east and not other_agent_east
-        # elif action == 'U':
-        #     return can_up and not other_agent_up
-        # elif action == 'D':
-        #     return can_down and not other_agent_down
+            return a.is_dropoff_applicable(self.agent, state)
         elif action == 'N':
-            return a.is_north_applicable(loc, state)
+            return a.is_north_applicable(self.agent, state)
         elif action == 'S':
-            return a.is_south_applicable(loc, state)
-        elif action == 'W':
-            return a.is_west_applicable(loc, state)
+            return a.is_south_applicable(self.agent, state)
         elif action == 'E':
-            return a.is_east_applicable(loc, state)
+            return a.is_east_applicable(self.agent, state)
+        elif action == 'W':
+            return a.is_west_applicable(self.agent, state)
         elif action == 'U':
-            return a.is_up_applicable(loc, state)
+            return a.is_up_applicable(self.agent, state)
         elif action == 'D':
-            return a.is_down_applicable(loc, state)
+            return a.is_down_applicable(self.agent, state)
 
     def get_applicable_actions(self, state):
         """

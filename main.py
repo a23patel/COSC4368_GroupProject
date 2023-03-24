@@ -10,7 +10,6 @@ def distance(locF, locM):
             + abs(locF[1] - locM[1])
             + abs(locF[2] - locM[2]))
 
-
 def experiment(id, seed):
     """
     Implements the event loop for experiments
@@ -37,10 +36,9 @@ def experiment(id, seed):
     policyF = PRandom('F', RLW, actions, seed=seed)
     policyM = PRandom('M', RLW, actions, seed=seed)
 
-    # TODO pass list or obj?
-    iState = RW.get_state_representation()
-    agentF = QLAgent('F', RLW, policyF, iState, alpha, gamma)
-    agentM = QLAgent('M', RLW, policyM, iState, alpha, gamma)
+    # TODO pass list or obj? -> agent needs RW object
+    agentF = QLAgent('F', RLW, policyF, RW, alpha, gamma)
+    agentM = QLAgent('M', RLW, policyM, RW, alpha, gamma)
 
     q = Queue(maxsize=2)
     q.put('F')
@@ -62,22 +60,19 @@ def experiment(id, seed):
         curAgent = q.get()
 
         # choose action
-        if n == 0:
-            state = iState
         if curAgent == 'F':
-            action = agentF.choose_action(state)
+            action = agentF.choose_action(RW)
         if curAgent == 'M':
-            action = agentM.choose_action(state)
+            action = agentM.choose_action(RW)
 
         # perform action
         reward = RW.perform_action(curAgent, action)
 
         # agent updates its Qtable
-        state = RW.get_state_representation()
         if curAgent == 'F':
-            agentF.update(state, reward)
+            agentF.update(RW, reward)
         if curAgent == 'M':
-            agentM.update(state, reward)
+            agentM.update(RW, reward)
 
         rewardList.append(reward)
 
@@ -148,6 +143,7 @@ def main():
 
     # experiment('4', 1)
     # experiment('4', 42)
+
 
 if __name__ == "__main__":
     main()

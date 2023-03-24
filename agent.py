@@ -152,15 +152,9 @@ class VSSpace(RLSpace):
     "Very Simple" RL space: each agent's RL space contains only their coordinates, and whether they hold a block.
     """
     def map_state(self, state, agent):
-        # loc = state.findAgent(agent)
-        # is_carrying = state.isAgentCarrying(agent)
-        # return (loc[0], loc[1], loc[2], 1 if is_carrying else 0)
-
-        # I'm passing state representation list (see get_state_representation in stateSpace.py)
-        if agent == 'F':
-            return state[6]
-        if agent == 'M':
-            return state[7]
+        loc = state.get_location(agent)
+        is_carrying = state.is_agent_carrying(agent)
+        return (loc[0], loc[1], loc[2], 1 if is_carrying else 0)
     
     def shape(self):
         return (3, 3, 3, 2)
