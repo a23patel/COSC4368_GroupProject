@@ -52,6 +52,12 @@ def experiment(id, seed):
     # stores the distance between agents for analytics
     distList = []
 
+    # stores the actions taken by agent 'F'
+    agentFActions = []
+
+    # stores the actions taken by agent 'M'
+    agentMActions = []
+
     # number of terminal states reached
     terminal = 0
 
@@ -68,8 +74,10 @@ def experiment(id, seed):
         # choose action
         if curAgent == 'F':
             action = agentF.choose_action(RW)
+            agentFActions.append(action)
         elif curAgent == 'M':
             action = agentM.choose_action(RW)
+            agentMActions.append(action)
 
         # perform action
         reward = RW.perform_action(curAgent, action)
@@ -137,25 +145,25 @@ def main():
     Driver code to conduct experiments
     """
     experiment('1a', 1)
-    experiment('1a', 42)
+    # experiment('1a', 42)
 
     experiment('1b', 1)
-    experiment('1b', 42)
+    # experiment('1b', 42)
 
     experiment('1c', 1)
-    experiment('1c', 42)
+    # experiment('1c', 42)
 
     # experiment('2', 1)
     # experiment('2', 42)
 
     experiment('3a', 1)
-    experiment('3a', 42)
+    # experiment('3a', 42)
 
     experiment('3b', 1)
-    experiment('3b', 42)
+    # experiment('3b', 42)
 
     experiment('4', 1)
-    experiment('4', 42)
+    # experiment('4', 42)
 
 
 if __name__ == "__main__":
