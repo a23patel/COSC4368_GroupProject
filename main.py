@@ -1,7 +1,7 @@
 from queue import Queue
 from stateSpace import StateSpace
 from action import Action
-from agent import QLAgent, SARSAAgent, VSAgent, VSQRandomAgent, VSSpace
+from agent import QLAgent, SARSAAgent, VSAgent, VSQRandomAgent, VSSpace, SSSpace
 from policy import PGreedy, PExploit, PRandom
 
 # Manhattan
@@ -17,6 +17,7 @@ def experiment(id, seed):
     id - '1a', '1b', '1c', '2', '3a', '3b', '4'
     seed - seed value for reproducibility
     """
+    print(f"\n### Experiment {id} running with seed {seed} ###\n")
     if id == '1a' or id == '1b' or id == '1c' or id == '2' or id == '4':
         alpha = 0.3
     elif id == '3a':
@@ -29,7 +30,8 @@ def experiment(id, seed):
     RW = StateSpace('original')
 
     # reinforcement learning state space
-    RLW = VSSpace()
+    # RLW = VSSpace()
+    RLW = SSSpace()
 
     actions = ['Pickup', 'Dropoff', 'N', 'S', 'E', 'W', 'U', 'D']
 
@@ -55,6 +57,10 @@ def experiment(id, seed):
 
     # number of iterations
     n = 0
+
+    # number of actions between terminal states
+    numActions = 0
+
     while True:
         # 'F' or 'M'
         curAgent = q.get()
@@ -67,6 +73,7 @@ def experiment(id, seed):
 
         # perform action
         reward = RW.perform_action(curAgent, action)
+        numActions += 1
 
         # agent updates its Qtable
         if curAgent == 'F':
@@ -79,18 +86,23 @@ def experiment(id, seed):
         # check completion criterion
         if RW.is_complete():
             terminal += 1
+            print(f"Terminal state {terminal} reached after {numActions} actions\n")
+            numActions = 0
             if id == '4' and (terminal == 1 or terminal == 2):
                 RW = StateSpace('original')
             elif id == '4' and (terminal == 3 or terminal == 4 or terminal == 5):
+                if id == '4' and terminal == 3:
+                    print("Pickup locations modified\n")
                 RW = StateSpace('modified')
             elif id == '4' and terminal == 6:
+                print(f"Total number of terminal states reached: {terminal}") # 6
                 break
             elif id != '4':
                 RW = StateSpace('original')
 
-        # TODO visualization
-        if n+1 % 5000 == 0:
-            RW.print_ss()
+        # TODO visualization in pyGame
+        if n % (250-1) == 0:
+            print(RW.get_state_representation())
         # RW.visualize()
 
         # store distance between agents after 'M' moves
@@ -104,11 +116,11 @@ def experiment(id, seed):
         if id != '1a':
             if n == 500:
                 if id == '1b':
-                    policyF = PGreedy('F', RLW, actions, seed=seed)
-                    policyM = PGreedy('M', RLW, actions, seed=seed)
+                    agentF.set_policy(PGreedy('F', RLW, actions, seed=seed))
+                    agentM.set_policy(PGreedy('M', RLW, actions, seed=seed))
                 elif id == '1c' or id == '3' or id == '4':
-                    policyF = PExploit('F', RLW, actions, seed=seed)
-                    policyM = PExploit('M', RLW, actions, seed=seed)
+                    agentF.set_policy(PExploit('F', RLW, actions, seed=seed))
+                    agentM.set_policy(PExploit('M', RLW, actions, seed=seed))
                 # TODO
                 elif id == '2':
                     # run the SARSA q-learning variation for 9500 steps
@@ -116,6 +128,7 @@ def experiment(id, seed):
 
         # stop after 10,000 moves
         if n == 10000:
+            print(f"\nTotal number of terminal states reached: {terminal}")
             break
 
 
@@ -124,25 +137,26 @@ def main():
     Driver code to conduct experiments
     """
     experiment('1a', 1)
-    # experiment('1a', 42)
+    experiment('1a', 42)
 
-    # experiment('1b', 1)
-    # experiment('1b', 42)
+    experiment('1b', 1)
+    experiment('1b', 42)
 
-    # experiment('1c', 1)
-    # experiment('1c', 42)
+    experiment('1c', 1)
+    experiment('1c', 42)
 
     # experiment('2', 1)
     # experiment('2', 42)
 
-    # experiment('3a', 1)
-    # experiment('3a', 42)
+    experiment('3a', 1)
+    experiment('3a', 42)
 
-    # experiment('3b', 1)
-    # experiment('3b', 42)
+    experiment('3b', 1)
+    experiment('3b', 42)
 
-    # experiment('4', 1)
-    # experiment('4', 42)
+    experiment('4', 1)
+    experiment('4', 42)
+
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,6 @@
 from action import Action
 import numpy as np
+import random
 
 class Policy:
     def __init__(self, agent, states, actions, seed=None):
@@ -63,7 +64,7 @@ class PRandom(Policy):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.pi = lambda s, _: self.random(s)
+        self.pi = lambda s, rs, qs: self.random(s)
 
     def random(self, state):
         valid_actions = self.get_applicable_actions(state)
@@ -89,6 +90,9 @@ class PGreedy(Policy):
         elif 'Dropoff' in valid_actions:
             return 'Dropoff'
         else:
+            # avoid blockage problem
+            random.shuffle(valid_actions)
+            
             best_q = -2**32
             best_a = None
             for action in valid_actions:
