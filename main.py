@@ -150,22 +150,22 @@ def main():
     """
     Driver code to conduct experiments
     """
-    experiment('1a', 1)
+    # experiment('1a', 1)
     # experiment('1a', 42)
 
-    experiment('1b', 1)
+    # experiment('1b', 1)
     # experiment('1b', 42)
 
-    experiment('1c', 1)
+    # experiment('1c', 1)
     # experiment('1c', 42)
 
     # experiment('2', 1)
     # experiment('2', 42)
 
-    experiment('3a', 1)
+    # experiment('3a', 1)
     # experiment('3a', 42)
 
-    experiment('3b', 1)
+    # experiment('3b', 1)
     # experiment('3b', 42)
 
     experiment('4', 1)

@@ -169,6 +169,9 @@ class StateSpace:
         
         return state
     
+    def is_first_dropoff_filled(self):
+        return (self.state_space[self.locDrop[0][0], self.locDrop[0][1], self.locDrop[0][2]].get_num_blocks()) == 5
+    
     def perform_action(self, agent, action):
         """
         performs action by calling appropriate Action method
