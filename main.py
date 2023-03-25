@@ -91,8 +91,13 @@ def experiment(id, seed):
 
         rewardList.append(reward)
 
+        if RW.is_first_dropoff_filled():
+            # TODO dump qtable
+            pass
+
         # check completion criterion
         if RW.is_complete():
+            # TODO dump qtable
             terminal += 1
             print(f"Terminal state {terminal} reached after {numActions} actions\n")
             numActions = 0
@@ -136,6 +141,7 @@ def experiment(id, seed):
 
         # stop after 10,000 moves
         if n == 10000:
+            # TODO dump qtable
             print(f"\nTotal number of terminal states reached: {terminal}")
             break
 
