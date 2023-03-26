@@ -8,7 +8,7 @@ MAX_HISTORY = 10
 ACTIONS = ['Pickup', 'Dropoff', 'N', 'S', 'E', 'W', 'U', 'D']
 
 class Agent:
-    def __init__(self, agent, rlstate, policy, learning, init_state, alpha=0.5, gamma=0.5):
+    def __init__(self, agent, rlstate, policy, init_state, learning='ql', alpha=0.5, gamma=0.5):
         """
         Constructor for generic agent.
 
@@ -16,7 +16,7 @@ class Agent:
         agent - 'M' for male agent, 'F' for female agent
         rlstate - A RLState object which provides a mapping from the real-world state space to RL states
         policy - a Policy object, which provides a function that, given an RL state, returns an action
-        learning - the learning type, either 'sarsa' or 'ql'
+        learning - the learning type, either 'ql' or 'sarsa'
         init_state - The initial state of the world, a StateSpace object
         alpha - The learning rate
         gamma - The discounting factor for future Q values
@@ -25,6 +25,7 @@ class Agent:
         choose_action - agent takes current RW state, chooses an action and returns it
         update - agent updates RL state given new RW state and reward for last action
         set_policy - agent changes policy to passed policy
+        set_learning - agent changes learning method
         """
         self.agent = agent
         self.actions = ACTIONS
@@ -87,7 +88,7 @@ class Agent:
         """
         Given the current state space, use appropriate learning method to update the Q-table
         """
-        if self.learning == 'sarsa':
+        if self.learning == 'sarsa' and len(self.history) > 2:
             self._update_table_sarsa()
         elif self.learning == 'ql':
             self._update_table_ql()
@@ -114,116 +115,19 @@ class Agent:
         """
         Updates Q-table using SARSA
         """
-        prev_step = self.history[-2]
+        prev_step = self.history[-3]
         prev_state = prev_step[0]
         action = prev_step[1]
         reward = prev_step[2]
-        curr_step = self.history[-1]
+        curr_step = self.history[-2]
         new_state = curr_step[0]
         next_action_taken = curr_step[1]
         old_q = self.table[action][prev_state]
         next_q = self.table[next_action_taken][new_state]
-        self.table[action][prev_state] = (1-self.alpha)*old_q + self.alpha(reward + self.gamma*next_q)
+        self.table[action][prev_state] = (1-self.alpha)*old_q + self.alpha*(reward + self.gamma*next_q)
 
     def _prune_history(self):
         """
         Reduce the size of the history that the agents keep, to avoid memory leaks
         """
         self.history = self.history[-2:]
-
-class RLSpace:
-    """
-    An abstract class representing the Reinforcement Learning (RL) state space
-    It provides mappings from the real-world state space, and information about the shape of the space.
-    """
-    def map_state(self, state, agent):
-        """
-        Given a real-world state, provide a state in the RL state space of the given agent
-        """
-        pass
-
-    def shape(self):
-        """
-        Returns shape of RL space, used to generate Q table
-        """
-        pass
-
-    def isDropoff(self, rlstate):
-        pass
-
-    def isPickup(self, rlstate):
-        pass
-
-    def isCarrying(self, rlstate):
-        pass
-
-class VSSpace(RLSpace):
-    """
-    "Very Simple" RL space: each agent's RL space contains only their coordinates, and whether they hold a block.
-    """
-    def map_state(self, state, agent):
-        loc = state.get_location(agent)
-        is_carrying = state.is_agent_carrying(agent)
-        return (loc[0], loc[1], loc[2], 1 if is_carrying else 0)
-    
-    def shape(self):
-        return (3, 3, 3, 2)
-    
-    def isDropoff(self, rlstate):
-        return rlstate[3]
-    
-class SSSpace(RLSpace):
-    """
-    "Somewhat Simple" RL space: each agent's RL space contains only their coordinates, whether they hold a block,
-    and the L1 distance to the other agent
-    """
-    def map_state(self, state, agent):
-        loc = state.get_location(agent)
-        other_loc = state.get_location('F' if agent == 'M' else 'M')
-        is_carrying = state.is_agent_carrying(agent)
-        return (loc[0], loc[1], loc[2], 1 if is_carrying else 0,
-                # + 2?  shift range to start at 0 for use as index in qtable
-                (loc[0] - other_loc[0]) + 2, 
-                (loc[1] - other_loc[1]) + 2,
-                (loc[2] - other_loc[2]) + 2)
-    
-    def shape(self):
-        return (3, 3, 3, 2, 5, 5, 5)
-    
-    def isDropoff(self, rlstate):
-        return rlstate[3] 
-
-class VSAgent(Agent):
-    """
-    Generic agent using Very Simple RL
-    """
-    def _initialize_rlstate(self):
-        return VSSpace()
-    
-class GreedyAgent(Agent):
-    """
-    Agent using PGREEDY policy
-    """
-    def _initialize_policy(self):
-        return PRandom(self.agent, self.rlstate, self.actions, seed=self.seed)
-    
-class ExploitAgent(Agent):
-    def _initialize_policy(self):
-        return PExploit(self.agent, self.rlstate, self.actions, seed=self.seed)
-    
-class RandomAgent(Agent):
-    def _initialize_policy(self):
-        return PRandom(self.agent, self.rlstate, self.actions, seed=self.seed)
-
-# Here are defined the basic agents used for testing:
-# TODO implement more later
-
-class VSQRandomAgent(VSAgent, QLAgent, RandomAgent):
-    """
-    Agent using QL updates, Very Simple RL state space, and PRANDOM policy
-    """
-
-class VSQGreedyAgent(VSAgent, QLAgent, GreedyAgent):
-    """
-    Agent using QL updates, Very Simple RL state space, and PGREEDY policy
-    """

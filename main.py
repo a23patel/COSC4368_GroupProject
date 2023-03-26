@@ -1,7 +1,8 @@
 from queue import Queue
 from stateSpace import StateSpace
 from action import Action
-from agent import QLAgent, SARSAAgent, VSAgent, VSQRandomAgent, VSSpace, SSSpace
+from agent import Agent
+from rlw import VSSpace, SSSpace
 from policy import PGreedy, PExploit, PRandom
 
 # Manhattan
@@ -39,8 +40,8 @@ def experiment(id, seed):
     policyM = PRandom('M', RLW, actions, seed=seed)
 
     # TODO pass list or obj? -> agent needs RW object
-    agentF = QLAgent('F', RLW, policyF, RW, alpha, gamma)
-    agentM = QLAgent('M', RLW, policyM, RW, alpha, gamma)
+    agentF = Agent('F', RLW, policyF, RW, alpha, gamma)
+    agentM = Agent('M', RLW, policyM, RW, alpha, gamma)
 
     q = Queue(maxsize=2)
     q.put('F')
@@ -137,7 +138,8 @@ def experiment(id, seed):
                 # TODO
                 elif id == '2':
                     # run the SARSA q-learning variation for 9500 steps
-                    pass
+                    agentF.set_learning('sarsa')
+                    agentM.set_learning('sarsa')
 
         # stop after 10,000 moves
         if n == 10000:
@@ -159,8 +161,8 @@ def main():
     # experiment('1c', 1)
     # experiment('1c', 42)
 
-    # experiment('2', 1)
-    # experiment('2', 42)
+    experiment('2', 1)
+    experiment('2', 42)
 
     # experiment('3a', 1)
     # experiment('3a', 42)
@@ -168,7 +170,7 @@ def main():
     # experiment('3b', 1)
     # experiment('3b', 42)
 
-    experiment('4', 1)
+    # experiment('4', 1)
     # experiment('4', 42)
 
 

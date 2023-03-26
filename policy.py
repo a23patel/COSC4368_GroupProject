@@ -22,6 +22,7 @@ class Policy:
         self.actions = actions
         # placeholder
         self.pi = None
+        self.seed = seed
         self.rng = np.random.default_rng(seed=seed)
 
     def execute(self, state, rlstate, table):
