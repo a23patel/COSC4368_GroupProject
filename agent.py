@@ -8,7 +8,7 @@ MAX_HISTORY = 10
 ACTIONS = ['Pickup', 'Dropoff', 'N', 'S', 'E', 'W', 'U', 'D']
 
 class Agent:
-    def __init__(self, agent, rlstate, policy, init_state, alpha=0.5, gamma=0.5):
+    def __init__(self, agent, rlstate, policy, learning, init_state, alpha=0.5, gamma=0.5):
         """
         Constructor for generic agent.
 
@@ -16,7 +16,10 @@ class Agent:
         agent - 'M' for male agent, 'F' for female agent
         rlstate - A RLState object which provides a mapping from the real-world state space to RL states
         policy - a Policy object, which provides a function that, given an RL state, returns an action
-        init_state - The initial state of the world
+        learning - the learning type, either 'sarsa' or 'ql'
+        init_state - The initial state of the world, a StateSpace object
+        alpha - The learning rate
+        gamma - The discounting factor for future Q values
 
         API:
         choose_action - agent takes current RW state, chooses an action and returns it
@@ -27,11 +30,13 @@ class Agent:
         self.actions = ACTIONS
         self.rlstate = rlstate
         self.policy = policy
+        self.seed = self.policy.seed
+        self.learning = learning
         self.table = self._initialize_table()
         self.history = [[self.rlstate.map_state(init_state, self.agent), None, 0]]
         self.alpha = alpha
         self.gamma = gamma
-        
+
     def _initialize_table(self):
         """
         Initialize the Q-table with 0s
@@ -72,25 +77,25 @@ class Agent:
         """
         self.policy = policy
 
+    def set_learning(self, learning):
+        """
+        Change the agent's learning method to a new method
+        """
+        self.learning = learning
+
     def _update_table(self):
         """
         Given the current state space, use appropriate learning method to update the Q-table
-
-        This method is intended to be overridden by subclasses that implement Q-learning or SARSA
         """
-        return
+        if self.learning == 'sarsa':
+            self._update_table_sarsa()
+        elif self.learning == 'ql':
+            self._update_table_ql()
     
-    def _prune_history(self):
+    def _update_table_ql(self):
         """
-        Reduce the size of the history that the agents keep, to avoid memory leaks
+        Updates Q-tablet using Q-learning
         """
-        self.history = self.history[-2:]
-
-class QLAgent(Agent):
-    """
-    A generic agent that uses Q-Learning to update its table
-    """
-    def _update_table(self):
         prev_step = self.history[-2]
         prev_state = prev_step[0]
         action = prev_step[1]
@@ -105,11 +110,10 @@ class QLAgent(Agent):
                 best_next_action_q = self.table[ap][new_state]
         self.table[action][prev_state] = (1-self.alpha)*old_q + self.alpha*(reward + self.gamma*best_next_action_q)
 
-class SARSAAgent(Agent):
-    """
-    A generic agent that uses SARSA to update its table
-    """
-    def _update_table(self):
+    def _update_table_sarsa(self):
+        """
+        Updates Q-table using SARSA
+        """
         prev_step = self.history[-2]
         prev_state = prev_step[0]
         action = prev_step[1]
@@ -120,6 +124,12 @@ class SARSAAgent(Agent):
         old_q = self.table[action][prev_state]
         next_q = self.table[next_action_taken][new_state]
         self.table[action][prev_state] = (1-self.alpha)*old_q + self.alpha(reward + self.gamma*next_q)
+
+    def _prune_history(self):
+        """
+        Reduce the size of the history that the agents keep, to avoid memory leaks
+        """
+        self.history = self.history[-2:]
 
 class RLSpace:
     """
@@ -187,16 +197,33 @@ class VSAgent(Agent):
     """
     Generic agent using Very Simple RL
     """
-    def __init__(self, agent, policy, init_state, alpha=0.5, gamma=0.5):
-        super().__init__(agent, VSSpace(), policy, init_state)
+    def _initialize_rlstate(self):
+        return VSSpace()
+    
+class GreedyAgent(Agent):
+    """
+    Agent using PGREEDY policy
+    """
+    def _initialize_policy(self):
+        return PRandom(self.agent, self.rlstate, self.actions, seed=self.seed)
+    
+class ExploitAgent(Agent):
+    def _initialize_policy(self):
+        return PExploit(self.agent, self.rlstate, self.actions, seed=self.seed)
+    
+class RandomAgent(Agent):
+    def _initialize_policy(self):
+        return PRandom(self.agent, self.rlstate, self.actions, seed=self.seed)
 
 # Here are defined the basic agents used for testing:
 # TODO implement more later
 
-class VSQRandomAgent(VSAgent, QLAgent):
+class VSQRandomAgent(VSAgent, QLAgent, RandomAgent):
     """
     Agent using QL updates, Very Simple RL state space, and PRANDOM policy
     """
-    def __init__(self, agent, init_state, alpha=0.5, gamma=0.5, seed=None):
-        super(VSAgent, self).__init__(agent, None, init_state, alpha, gamma)
-        self.set_policy(PRandom(agent, self.rlstate, self.actions, seed=seed))
+
+class VSQGreedyAgent(VSAgent, QLAgent, GreedyAgent):
+    """
+    Agent using QL updates, Very Simple RL state space, and PGREEDY policy
+    """
