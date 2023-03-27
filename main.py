@@ -105,7 +105,7 @@ def experiment(id, seed):
             if id == '4' and (terminal == 1 or terminal == 2):
                 RW = StateSpace('original')
             elif id == '4' and (terminal == 3 or terminal == 4 or terminal == 5):
-                if id == '4' and terminal == 3:
+                if terminal == 3:
                     print("Pickup locations modified\n")
                 RW = StateSpace('modified')
             elif id == '4' and terminal == 6:
@@ -126,7 +126,7 @@ def experiment(id, seed):
         q.put(curAgent)
         n += 1
 
-        # switch policy after first 500 moves for 1b, 1c, 2
+        # switch policy after first 500 moves for 1b, 1c, 2, 3, & 4
         if id != '1a':
             if n == 500:
                 if id == '1b':
@@ -135,7 +135,6 @@ def experiment(id, seed):
                 elif id == '1c' or id == '3' or id == '4':
                     agentF.set_policy(PExploit('F', RLW, actions, seed=seed))
                     agentM.set_policy(PExploit('M', RLW, actions, seed=seed))
-                # TODO
                 elif id == '2':
                     # run the SARSA q-learning variation for 9500 steps
                     agentF.set_learning('sarsa')
