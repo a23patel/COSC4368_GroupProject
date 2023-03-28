@@ -13,6 +13,7 @@ MALE_AGENT = pygame.image.load(os.path.join('assets', 'male_agent.png'))
 MALE_AGENT_SIMPLE = pygame.image.load(os.path.join('assets', 'male_agent_simple.png'))
 Z_LEVEL = pygame.image.load(os.path.join('assets', 'grid.png'))
 BLOCK = pygame.image.load(os.path.join('assets', 'block.png'))
+P = pygame.image.load(os.path.join('assets','p.png'))
 
 def draw_window():
     WIN.fill(WHITE)
@@ -22,6 +23,7 @@ def draw_window():
     WIN.blit(FEMALE_AGENT, (50,125))
     WIN.blit(MALE_AGENT, (250,125))
     WIN.blit(BLOCK, (530,125))
+    WIN.blit(P,(100,10))
     pygame.display.update()
 
 def main():
