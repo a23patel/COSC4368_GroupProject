@@ -4,6 +4,7 @@ from action import Action
 from agent import Agent
 from rlw import VSSpace, SSSpace
 from policy import PGreedy, PExploit, PRandom
+import argparse
 
 # Manhattan
 def distance(locF, locM):
@@ -132,36 +133,47 @@ def experiment(id, seed):
                 if id == '1b':
                     agentF.set_policy(PGreedy('F', RLW, actions, seed=seed))
                     agentM.set_policy(PGreedy('M', RLW, actions, seed=seed))
-                elif id == '1c' or id == '3' or id == '4':
+                elif id == '1c' or id == '2' or id == '3' or id == '4':
                     agentF.set_policy(PExploit('F', RLW, actions, seed=seed))
                     agentM.set_policy(PExploit('M', RLW, actions, seed=seed))
-                elif id == '2':
+                if id == '2':
                     # run the SARSA q-learning variation for 9500 steps
                     agentF.set_learning('sarsa')
                     agentM.set_learning('sarsa')
 
         # stop after 10,000 moves
-        if n == 10000:
+        if n == 100000:
             # TODO dump qtable
             print(f"\nTotal number of terminal states reached: {terminal}")
             break
 
 
 def main():
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument("experiment", help="Experiment to run", type=str)
+    arg_parser.add_argument("seed", help="Random seed to use", type=int)
+    arg_parser.add_argument("--history",
+        dest="produce_history",
+        help="Produce history for visualization",
+        required=False,
+        action="store_true")
+    args = arg_parser.parse_args()
+    experiment(args.experiment, args.seed)
+    return 0
     """
     Driver code to conduct experiments
     """
-    # experiment('1a', 1)
+    #experiment('1a', 1)
     # experiment('1a', 42)
 
-    # experiment('1b', 1)
+    #experiment('1b', 1)
     # experiment('1b', 42)
 
-    # experiment('1c', 1)
+    experiment('1c', 1)
     # experiment('1c', 42)
 
     experiment('2', 1)
-    experiment('2', 42)
+    #experiment('2', 42)
 
     # experiment('3a', 1)
     # experiment('3a', 42)
