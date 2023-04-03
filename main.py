@@ -12,6 +12,15 @@ def distance(locF, locM):
             + abs(locF[1] - locM[1])
             + abs(locF[2] - locM[2]))
 
+def write_actions(agentFActions, agentMActions):
+    # write move lists to files
+    with open('f_actions', 'w', encoding="utf-8") as f:
+        for action in agentFActions:
+            f.write('%s\n' % action)
+    with open('m_actions', 'w', encoding="utf-8") as f:
+        for action in agentMActions:
+            f.write('%s\n' % action)
+
 def experiment(id, seed):
     """
     Implements the event loop for experiments
@@ -31,6 +40,7 @@ def experiment(id, seed):
     # real world state space
     RW = StateSpace('original')
 
+    # TODO add an argument to determine this?
     # reinforcement learning state space
     # RLW = VSSpace()
     RLW = SSSpace()
@@ -85,7 +95,7 @@ def experiment(id, seed):
         reward = RW.perform_action(curAgent, action)
         numActions += 1
 
-        # agent updates its Qtable
+        # update qtable
         if curAgent == 'F':
             agentF.update(RW, reward)
         elif curAgent == 'M':
@@ -111,6 +121,7 @@ def experiment(id, seed):
                 RW = StateSpace('modified')
             elif id == '4' and terminal == 6:
                 print(f"Total number of terminal states reached: {terminal}") # 6
+                write_actions(agentFActions, agentMActions)
                 break
             elif id != '4':
                 RW = StateSpace('original')
@@ -142,9 +153,10 @@ def experiment(id, seed):
                     agentM.set_learning('sarsa')
 
         # stop after 10,000 moves
-        if n == 100000:
+        if n == 10000:
             # TODO dump qtable
             print(f"\nTotal number of terminal states reached: {terminal}")
+            write_actions(agentFActions, agentMActions)
             break
 
 
@@ -159,31 +171,6 @@ def main():
         action="store_true")
     args = arg_parser.parse_args()
     experiment(args.experiment, args.seed)
-    return 0
-    """
-    Driver code to conduct experiments
-    """
-    #experiment('1a', 1)
-    # experiment('1a', 42)
-
-    #experiment('1b', 1)
-    # experiment('1b', 42)
-
-    experiment('1c', 1)
-    # experiment('1c', 42)
-
-    experiment('2', 1)
-    #experiment('2', 42)
-
-    # experiment('3a', 1)
-    # experiment('3a', 42)
-
-    # experiment('3b', 1)
-    # experiment('3b', 42)
-
-    # experiment('4', 1)
-    # experiment('4', 42)
-
 
 if __name__ == "__main__":
     main()

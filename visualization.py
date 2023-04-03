@@ -1,6 +1,18 @@
 import pygame
 import os
 
+# import action lists
+agentFActions = []
+agentMActions = []
+with open('f_actions', 'r', encoding="utf-8") as f:
+    for line in f:
+        x = line[:-1]
+        agentFActions.append(x)
+with open('m_actions', 'r', encoding="utf-8") as f:
+    for line in f:
+        x = line[:-1]
+        agentMActions.append(x)
+
 WIDTH, HEIGHT = 900, 500
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Reinforcement Learning Visualization")
