@@ -31,6 +31,12 @@ pygame.display.set_caption("Reinforcement Learning Visualization")
 WHITE = (255, 255, 255)
 FPS = 60
 
+# maybe a more elegant solution to movement logic is:
+# if aciton != U or D then
+    # add or substract appropriate length (number of pixels) to x or y
+# else if action == U or D then
+    # if statements to perform large change in x coordinates (y never changes)
+
 # z=0 locations
 LOC_000 = () 
 LOC_100 = () 
