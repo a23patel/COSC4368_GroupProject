@@ -2,16 +2,16 @@ import pygame
 import os
 
 # import action lists
-agentFActions = []
-agentMActions = []
-with open('f_actions', 'r', encoding="utf-8") as f:
-    for line in f:
-        x = line[:-1]
-        agentFActions.append(x)
-with open('m_actions', 'r', encoding="utf-8") as f:
-    for line in f:
-        x = line[:-1]
-        agentMActions.append(x)
+# agentFActions = []
+# agentMActions = []
+# with open('f_actions', 'r', encoding="utf-8") as f:
+#     for line in f:
+#         x = line[:-1]
+#         agentFActions.append(x)
+# with open('m_actions', 'r', encoding="utf-8") as f:
+#     for line in f:
+#         x = line[:-1]
+#         agentMActions.append(x)
 
 # TODO list
 # 1. Agree on LARGE window dimensions ?DONE
@@ -25,12 +25,12 @@ with open('m_actions', 'r', encoding="utf-8") as f:
 # 6. Check terminal state reached, and reset (dropoffCounter == 20)
 # 7. Display someting to indicate end of experiment
 
-WIDTH, HEIGHT = 1150, 600
+WIDTH, HEIGHT = 900, 300
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Reinforcement Learning Visualization")
 WHITE = (255, 255, 255)
 FPS = 60
-
+default_size = (50,50)
 # maybe a more elegant solution to movement logic is:
 # if aciton != U or D then
     # add or substract appropriate length (number of pixels) to x or y
@@ -80,6 +80,10 @@ P = pygame.image.load(os.path.join('assets','p_pix.png'))
 D = pygame.image.load(os.path.join('assets','d_pix.png'))
 R = pygame.image.load(os.path.join('assets','r_pix.png'))
 
+image_f = pygame.transform.scale(FEMALE_AGENT_SIMPLE,default_size)
+
+#can move resized simple female image by adding or subtracting 85 for x and y movements, z movement is changed by adding 310 to x
+
 def draw_window():
     WIN.fill(WHITE)
     WIN.blit(Z_LEVEL, (10,10))
@@ -87,9 +91,9 @@ def draw_window():
     WIN.blit(Z_LEVEL, (634,10))
     # WIN.blit(FEMALE_AGENT, (50,125))
     # WIN.blit(MALE_AGENT, (250,125))
-    WIN.blit(BLOCK, (15,300))
-    WIN.blit(BLOCK, (15,200))
-    
+    #WIN.blit(BLOCK, (15,300))
+    #WIN.blit(BLOCK, (15,200))
+    WIN.blit(image_f,(505,25))
     # WIN.blit(P,(100,10))
     pygame.display.update()
 
