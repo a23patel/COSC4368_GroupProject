@@ -1,1 +1,8 @@
-FEMALE_AGENT_SIMPLE = pygame.image.load(os.path.join('assets', 'female_agent_simple.png'))
+if j == "right":
+        m_x += 120
+    elif j == "left":
+        m_x -= 120
+    elif j == "down":
+        m_y += 120
+    elif j == "up":
+        m_y -= 120 
