@@ -20,7 +20,7 @@ import os
 # 4. Write a function to show intial state
     # 1. white window - done
     # 2. blit zlevels side by side & perhaps label them (z=1, z=2, z=3) - Abraar can add this
-    # 3. blit every asset to the appropriate postion - need boxes
+    # 3. blit every asset to the appropriate postion - DONE
 # 5. Incorporate action lists into the logic
 # 6. Check terminal state reached, and reset (dropoffCounter == 20)
 # 7. Display someting to indicate end of experiment
@@ -34,7 +34,7 @@ import os
 pygame.init()
 
 
-WIN = pygame.display.set_mode((1200, 500))
+WIN = pygame.display.set_mode((1200, 400))
 pygame.display.set_caption("Reinforcement Learning Visualization")
 WHITE = (255, 255, 255)
 FPS = 60
@@ -64,26 +64,37 @@ busy_m = pygame.transform.scale(MALE_AGENT,default_size)
 
 grid_1 = pygame.transform.scale(Z_LEVEL,default_grid)
 
-resized_block = pygame.transform.scale(BLOCK,default_size)
+resized_block = pygame.transform.scale(BLOCK,default_block)
 
 resized_pick = pygame.transform.scale(P,default_size)
 resized_d = pygame.transform.scale(D,default_size)
 resized_r = pygame.transform.scale(R,default_size)
 
-class block(pygame.sprite.Sprite):
-    def __init__(self, x,y) -> None:
-        super().__init__()
-        self.image = resized_block
-        self.x = x
-        self.y = y
+block_arr_one = [] #floor 1 
+block_arr_two = [] #floor 2
+
+# class Block:
+#     def __init__(self, x, y):
+#         self.x = x
+#         self.y = y
+        
+#     def get_position(self):
+#         return (self.x, self.y)
 
 
+block_one_y = 165
+block_two_y = 45
+for i in range(10):
+    block1 = (165,block_one_y)
+    block2 = (700,block_two_y)
+    block_arr_one.append(block1)
+    block_arr_two.append(block2)
+    block_one_y = block_one_y - 5
+    block_two_y = block_two_y - 5
 
-block_array = []
 
 starting_x_f = 985
 starting_y_f = 45
-
 
 starting_m_x = 45
 starting_m_y = 285
@@ -113,12 +124,18 @@ while True:
     WIN.blit(resized_r,(285,165))
     WIN.blit(resized_r,(575,165))
 
-    WIN.blit(resized_pick,(165,165))
-    WIN.blit(resized_pick,(700,45))
+    WIN.blit(resized_pick,(135,200)) #p level 1
+    WIN.blit(resized_pick,(660,85)) #p level 2
 
     WIN.blit(image_f,(starting_x_f,starting_y_f))
     WIN.blit(image_m,(starting_m_x,starting_m_y))
 
+    for itr in range(10):
+        game_block1 = block_arr_one[itr]
+        game_block2 = block_arr_two[itr]
+
+        WIN.blit(resized_block,(game_block1[0],game_block1[1]))
+        WIN.blit(resized_block,(game_block2[0],game_block2[1]))
     # if i == "right":
     #     x += 120
     # elif i == "left":
