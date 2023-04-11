@@ -79,6 +79,9 @@ def experiment(id, seed):
     # number of actions between terminal states
     numActions = 0
 
+    # just terminated flag
+    justTerminated = False
+
     while True:
         # 'F' or 'M'
         curAgent = q.get()
@@ -109,22 +112,35 @@ def experiment(id, seed):
 
         # check completion criterion
         if RW.is_complete():
+            justTerminated = True
             # TODO dump qtable
             terminal += 1
             print(f"Terminal state {terminal} reached after {numActions} actions\n")
             numActions = 0
             if id == '4' and (terminal == 1 or terminal == 2):
                 RW = StateSpace('original')
+                # empty queue and load F first then M
+                q.get()
+                q.put('F')
+                q.put('M')
             elif id == '4' and (terminal == 3 or terminal == 4 or terminal == 5):
                 if terminal == 3:
                     print("Pickup locations modified\n")
                 RW = StateSpace('modified')
+                # empty queue and load F first then M
+                q.get()
+                q.put('F')
+                q.put('M')
             elif id == '4' and terminal == 6:
                 print(f"Total number of terminal states reached: {terminal}") # 6
                 write_actions(agentFActions, agentMActions)
                 break
             elif id != '4':
                 RW = StateSpace('original')
+                # empty queue and load F first then M
+                q.get()
+                q.put('F')
+                q.put('M')
 
         # TODO visualization in pyGame
         if n % (250-1) == 0:
@@ -134,8 +150,12 @@ def experiment(id, seed):
         # store distance between agents after 'M' moves
         if n % 2 != 0:
             distList.append(distance(RW.locF, RW.locM))
-
-        q.put(curAgent)
+        
+        if not justTerminated:
+            q.put(curAgent)
+        
+        justTerminated = False
+        
         n += 1
 
         # switch policy after first 500 moves for 1b, 1c, 2, 3, & 4

@@ -20,7 +20,7 @@ LIGHT_YELLOW = (255, 255, 204)
 PURPLE = (128, 0, 128)
 
 # speed of execution
-FPS = 600
+FPS = 3
 
 # import assets
 
@@ -267,7 +267,7 @@ class Agent:
         self.loc = (self.loc[0], self.loc[1], self.loc[2]+1)
         if self.loc[2] > 2:
             print(f"agent {self.id} z coordinate = {self.loc[2]}")
-            print(f"problematic move on line {self.index-1}") # 2786, U
+            print(f"problematic move on line {self.index+1}")
         self.index += 1
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
     
@@ -351,6 +351,8 @@ def draw_action(c, agent):
     # TODO draw blocks
     i = agent.index
     action = agent.actionList[i]
+    # if c.numTerminal == 8:
+    #     print(f"Agent {agent.id}'s index is {agent.index} and performing {action}")
     if action == 'E':
         agent.move_east()
     elif action == 'W':
@@ -388,17 +390,9 @@ def main():
 
     run = True
     clock = pygame.time.Clock()
+
     # number of total iterations
     n = 0
-
-    # number of dropoff actions performed
-    numDropoff = 0
-
-    # number of actions between terminal states
-    numActions = 0
-
-    # number of terminal states reached
-    terminal = 0
 
     while run:
         clock.tick(FPS)
@@ -415,11 +409,12 @@ def main():
         q.put(curAgent)
         
         # redraw inactive agent
-        if curAgent.id == 'F':
-            WIN.blit(M.asset, LOC_MATRIX[M.loc[0]][M.loc[1]][M.loc[2]])
-        else:
-            WIN.blit(F.asset, LOC_MATRIX[F.loc[0]][F.loc[1]][F.loc[2]])
-        pygame.display.update()
+        if c.numActions != 0:
+            if curAgent.id == 'F':
+                WIN.blit(M.asset, LOC_MATRIX[M.loc[0]][M.loc[1]][M.loc[2]])
+            else:
+                WIN.blit(F.asset, LOC_MATRIX[F.loc[0]][F.loc[1]][F.loc[2]])
+            pygame.display.update()
 
         # check terminal state & reset if true
         if c.numDropoff == 20:
@@ -429,8 +424,8 @@ def main():
             c.numDropoff = 0
             F.loc = [0,0,0]
             M.loc = [2,1,2]
-            q.get(curAgent)
-            q.get(curAgent)
+            curAgent = q.get()
+            curAgent = q.get()
             q.put(M)
             q.put(F)
 
