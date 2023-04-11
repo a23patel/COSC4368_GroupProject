@@ -20,7 +20,7 @@ LIGHT_YELLOW = (255, 255, 204)
 PURPLE = (128, 0, 128)
 
 # speed of execution
-FPS = 30
+FPS = 600
 
 # import assets
 
@@ -228,53 +228,56 @@ class Agent:
         # update loc
         # self.loc = (self.loc[0]+MOVE_OFFSET_NESW, self.loc[1])
         # check bounds
-        if self.loc[0] < 2:
-            self.loc = (self.loc[0]+1, self.loc[1], self.loc[2])
-            self.index += 1
-            WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
+        # if self.loc[0] < 2:
+        self.loc = (self.loc[0]+1, self.loc[1], self.loc[2])
+        self.index += 1
+        WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def move_west(self):
         # update loc
         # self.loc = (self.loc[0]-MOVE_OFFSET_NESW, self.loc[1])
         # check bounds
-        if self.loc[0] > 0:
-            self.loc = (self.loc[0]-1, self.loc[1], self.loc[2])
-            self.index += 1
-            WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
+        # if self.loc[0] > 0:
+        self.loc = (self.loc[0]-1, self.loc[1], self.loc[2])
+        self.index += 1
+        WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
   
 
     def move_north(self):
         # update loc
         # self.loc = (self.loc[0], self.loc[1]-MOVE_OFFSET_NESW)
         # check bounds
-        if self.loc[1] < 2:
-            self.loc = (self.loc[0], self.loc[1]+1, self.loc[2])
-            self.index += 1
-            WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
+        # if self.loc[1] < 2:
+        self.loc = (self.loc[0], self.loc[1]+1, self.loc[2])
+        self.index += 1
+        WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def move_south(self):
         # update loc
         # check bounds
-        if self.loc[1] > 0:
-            self.loc = (self.loc[0], self.loc[1]-1, self.loc[2])
-            self.index += 1
-            WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
+        # if self.loc[1] > 0:
+        self.loc = (self.loc[0], self.loc[1]-1, self.loc[2])
+        self.index += 1
+        WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def move_up(self):
         # update loc
         # check bounds
-        if self.loc[2] < 2:
-            self.loc = (self.loc[0], self.loc[1], self.loc[2]+1)
-            self.index += 1
-            WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
+        
+        self.loc = (self.loc[0], self.loc[1], self.loc[2]+1)
+        if self.loc[2] > 2:
+            print(f"agent {self.id} z coordinate = {self.loc[2]}")
+            print(f"problematic move on line {self.index-1}") # 2786, U
+        self.index += 1
+        WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
     
     def move_down(self):
         # update loc
         # check bounds
-        if self.loc[2] > 0:
-            self.loc = (self.loc[0], self.loc[1], self.loc[2]-1)
-            self.index += 1
-            WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
+        # if self.loc[2] > 0:
+        self.loc = (self.loc[0], self.loc[1], self.loc[2]-1)
+        self.index += 1
+        WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def pickup(self):
         if self.id == 'F':
