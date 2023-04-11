@@ -1,0 +1,17 @@
+# TODO list
+# 1. Agree on LARGE window dimensions - DONE
+# 2. Resize assets such that busiest cell fits all assets - DONE
+# 3. Define all locations - dont need this i think
+# 4. Write a function to show intial state
+    # 1. white window - done
+    # 2. blit zlevels side by side & perhaps label them (z=1, z=2, z=3) - Abraar can add this
+    # 3. blit every asset to the appropriate postion - DONE
+# 5. Incorporate action lists into the logic
+# 6. Check terminal state reached, and reset (dropoffCounter == 20)
+# 7. Display someting to indicate end of experiment
+
+# maybe a more elegant solution to movement logic is:
+# if aciton != U or D then
+    # add or substract appropriate length (number of pixels) to x or y
+# else if action == U or D then
+    # if statements to perform large change in x coordinates (y never changes)
