@@ -1,11 +1,12 @@
 import pygame
 import os
 from pygame.font import Font
+from queue import Queue
 
 ################## GLOBALS ##################
 
 # controls overall size
-SCALE = 1.05
+SCALE = 1
 
 # window
 WIDTH, HEIGHT = (SCALE*1200), (SCALE*400)
@@ -18,7 +19,7 @@ LIGHT_YELLOW = (255, 255, 204)
 PURPLE = (128, 0, 128)
 
 # speed of execution
-FPS = 60
+FPS = 3
 
 # import assets
 
@@ -92,10 +93,11 @@ R_LOCATION_321 = (SCALE*250,SCALE*200)
 R_LOCATION_222 = (SCALE*545,SCALE*200)
 
 # agents
-F_START = (SCALE*990, SCALE*55)
-M_START = (SCALE*55, SCALE*285)
+F_START = (SCALE*55, SCALE*285)
+M_START = (SCALE*990, SCALE*55)
 
 # TODO block stack locations
+
 
 # move offset values
 # E, W -> +x, -x
@@ -133,8 +135,71 @@ MOVE_OFFSET_UD = SCALE*410
         #     WIN.blit(block,(game_block2[0],game_block2[1]))
 
 ################
-p_list = ["right", "right","down","up"]
-p2_list = ["right", "right","down","up"]
+# p_list = ["right", "right","down","up"]
+# p2_list = ["right", "right","down","up"]
+
+class Agent:
+    def __init__(self, _id, _loc, _asset, _actionList):
+        self.id = _id # F or M
+        self.loc = _loc
+        self.asset = _asset
+        self.actionList = _actionList
+        self.index = 0
+    
+    def set_asset(self, _asset):
+        self.asset = _asset
+
+    def move_east(self):
+        # update loc
+        self.loc = (self.loc[0]+MOVE_OFFSET_NESW, self.loc[1])
+        self.index += 1
+        WIN.blit(self.asset, self.loc)
+
+    def move_west(self):
+        # update loc
+        self.loc = (self.loc[0]-MOVE_OFFSET_NESW, self.loc[1])
+        self.index += 1
+        WIN.blit(self.asset, self.loc)  
+
+    def move_north(self):
+        # update loc
+        self.loc = (self.loc[0], self.loc[1]-MOVE_OFFSET_NESW)
+        self.index += 1
+        WIN.blit(self.asset, self.loc)
+
+    def move_south(self):
+        # update loc
+        self.loc = (self.loc[0], self.loc[1]+MOVE_OFFSET_NESW)
+        self.index += 1
+        WIN.blit(self.asset, self.loc)
+
+    def move_up(self):
+        # update loc
+        self.loc = (self.loc[0]+MOVE_OFFSET_UD, self.loc[1])
+        self.index += 1
+        WIN.blit(self.asset, self.loc)
+    
+    def move_down(self):
+        # update loc
+        self.loc = (self.loc[0]-MOVE_OFFSET_UD, self.loc[1])
+        self.index += 1
+        WIN.blit(self.asset, self.loc)
+
+    def pickup(self):
+        if self.id == 'F':
+            self.asset = f_carrying
+        elif self.id == 'M':
+            self.asset = m_carrying
+        self.index += 1
+        WIN.blit(self.asset, self.loc)
+
+    def dropoff(self):
+        if self.id == 'F':
+            self.asset = f_not_carrying
+        elif self.id == 'M':
+            self.asset = m_not_carrying
+        self.index += 1
+        WIN.blit(self.asset, self.loc)
 
 # import action lists
 agentFActions = []
@@ -148,50 +213,76 @@ with open('m_actions', 'r', encoding="utf-8") as f:
         x = line[:-1]
         agentMActions.append(x)
 
-def draw_window(_n):
-    WIN.fill(WHITE)
+# TODO consider experiment 4 with modified RW state space
+def draw_window(n, agent):
+    WIN.fill(LIGHT_YELLOW)
 
-    WIN.blit(grid, (Z1_LOCATION[0],Z1_LOCATION[1]))
-    WIN.blit(grid, (Z2_LOCATION[0],Z2_LOCATION[1]))
-    WIN.blit(grid, (Z3_LOCATION[0],Z3_LOCATION[1]))
+    WIN.blit(grid, Z1_LOCATION)
+    WIN.blit(grid, Z2_LOCATION)
+    WIN.blit(grid, Z3_LOCATION)
 
-    WIN.blit(Z1_LABEL, (Z1_LABEL_LOCATION[0], Z1_LABEL_LOCATION[1]))
-    WIN.blit(Z2_LABEL, (Z2_LABEL_LOCATION[0], Z2_LABEL_LOCATION[1]))
-    WIN.blit(Z3_LABEL, (Z3_LABEL_LOCATION[0], Z3_LABEL_LOCATION[1]))
+    WIN.blit(Z1_LABEL, Z1_LABEL_LOCATION)
+    WIN.blit(Z2_LABEL, Z2_LABEL_LOCATION)
+    WIN.blit(Z3_LABEL, Z3_LABEL_LOCATION)
     
-    WIN.blit(p,(P_LOCATION_221[0],P_LOCATION_221[1]))
-    WIN.blit(p,(P_LOCATION_332[0],P_LOCATION_332[1]))
+    WIN.blit(p, P_LOCATION_221)
+    WIN.blit(p, P_LOCATION_332)
 
-    WIN.blit(d,(D_LOCATION_311[0],D_LOCATION_311[1]))
-    WIN.blit(d,(D_LOCATION_112[0],D_LOCATION_112[1]))
-    WIN.blit(d,(D_LOCATION_113[0],D_LOCATION_113[1]))
-    WIN.blit(d,(D_LOCATION_323[0],D_LOCATION_323[1]))
+    WIN.blit(d, D_LOCATION_311)
+    WIN.blit(d, D_LOCATION_112)
+    WIN.blit(d, D_LOCATION_113)
+    WIN.blit(d, D_LOCATION_323)
 
-    WIN.blit(r,(R_LOCATION_321[0],R_LOCATION_321[1]))
-    WIN.blit(r,(R_LOCATION_222[0],R_LOCATION_222[1]))
+    WIN.blit(r, R_LOCATION_321)
+    WIN.blit(r, R_LOCATION_222)
     
-    # draw_action(_n, curLoc, action)
-
-    # test agent loc
-    WIN.blit(f_not_carrying,(F_START[0], F_START[1]))
-    WIN.blit(m_not_carrying,(M_START[0]+MOVE_OFFSET_UD, M_START[1]))
+    if n == 0:
+        WIN.blit(f_not_carrying, F_START)
+        WIN.blit(m_not_carrying, M_START)
+    else:
+        draw_action(agent)
+        
+        # pass
+    
+    # testing movement functions
+    
+    # WIN.blit(f_not_carrying,(F_START[0], F_START[1]))
+    # agent.move_west()
+    # WIN.blit(m_not_carrying,(M_START[0], M_START[1]))
 
     pygame.display.update()
 
-def draw_action(_n, curLoc, action):
+def draw_action(agent):
     # conditionally blit dynamic assets (agents, blocks)
-    if _n == 0:
-        WIN.blit(f_not_carrying,(F_START[0], F_START[1]))
-        WIN.blit(m_not_carrying,(M_START[0], M_START[1]))
-        # TODO draw blocks
-    else:
-        
-        pass
-
-#main loop
-#for i,j in zip(p_list,p2_list):
+    # TODO draw blocks
+    i = agent.index
+    action = agent.actionList[i]
+    if action == 'E':
+        agent.move_east()
+    elif action == 'W':
+        agent.move_west()
+    elif action == 'N':
+        agent.move_north()
+    elif action == 'S':
+        agent.move_south()
+    elif action == 'U':
+        agent.move_up()
+    elif action == 'D':
+        agent.move_down()
+    elif action == 'Pickup':
+        agent.pickup()
+    elif action == 'Dropoff':
+        agent.dropoff()
 
 def main():
+    
+    F = Agent('F', F_START, f_not_carrying, agentFActions)
+    M = Agent('M', M_START, m_not_carrying, agentMActions)
+
+    q = Queue(maxsize=2)
+    q.put(M)
+    q.put(F)
+
     run = True
     clock = pygame.time.Clock()
     # number of iterations
@@ -202,38 +293,25 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
 
-        draw_window(n)
+        curAgent = q.get()
+        draw_window(n, curAgent)
+        # draw_window(0, F)
+        q.put(curAgent)
+        
+        # redraw inactive agent
+        if curAgent.id == 'F':
+            WIN.blit(M.asset, M.loc)
+        else:
+            WIN.blit(F.asset, F.loc)
+        pygame.display.update()
+
         n += 1
+        if n >= 10000:
+            break # leave window open, TODO indicate end of experiment
+        
+        
 
     pygame.quit()
 
 if __name__ == "__main__":
     main()
-        
-       
-        
-        
-        
-        
-        
-        # if i == "right":
-        #     x += 120
-        # elif i == "left":
-        #     x -= 120
-        # elif i == "down":
-        #     y += 120
-        # else:
-        #     y -= 120
-
-        # if j == "right":
-        #     m_x += 120
-        # elif j == "left":
-        #     m_x -= 120
-        # elif j == "down":
-        #     m_y += 120
-        # elif j == "up":
-        #     m_y -= 120 
-
-
-    
-
