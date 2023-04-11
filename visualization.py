@@ -305,7 +305,7 @@ with open('m_actions', 'r', encoding="utf-8") as f:
         agentMActions.append(x)
 
 # TODO consider experiment 4 with modified RW state space
-def draw_window(n, agent):
+def draw_window(c, agent):
     WIN.fill(LIGHT_YELLOW)
 
     WIN.blit(grid, Z1_LOCATION)
@@ -327,11 +327,11 @@ def draw_window(n, agent):
     WIN.blit(r, R_LOCATION_321)
     WIN.blit(r, R_LOCATION_222)
     
-    if n == 0:
+    if c.numActions == 0:
         WIN.blit(f_not_carrying, LOC_MATRIX[0][0][0])
         WIN.blit(m_not_carrying, LOC_MATRIX[2][1][2])
     else:
-        draw_action(agent)
+        draw_action(c, agent)
         
         # pass
     
@@ -343,7 +343,7 @@ def draw_window(n, agent):
 
     pygame.display.update()
 
-def draw_action(agent):
+def draw_action(c, agent):
     # conditionally blit dynamic assets (agents, blocks)
     # TODO draw blocks
     i = agent.index
@@ -364,9 +364,18 @@ def draw_action(agent):
         agent.pickup()
     elif action == 'Dropoff':
         agent.dropoff()
+        c.numDropoff += 1
+
+class Conditions:
+    def __init__(self):
+        self.numDropoff = 0
+        self.numActions = 0
+        self.numTerminal = 0
 
 def main():
     
+    c = Conditions()
+
     F = Agent('F', [0,0,0], f_not_carrying, agentFActions)
     M = Agent('M', [2,1,2], m_not_carrying, agentMActions)
 
@@ -376,8 +385,18 @@ def main():
 
     run = True
     clock = pygame.time.Clock()
-    # number of iterations
+    # number of total iterations
     n = 0
+
+    # number of dropoff actions performed
+    numDropoff = 0
+
+    # number of actions between terminal states
+    numActions = 0
+
+    # number of terminal states reached
+    terminal = 0
+
     while run:
         clock.tick(FPS)
         for event in pygame.event.get():
@@ -385,8 +404,11 @@ def main():
                 run = False
 
         curAgent = q.get()
-        draw_window(n, curAgent)
+
+        draw_window(c, curAgent)
+        c.numActions += 1
         # draw_window(0, F)
+
         q.put(curAgent)
         
         # redraw inactive agent
@@ -395,6 +417,19 @@ def main():
         else:
             WIN.blit(F.asset, LOC_MATRIX[F.loc[0]][F.loc[1]][F.loc[2]])
         pygame.display.update()
+
+        # check terminal state & reset if true
+        if c.numDropoff == 20:
+            c.numTerminal += 1
+            print(f"terminal state {c.numTerminal} reached")
+            c.numActions = 0
+            c.numDropoff = 0
+            F.loc = [0,0,0]
+            M.loc = [2,1,2]
+            q.get(curAgent)
+            q.get(curAgent)
+            q.put(M)
+            q.put(F)
 
         n += 1
         if n >= 10000:
