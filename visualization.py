@@ -2,6 +2,7 @@ import pygame
 import os
 from pygame.font import Font
 from queue import Queue
+import numpy as np
 
 ################## GLOBALS ##################
 
@@ -94,7 +95,80 @@ R_LOCATION_222 = (SCALE*545,SCALE*200)
 
 # agents
 F_START = (SCALE*55, SCALE*285)
-M_START = (SCALE*990, SCALE*55)
+M_START = (SCALE*(990+120), SCALE*(120+55))
+
+# Z=1 agent blit locations
+LOC_111 = (SCALE*55, SCALE*285) # F <- LOC_MATRIX[0][0][0]
+LOC_211 = (SCALE*175, SCALE*285)
+LOC_311 = (SCALE*295, SCALE*285)
+LOC_121 = (SCALE*55, SCALE*165)
+LOC_221 = (SCALE*175, SCALE*165)
+LOC_321 = (SCALE*295, SCALE*165)
+LOC_131 = (SCALE*55, SCALE*45) # LOC_MATRIX[0][2][0]
+LOC_231 = (SCALE*175, SCALE*45)
+LOC_331 = (SCALE*295, SCALE*45)
+
+# Z=2 agent blit locations
+LOC_112 = (SCALE*465, SCALE*285)
+LOC_212 = (SCALE*585, SCALE*285)
+LOC_312 = (SCALE*705, SCALE*285)
+LOC_122 = (SCALE*465, SCALE*165)
+LOC_222 = (SCALE*585, SCALE*165)
+LOC_322 = (SCALE*705, SCALE*165)
+LOC_132 = (SCALE*465, SCALE*45)
+LOC_232 = (SCALE*585, SCALE*45)
+LOC_332 = (SCALE*705, SCALE*45)
+
+# Z=3 agent blit locations
+LOC_113 = (SCALE*875, SCALE*285)
+LOC_213 = (SCALE*995, SCALE*285)
+LOC_313 = (SCALE*1115, SCALE*285)
+LOC_123 = (SCALE*875, SCALE*165)
+LOC_223 = (SCALE*995, SCALE*165)
+LOC_323 = (SCALE*1115, SCALE*165) # M <- LOC_MATRIX[2][1][2]
+LOC_133 = (SCALE*875, SCALE*45)
+LOC_233 = (SCALE*995, SCALE*45)
+LOC_333 = (SCALE*1115, SCALE*45)
+
+# put into 3d array
+LOC_MATRIX = np.empty(shape=(3, 3, 3), dtype=object, order='C')
+
+LOC_MATRIX[0,0,0] = LOC_111
+LOC_MATRIX[1,0,0] = LOC_211
+LOC_MATRIX[2,0,0] = LOC_311
+LOC_MATRIX[0,1,0] = LOC_121
+LOC_MATRIX[1,1,0] = LOC_221
+LOC_MATRIX[2,1,0] = LOC_321
+LOC_MATRIX[0,2,0] = LOC_131
+LOC_MATRIX[1,2,0] = LOC_231
+LOC_MATRIX[2,2,0] = LOC_331
+
+LOC_MATRIX[0,0,1] = LOC_112
+LOC_MATRIX[1,0,1] = LOC_212
+LOC_MATRIX[2,0,1] = LOC_312
+LOC_MATRIX[0,1,1] = LOC_122
+LOC_MATRIX[1,1,1] = LOC_222
+LOC_MATRIX[2,1,1] = LOC_322
+LOC_MATRIX[0,2,1] = LOC_132
+LOC_MATRIX[1,2,1] = LOC_232
+LOC_MATRIX[2,2,1] = LOC_332
+
+LOC_MATRIX[0,0,2] = LOC_113
+LOC_MATRIX[1,0,2] = LOC_213
+LOC_MATRIX[2,0,2] = LOC_313
+LOC_MATRIX[0,1,2] = LOC_123
+LOC_MATRIX[1,1,2] = LOC_223
+LOC_MATRIX[2,1,2] = LOC_323
+LOC_MATRIX[0,2,2] = LOC_133
+LOC_MATRIX[1,2,2] = LOC_233
+LOC_MATRIX[2,2,2] = LOC_333
+
+if LOC_MATRIX[1][2][0] == LOC_231:
+    print("Correctly built")
+else:
+    print("Incorrectly built")
+
+
 
 # TODO block stack locations
 
@@ -141,6 +215,7 @@ MOVE_OFFSET_UD = SCALE*410
 class Agent:
     def __init__(self, _id, _loc, _asset, _actionList):
         self.id = _id # F or M
+        # TODO represent cell locations in 3D array to avoid compounding errors
         self.loc = _loc
         self.asset = _asset
         self.actionList = _actionList
@@ -151,39 +226,43 @@ class Agent:
 
     def move_east(self):
         # update loc
-        self.loc = (self.loc[0]+MOVE_OFFSET_NESW, self.loc[1])
+        # self.loc = (self.loc[0]+MOVE_OFFSET_NESW, self.loc[1])
+        self.loc = (self.loc[0]+1, self.loc[1], self.loc[2])
         self.index += 1
-        WIN.blit(self.asset, self.loc)
+        WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def move_west(self):
         # update loc
-        self.loc = (self.loc[0]-MOVE_OFFSET_NESW, self.loc[1])
+        # self.loc = (self.loc[0]-MOVE_OFFSET_NESW, self.loc[1])
+        self.loc = (self.loc[0]-1, self.loc[1], self.loc[2])
         self.index += 1
-        WIN.blit(self.asset, self.loc)  
+        WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
+  
 
     def move_north(self):
         # update loc
-        self.loc = (self.loc[0], self.loc[1]-MOVE_OFFSET_NESW)
+        # self.loc = (self.loc[0], self.loc[1]-MOVE_OFFSET_NESW)
+        self.loc = (self.loc[0], self.loc[1]+1, self.loc[2])
         self.index += 1
-        WIN.blit(self.asset, self.loc)
+        WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def move_south(self):
         # update loc
-        self.loc = (self.loc[0], self.loc[1]+MOVE_OFFSET_NESW)
+        self.loc = (self.loc[0], self.loc[1]-1, self.loc[2])
         self.index += 1
-        WIN.blit(self.asset, self.loc)
+        WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def move_up(self):
         # update loc
-        self.loc = (self.loc[0]+MOVE_OFFSET_UD, self.loc[1])
+        self.loc = (self.loc[0], self.loc[1], self.loc[2]+1)
         self.index += 1
-        WIN.blit(self.asset, self.loc)
+        WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
     
     def move_down(self):
         # update loc
-        self.loc = (self.loc[0]-MOVE_OFFSET_UD, self.loc[1])
+        self.loc = (self.loc[0], self.loc[1], self.loc[2]-1)
         self.index += 1
-        WIN.blit(self.asset, self.loc)
+        WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def pickup(self):
         if self.id == 'F':
@@ -191,7 +270,7 @@ class Agent:
         elif self.id == 'M':
             self.asset = m_carrying
         self.index += 1
-        WIN.blit(self.asset, self.loc)
+        WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def dropoff(self):
         if self.id == 'F':
@@ -199,7 +278,7 @@ class Agent:
         elif self.id == 'M':
             self.asset = m_not_carrying
         self.index += 1
-        WIN.blit(self.asset, self.loc)
+        WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
 # import action lists
 agentFActions = []
@@ -237,8 +316,8 @@ def draw_window(n, agent):
     WIN.blit(r, R_LOCATION_222)
     
     if n == 0:
-        WIN.blit(f_not_carrying, F_START)
-        WIN.blit(m_not_carrying, M_START)
+        WIN.blit(f_not_carrying, LOC_MATRIX[0][0][0])
+        WIN.blit(m_not_carrying, LOC_MATRIX[2][1][2])
     else:
         draw_action(agent)
         
@@ -276,8 +355,8 @@ def draw_action(agent):
 
 def main():
     
-    F = Agent('F', F_START, f_not_carrying, agentFActions)
-    M = Agent('M', M_START, m_not_carrying, agentMActions)
+    F = Agent('F', [0,0,0], f_not_carrying, agentFActions)
+    M = Agent('M', [2,1,2], m_not_carrying, agentMActions)
 
     q = Queue(maxsize=2)
     q.put(M)
@@ -300,9 +379,9 @@ def main():
         
         # redraw inactive agent
         if curAgent.id == 'F':
-            WIN.blit(M.asset, M.loc)
+            WIN.blit(M.asset, LOC_MATRIX[M.loc[0]][M.loc[1]][M.loc[2]])
         else:
-            WIN.blit(F.asset, F.loc)
+            WIN.blit(F.asset, LOC_MATRIX[F.loc[0]][F.loc[1]][F.loc[2]])
         pygame.display.update()
 
         n += 1
