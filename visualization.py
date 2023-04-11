@@ -185,28 +185,22 @@ MOVE_OFFSET_UD = SCALE*410
 
 ###########
 # TODO implement function to draw stacked blocks - Alex
-# block_arr_one = [] #floor 1 
-# block_arr_two = [] #floor 2
+block_arr_one = [] #floor 1 
+block_arr_two = [] #floor 2
 
-# block_one_y = (220 * SCALE)
-# block_two_y = 105 * SCALE)
+block_one_y = (220 * SCALE)
+block_two_y = (105 * SCALE)
 
-# offset = 11 * SCALE
+offset = 11 * SCALE
 
-# for i in range(10):
-#     block1 = (SCALE * 220,block_one_y)
-#     block2 = (SCALE * 750,block_two_y)
-#     block_arr_one.append(block1)
-#     block_arr_two.append(block2)
-#     block_one_y = block_one_y - offset
-#     block_two_y = block_two_y - offset
+for i in range(10):
+    block1 = (SCALE * 220,block_one_y)
+    block2 = (SCALE * 750,block_two_y)
+    block_arr_one.append(block1)
+    block_arr_two.append(block2)
+    block_one_y = block_one_y - offset
+    block_two_y = block_two_y - offset
 
-    # for itr in range(10):
-        #     game_block1 = block_arr_one[itr]
-        #     game_block2 = block_arr_two[itr]
-
-        #     WIN.blit(block,(game_block1[0],game_block1[1]))
-        #     WIN.blit(block,(game_block2[0],game_block2[1]))
 
 ################
 # p_list = ["right", "right","down","up"]
@@ -308,7 +302,7 @@ with open('m_actions', 'r', encoding="utf-8") as f:
         agentMActions.append(x)
 
 # TODO consider experiment 4 with modified RW state space
-def draw_window(c, agent):
+def draw_window(c, agent, b):
     WIN.fill(LIGHT_YELLOW)
 
     WIN.blit(grid, Z1_LOCATION)
@@ -334,7 +328,7 @@ def draw_window(c, agent):
         WIN.blit(f_not_carrying, LOC_MATRIX[0][0][0])
         WIN.blit(m_not_carrying, LOC_MATRIX[2][1][2])
     else:
-        draw_action(c, agent)
+        draw_action(c, agent, b)
         
         # pass
     
@@ -346,10 +340,12 @@ def draw_window(c, agent):
 
     pygame.display.update()
 
-def draw_action(c, agent):
+def draw_action(c, agent, b):
     # conditionally blit dynamic assets (agents, blocks)
     # TODO draw blocks
     i = agent.index
+    pickup_one = 10
+    pickup_two = 10
     action = agent.actionList[i]
     # if c.numTerminal == 8:
     #     print(f"Agent {agent.id}'s index is {agent.index} and performing {action}")
@@ -371,15 +367,39 @@ def draw_action(c, agent):
         agent.dropoff()
         c.numDropoff += 1
 
+    if action == 'Pickup':
+        if agent.loc == [1,1,0]:
+            b.pickup_one -= 1
+            #print(b.pickup_one)
+        elif agent.loc == [2,2,1]:
+            #print(b.pickup_two)
+            b.pickup_two -= 1
+
+    for itr in range(b.pickup_one):
+        game_block1 = block_arr_one[itr]
+        WIN.blit(block,(game_block1[0], game_block1[1]))
+
+    for itr_ in range(b.pickup_two):
+        game_block2 = block_arr_two[itr_]
+        WIN.blit(block,(game_block2[0],game_block2[1]))
+
+
 class Conditions:
     def __init__(self):
         self.numDropoff = 0
         self.numActions = 0
         self.numTerminal = 0
 
+class Block:
+    def __init__(self):
+        self.pickup_one = 10
+        self.pickup_two = 10
+
 def main():
     
     c = Conditions()
+
+    b = Block()
 
     F = Agent('F', [0,0,0], f_not_carrying, agentFActions)
     M = Agent('M', [2,1,2], m_not_carrying, agentMActions)
@@ -402,7 +422,7 @@ def main():
 
         curAgent = q.get()
 
-        draw_window(c, curAgent)
+        draw_window(c, curAgent, b)
         c.numActions += 1
         # draw_window(0, F)
 
