@@ -7,7 +7,7 @@ import numpy as np
 ################## GLOBALS ##################
 
 # controls overall size
-SCALE = 1.5
+SCALE = 1
 
 # window
 WIDTH, HEIGHT = (SCALE*1200), (SCALE*400)
@@ -20,7 +20,7 @@ LIGHT_YELLOW = (255, 255, 204)
 PURPLE = (128, 0, 128)
 
 # speed of execution
-FPS = 100
+FPS = 30
 
 # import assets
 
