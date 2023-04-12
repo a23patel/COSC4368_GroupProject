@@ -37,7 +37,11 @@ def experiment(id, seed, produce_history, dump_table, rl_type):
     id - '1a', '1b', '1c', '2', '3a', '3b', '4'
     seed - seed value for reproducibility
     """
-    alpha = 0.5
+    alpha = 0.3
+    
+    with open('experiment_id', 'w', encoding="utf-8") as f:
+        f.write(id)
+
     print(f"\n### Experiment {id} running with seed {seed} ###\n")
     if id == '1a' or id == '1b' or id == '1c' or id == '2' or id == '4':
         alpha = 0.3

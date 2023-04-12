@@ -8,7 +8,7 @@ import argparse
 ################## GLOBALS ##################
 
 # controls overall size
-SCALE = 1
+SCALE = 1.05
 
 # window
 WIDTH, HEIGHT = (SCALE*1200), (SCALE*400)
@@ -21,7 +21,7 @@ LIGHT_YELLOW = (255, 255, 204)
 PURPLE = (128, 0, 128)
 
 # speed of execution
-FPS = 30
+FPS = 60
 
 # import assets
 
@@ -83,6 +83,10 @@ Z3_LABEL_LOCATION = (SCALE*988,SCALE*373)
 # pickup labels
 P_LOCATION_221 = (SCALE*135,SCALE*200)
 P_LOCATION_332 = (SCALE*660,SCALE*85)
+
+# modified pickup labels
+P_LOCATION_131 = (SCALE*19,SCALE*82)
+P_LOCATION_233 = (SCALE*957,SCALE*85)
 
 # dropoff labels
 D_LOCATION_311 = (SCALE*250,SCALE*320)
@@ -186,21 +190,32 @@ MOVE_OFFSET_UD = SCALE*410
 
 ###########
 # TODO implement function to draw stacked blocks - Alex
-block_arr_one = [] #floor 1 
-block_arr_two = [] #floor 2
 
-block_one_y = (223 * SCALE)
-block_two_y = (107 * SCALE)
+# modifiedBlock_one_x = (SCALE * 103)
+# modifiedBlock_one_y =(SCALE* 106)
+# modifiedBlock_two_x = (SCALE * 1040)
+# modifiedBlock_two_y = (SCALE * 106)
 
-offset = 11 * SCALE
+# block1 = (modifiedBlock_one_x,modifiedBlock_one_y)
+# block2 = (modifiedBlock_two_x,modifiedBlock_two_y)
 
-for i in range(10):
-    block1 = (SCALE * 220,block_one_y)
-    block2 = (SCALE * 750,block_two_y)
-    block_arr_one.append(block1)
-    block_arr_two.append(block2)
-    block_one_y = block_one_y - offset
-    block_two_y = block_two_y - offset
+# block_arr_one = [] #floor 1 
+# block_arr_two = [] #floor 2
+
+# block_one_y = (223 * SCALE)
+# block_two_y = (107 * SCALE)
+# block_one_x = (SCALE * 220)
+# block_two_x = (SCALE * 750)
+
+# offset = 11 * SCALE
+
+# for i in range(10):
+#     block1 = (block_one_x,block_one_y)
+#     block2 = (block_two_x,block_two_y)
+#     block_arr_one.append(block1)
+#     block_arr_two.append(block2)
+#     block_one_y = block_one_y - offset
+#     block_two_y = block_two_y - offset
 
 
 ################
@@ -302,6 +317,12 @@ with open('m_actions', 'r', encoding="utf-8") as f:
         x = line[:-1]
         agentMActions.append(x)
 
+# import experiment id
+with open('experiment_id', 'r', encoding="utf-8") as f:
+    for line in f:
+        id = line
+print(id)
+
 # TODO consider experiment 4 with modified RW state space
 def draw_window(c, agent, b):
     WIN.fill(LIGHT_YELLOW)
@@ -314,8 +335,15 @@ def draw_window(c, agent, b):
     WIN.blit(Z2_LABEL, Z2_LABEL_LOCATION)
     WIN.blit(Z3_LABEL, Z3_LABEL_LOCATION)
     
-    WIN.blit(p, P_LOCATION_221)
-    WIN.blit(p, P_LOCATION_332)
+    if c.is_modified:
+        WIN.blit(p, P_LOCATION_131)
+        WIN.blit(p, P_LOCATION_233)
+    else:
+        WIN.blit(p, P_LOCATION_221)
+        WIN.blit(p, P_LOCATION_332)
+
+    # WIN.blit(p, P_LOCATION_221)
+    # WIN.blit(p, P_LOCATION_332)
 
     WIN.blit(d, D_LOCATION_311)
     WIN.blit(d, D_LOCATION_112)
@@ -340,6 +368,32 @@ def draw_window(c, agent, b):
     # WIN.blit(m_not_carrying,(M_START[0], M_START[1]))
 
     pygame.display.update()
+
+modifiedBlock_one_x = (SCALE * 103)
+modifiedBlock_one_y =(SCALE* 106)
+modifiedBlock_two_x = (SCALE * 1040)
+modifiedBlock_two_y = (SCALE * 106)
+
+# block1 = (modifiedBlock_one_x,modifiedBlock_one_y)
+# block2 = (modifiedBlock_two_x,modifiedBlock_two_y)
+
+# block_arr_one = [] #floor 1 
+# block_arr_two = [] #floor 2
+
+# block_one_y = (223 * SCALE)
+# block_two_y = (107 * SCALE)
+# block_one_x = (SCALE * 220)
+# block_two_x = (SCALE * 750)
+
+# offset = 11 * SCALE
+
+# for i in range(10):
+#     block1 = (block_one_x,block_one_y)
+#     block2 = (block_two_x,block_two_y)
+#     block_arr_one.append(block1)
+#     block_arr_two.append(block2)
+#     block_one_y = block_one_y - offset
+#     block_two_y = block_two_y - offset
 
 def draw_action(c, agent, b):
     # conditionally blit dynamic assets (agents, blocks)
@@ -370,43 +424,68 @@ def draw_action(c, agent, b):
     
     #pickup code
     if action == 'Pickup':
-        if agent.loc == (1,1,0):
+        
+        if c.is_modified and c.numTerminal == 3 and not c.has_switched:
+            c.has_switched = True
+            # print("Pickup locaitons modified")
+            b.modifiy_pickup_block_locations()
+
+        # original pickup locations
+        if c.id != '4' and agent.loc == (1,1,0):
             b.pickup_one -= 1
-        elif agent.loc == (2,2,1):
+        if c.id != '4' and agent.loc == (2,2,1):
+            b.pickup_two -= 1
+        
+        # modified pickup locaitons
+        if c.id == '4' and c.numTerminal < 3 and agent.loc == (1,1,0):
+            b.pickup_one -= 1
+        if c.id == '4' and c.numTerminal < 3 and agent.loc == (2,2,1):
+            b.pickup_two -= 1
+        if c.id == '4' and c.numTerminal >= 3 and agent.loc == (0,2,0):
+            b.pickup_one -= 1
+        if c.id == '4' and c.numTerminal >= 3 and agent.loc == (1,2,2):
             b.pickup_two -= 1
 
+        # experiment != 4  
+        # if agent.loc == (1,1,0):
+        #     b.pickup_one -= 1
+        # elif agent.loc == (2,2,1):
+        #     b.pickup_two -= 1
+
     for itr in range(b.pickup_one):
-        game_block1 = block_arr_one[itr]
+        game_block1 = b.block_arr_one[itr]
+        # print(b.block_arr_one[itr])
         WIN.blit(block,(game_block1[0], game_block1[1]))
 
     for itr_ in range(b.pickup_two):
-        game_block2 = block_arr_two[itr_]
+        game_block2 = b.block_arr_two[itr_]
+        # print(b.block_arr_two[itr_])
         WIN.blit(block,(game_block2[0],game_block2[1]))
 
     #dropoff code
     if action == 'Dropoff':
         if agent.loc == (2,0,0):
             if b.itr1 != 0: #itr is 0 here so we dont want to minus the offset yet
-                b.y1 = b.y1 - offset
-                print(b.y1,"<---y1 val")
+                b.y1 = b.y1 - b.offset
+                # print(b.y1,"<---y1 val")
             dropoff_block = (SCALE * 340, b.y1)
             b.itr1 += 1
             b.drop_off_one.append(dropoff_block)
         elif agent.loc == (0,0,1):
             if b.itr2 != 0:
-                b.y2 = b.y2 - offset
+                b.y2 = b.y2 - b.offset
             dropoff_block_two = (SCALE * 515, b.y2)
             b.itr2 += 1
             b.drop_off_two.append(dropoff_block_two)
         elif agent.loc == (0,0,2):
             if b.itr3 != 0:
-                b.y3 = b.y3 - offset
+                b.y3 = b.y3 - b.offset
             dropoff_block_three = (SCALE * 925, b.y3)
             b.itr3 += 1
             b.drop_off_three.append(dropoff_block_three)
         elif agent.loc == (2,1,2):
             if b.itr4 != 0:
-                b.y4 = b.y4 - offset
+                b.y4 = b.y4 - b.offset
             dropoff_block_four = (SCALE * 1160, b.y4)
             b.itr4 += 1
             b.drop_off_four.append(dropoff_block_four)
@@ -437,11 +516,32 @@ class Conditions:
         self.numDropoff = 0
         self.numActions = 0
         self.numTerminal = 0
+        self.id = None
+        self.is_modified = False
+        self.has_switched = False
 
 class Block:
     def __init__(self):
         self.pickup_one = 10
         self.pickup_two = 10
+        self.block_arr_one = [] #floor 1 
+        self.block_arr_two = [] #floor 2
+
+        self.block_one_y = (223 * SCALE)
+        self.block_two_y = (107 * SCALE)
+        self.block_one_x = (SCALE * 220)
+        self.block_two_x = (SCALE * 750)
+
+        self.offset = 11 * SCALE
+
+        for i in range(10):
+            block1 = (self.block_one_x,self.block_one_y)
+            block2 = (self.block_two_x,self.block_two_y)
+            self.block_arr_one.append(block1)
+            self.block_arr_two.append(block2)
+            self.block_one_y = self.block_one_y - self.offset
+            self.block_two_y = self.block_two_y - self.offset
+
         self.drop_off_one = [] 
         self.drop_off_two = []
         self.drop_off_three = []
@@ -454,6 +554,26 @@ class Block:
         self.y2 = SCALE * 341
         self.y3 = SCALE * 341
         self.y4 = SCALE * 223
+
+        self.modifiedBlock_one_x = (SCALE * 103)
+        self.modifiedBlock_one_y =(SCALE * 106)
+        self.modifiedBlock_two_x = (SCALE * 1040)
+        self.modifiedBlock_two_y = (SCALE * 106)
+
+    def modifiy_pickup_block_locations(self):
+        self.block_arr_one = []
+        self.block_arr_two = []
+        for i in range(10):
+            block1 = (self.modifiedBlock_one_x,self.modifiedBlock_one_y)
+            block2 = (self.modifiedBlock_two_x,self.modifiedBlock_two_y)
+
+            # block1 = (self.modifiedBlock_one_x,SCALE*106)
+            # block2 = (self.modifiedBlock_two_x,SCALE*106)
+
+            self.block_arr_one.append(block1)
+            self.block_arr_two.append(block2)
+            self.modifiedBlock_one_y = self.modifiedBlock_one_y - self.offset
+            self.modifiedBlock_two_y = self.modifiedBlock_two_y - self.offset
 
 
 def main():
@@ -477,7 +597,7 @@ def main():
     FPS = args.speed
 
     c = Conditions()
-
+    c.id = id
     b = Block()
 
     F = Agent('F', [0,0,0], f_not_carrying, agentFActions)
@@ -518,6 +638,8 @@ def main():
         # check terminal state & reset if true
         if c.numDropoff == 20:
             c.numTerminal += 1
+            if id == '4' and c.numTerminal == 3:
+                c.is_modified = True
             print(f"terminal state {c.numTerminal} reached")
             c.numActions = 0
             c.numDropoff = 0
@@ -543,7 +665,7 @@ def main():
             b.itr4 = 0
 
         n += 1
-        if n >= 10000:
+        if n >= 10000 or (id == '4' and c.numTerminal == 6):
             break # leave window open, TODO indicate end of experiment
         
         
