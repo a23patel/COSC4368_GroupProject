@@ -7,7 +7,7 @@ import numpy as np
 ################## GLOBALS ##################
 
 # controls overall size
-SCALE = 1
+SCALE = 1.5
 
 # window
 WIDTH, HEIGHT = (SCALE*1200), (SCALE*400)
@@ -20,7 +20,7 @@ LIGHT_YELLOW = (255, 255, 204)
 PURPLE = (128, 0, 128)
 
 # speed of execution
-FPS = 3
+FPS = 100
 
 # import assets
 
@@ -135,7 +135,7 @@ LOC_MATRIX = np.empty(shape=(3, 3, 3), dtype=object, order='C')
 
 LOC_MATRIX[0,0,0] = LOC_111
 LOC_MATRIX[1,0,0] = LOC_211
-LOC_MATRIX[2,0,0] = LOC_311
+LOC_MATRIX[2,0,0] = LOC_311 #drop1
 LOC_MATRIX[0,1,0] = LOC_121
 LOC_MATRIX[1,1,0] = LOC_221
 LOC_MATRIX[2,1,0] = LOC_321
@@ -143,9 +143,9 @@ LOC_MATRIX[0,2,0] = LOC_131
 LOC_MATRIX[1,2,0] = LOC_231
 LOC_MATRIX[2,2,0] = LOC_331
 
-LOC_MATRIX[0,0,1] = LOC_112
+LOC_MATRIX[0,0,1] = LOC_112 #drop 2
 LOC_MATRIX[1,0,1] = LOC_212
-LOC_MATRIX[2,0,1] = LOC_312
+LOC_MATRIX[2,0,1] = LOC_312 
 LOC_MATRIX[0,1,1] = LOC_122
 LOC_MATRIX[1,1,1] = LOC_222
 LOC_MATRIX[2,1,1] = LOC_322
@@ -153,12 +153,12 @@ LOC_MATRIX[0,2,1] = LOC_132
 LOC_MATRIX[1,2,1] = LOC_232
 LOC_MATRIX[2,2,1] = LOC_332
 
-LOC_MATRIX[0,0,2] = LOC_113
+LOC_MATRIX[0,0,2] = LOC_113 #drop3?
 LOC_MATRIX[1,0,2] = LOC_213
 LOC_MATRIX[2,0,2] = LOC_313
 LOC_MATRIX[0,1,2] = LOC_123
 LOC_MATRIX[1,1,2] = LOC_223
-LOC_MATRIX[2,1,2] = LOC_323
+LOC_MATRIX[2,1,2] = LOC_323 #drop4?
 LOC_MATRIX[0,2,2] = LOC_133
 LOC_MATRIX[1,2,2] = LOC_233
 LOC_MATRIX[2,2,2] = LOC_333
@@ -188,8 +188,8 @@ MOVE_OFFSET_UD = SCALE*410
 block_arr_one = [] #floor 1 
 block_arr_two = [] #floor 2
 
-block_one_y = (220 * SCALE)
-block_two_y = (105 * SCALE)
+block_one_y = (223 * SCALE)
+block_two_y = (107 * SCALE)
 
 offset = 11 * SCALE
 
@@ -344,8 +344,7 @@ def draw_action(c, agent, b):
     # conditionally blit dynamic assets (agents, blocks)
     # TODO draw blocks
     i = agent.index
-    pickup_one = 10
-    pickup_two = 10
+
     action = agent.actionList[i]
     # if c.numTerminal == 8:
     #     print(f"Agent {agent.id}'s index is {agent.index} and performing {action}")
@@ -367,12 +366,12 @@ def draw_action(c, agent, b):
         agent.dropoff()
         c.numDropoff += 1
 
+    
+    #pickup code
     if action == 'Pickup':
-        if agent.loc == [1,1,0]:
+        if agent.loc == (1,1,0):
             b.pickup_one -= 1
-            #print(b.pickup_one)
-        elif agent.loc == [2,2,1]:
-            #print(b.pickup_two)
+        elif agent.loc == (2,2,1):
             b.pickup_two -= 1
 
     for itr in range(b.pickup_one):
@@ -383,6 +382,54 @@ def draw_action(c, agent, b):
         game_block2 = block_arr_two[itr_]
         WIN.blit(block,(game_block2[0],game_block2[1]))
 
+    #dropoff code
+    if action == 'Dropoff':
+        if agent.loc == (2,0,0):
+            if b.itr1 != 0: #itr is 0 here so we dont want to minus the offset yet
+                b.y1 = b.y1 - offset
+                print(b.y1,"<---y1 val")
+            dropoff_block = (SCALE * 340, b.y1)
+            b.itr1 += 1
+            b.drop_off_one.append(dropoff_block)
+        elif agent.loc == (0,0,1):
+            if b.itr2 != 0:
+                b.y2 = b.y2 - offset
+            dropoff_block_two = (SCALE * 515, b.y2)
+            b.itr2 += 1
+            b.drop_off_two.append(dropoff_block_two)
+        elif agent.loc == (0,0,2):
+            if b.itr3 != 0:
+                b.y3 = b.y3 - offset
+            dropoff_block_three = (SCALE * 925, b.y3)
+            b.itr3 += 1
+            b.drop_off_three.append(dropoff_block_three)
+        elif agent.loc == (2,1,2):
+            if b.itr4 != 0:
+                b.y4 = b.y4 - offset
+            dropoff_block_four = (SCALE * 1160, b.y4)
+            b.itr4 += 1
+            b.drop_off_four.append(dropoff_block_four)
+
+    if b.itr1 != 0:
+        for l in range(b.itr1):
+            drp1 = b.drop_off_one[l]
+            WIN.blit(block,(drp1[0],drp1[1]))
+
+    if b.itr2 != 0:
+        for k in range(b.itr2):
+            drp2 = b.drop_off_two[k]
+            WIN.blit(block,(drp2[0],drp2[1]))
+
+    if b.itr3 != 0:
+        for j in range(b.itr3):
+            drp3 = b.drop_off_three[j]
+            WIN.blit(block,(drp3[0],drp3[1]))
+
+    if b.itr4 != 0:
+        for h in range(b.itr4):
+            drp4 = b.drop_off_four[h]
+            WIN.blit(block,(drp4[0],drp4[1]))
+    
 
 class Conditions:
     def __init__(self):
@@ -394,6 +441,19 @@ class Block:
     def __init__(self):
         self.pickup_one = 10
         self.pickup_two = 10
+        self.drop_off_one = [] 
+        self.drop_off_two = []
+        self.drop_off_three = []
+        self.drop_off_four = []
+        self.itr1 = 0
+        self.itr2 = 0
+        self.itr3 = 0
+        self.itr4 = 0
+        self.y1 = SCALE * 341
+        self.y2 = SCALE * 341
+        self.y3 = SCALE * 341
+        self.y4 = SCALE * 223
+
 
 def main():
     
@@ -448,6 +508,20 @@ def main():
             curAgent = q.get()
             q.put(M)
             q.put(F)
+            b.pickup_one = 10
+            b.pickup_two = 10
+            b.drop_off_one = []
+            b.drop_off_two = []
+            b.drop_off_three = []
+            b.drop_off_four = []
+            b.y1 = 341 * SCALE
+            b.y2 = 341 * SCALE
+            b.y3 = 341 * SCALE
+            b.y4 = 223 * SCALE
+            b.itr1 = 0
+            b.itr2 = 0
+            b.itr3 = 0
+            b.itr4 = 0
 
         n += 1
         if n >= 10000:
