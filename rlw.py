@@ -40,11 +40,11 @@ class VSSpace(RLSpace):
     
     def isDropoff(self, rlstate):
         return rlstate[3]
-    
+
 class SSSpace(RLSpace):
     """
     "Somewhat Simple" RL space: each agent's RL space contains only their coordinates, whether they hold a block,
-    and the L1 distance to the other agent
+    and the relative position of the other agent
     """
     def map_state(self, state, agent):
         loc = state.get_location(agent)
@@ -61,3 +61,67 @@ class SSSpace(RLSpace):
     
     def isDropoff(self, rlstate):
         return rlstate[3] 
+    
+class SSV1Space(RLSpace):
+    """
+    "Somewhat Simple" RL space, first variant: each agent's RL space contains only their coordinates, whether they hold a block,
+    and the L1 distance to the other agent
+    """
+    def map_state(self, state, agent):
+        loc = state.get_location(agent)
+        other_loc = state.get_location('F' if agent == 'M' else 'M')
+        is_carrying = state.is_agent_carrying(agent)
+        return (loc[0], loc[1], loc[2], 1 if is_carrying else 0,
+                # + 2?  shift range to start at 0 for use as index in qtable
+                np.abs(loc[0] - other_loc[0]) + 
+                np.abs(loc[1] - other_loc[1]) + 
+                np.abs(loc[2] - other_loc[2]) - 1)
+    
+    def shape(self):
+        return (3, 3, 3, 2, 6)
+    
+    def isDropoff(self, rlstate):
+        return rlstate[3] 
+
+class CSpace(RLSpace):
+    """
+    "Complicated" RL space: maps all the same information as the regular space, just in a different way
+    """
+    def map_state(self, state, agent):
+        loc = state.get_location(agent)
+        other_loc = state.get_location('F' if agent == 'M' else 'M')
+        is_carrying = state.is_agent_carrying(agent)
+        dropoff_1, dropoff_2, dropoff_3, dropoff_4, pickup_1, pickup_2 = state.get_state_representation()[8:]
+        return (loc[0], loc[1], loc[2], 1 if is_carrying else 0,
+            # + 2?  shift range to start at 0 for use as index in qtable
+            (loc[0] - other_loc[0]) + 2, 
+            (loc[1] - other_loc[1]) + 2,
+            (loc[2] - other_loc[2]) + 2,
+            dropoff_1, dropoff_2, dropoff_3, dropoff_4, pickup_1, pickup_2)
+    
+    def shape(self):
+        return (3, 3, 3, 2, 5, 5, 5, 6, 6, 6, 6, 11, 11)
+    
+class C2Space(RLSpace):
+    """
+    "Complicated" RL space (variant 2):
+    """
+    def map_state(self, state, agent):
+        loc = state.get_location(agent)
+        other_loc = state.get_location('F' if agent == 'M' else 'M')
+        is_carrying = state.is_agent_carrying(agent)
+        dropoff_1, dropoff_2, dropoff_3, dropoff_4, pickup_1, pickup_2 = state.get_state_representation()[8:]
+        return (loc[0], loc[1], loc[2], 1 if is_carrying else 0,
+            # + 2?  shift range to start at 0 for use as index in qtable
+            (loc[0] - other_loc[0]) + 2, 
+            (loc[1] - other_loc[1]) + 2,
+            (loc[2] - other_loc[2]) + 2,
+            1 if dropoff_1 < 5 else 0,
+            1 if dropoff_2 < 5 else 0,
+            1 if dropoff_3 < 5 else 0,
+            1 if dropoff_4 < 5 else 0,
+            1 if pickup_1 > 0 else 0,
+            1 if pickup_2 > 0 else 0)
+    
+    def shape(self):
+        return (3, 3, 3, 2, 5, 5, 5, 2, 2, 2, 2, 2, 2)
