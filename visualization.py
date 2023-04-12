@@ -3,6 +3,7 @@ import os
 from pygame.font import Font
 from queue import Queue
 import numpy as np
+import argparse
 
 ################## GLOBALS ##################
 
@@ -457,6 +458,24 @@ class Block:
 
 def main():
     
+    # Argument parsing code for setting options
+    arg_parser = argparse.ArgumentParser()
+    # TODO this is disabled for now...
+    # arg_parser.add_argument("--scale",
+    #     dest="scale",
+    #     help="Visual scale factor",
+    #     required=False,
+    #     type=int,
+    #     default=1)
+    arg_parser.add_argument("--speed",
+        dest="speed",
+        help="Multiplier on speed (number of steps per second)",
+        required=False,
+        type=int,
+        default=60)
+    args = arg_parser.parse_args()
+    FPS = args.speed
+
     c = Conditions()
 
     b = Block()
