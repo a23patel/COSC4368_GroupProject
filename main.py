@@ -2,9 +2,10 @@ from queue import Queue
 from stateSpace import StateSpace
 from action import Action
 from agent import Agent
-from rlw import VSSpace, SSSpace
+from rlw import VSSpace, SSSpace, CSpace, C2Space, SSV1Space
 from policy import PGreedy, PExploit, PRandom
 import argparse
+import copy
 
 # Manhattan
 def distance(locF, locM):
@@ -21,13 +22,22 @@ def write_actions(agentFActions, agentMActions):
         for action in agentMActions:
             f.write('%s\n' % action)
 
-def experiment(id, seed):
+def write_table(agentFtable, agentMtable):
+    with open('f_table.txt', 'w', encoding="utf-8") as f:
+        for table in agentFtable:
+            f.write('%s\n' % str(table))
+    with open('m_table.txt', 'w', encoding="utf-8") as f:
+        for table in agentMtable:
+            f.write('%s\n' % str(table))
+
+def experiment(id, seed, produce_history, dump_table, rl_type):
     """
     Implements the event loop for experiments
     arguments:
     id - '1a', '1b', '1c', '2', '3a', '3b', '4'
     seed - seed value for reproducibility
     """
+    alpha = 0.5
     print(f"\n### Experiment {id} running with seed {seed} ###\n")
     if id == '1a' or id == '1b' or id == '1c' or id == '2' or id == '4':
         alpha = 0.3
@@ -42,8 +52,18 @@ def experiment(id, seed):
 
     # TODO add an argument to determine this?
     # reinforcement learning state space
-    # RLW = VSSpace()
     RLW = SSSpace()
+    if rl_type == 'ss':
+        RLW = SSSpace()
+    elif rl_type == 'vs':
+        RLW = VSSpace()
+    elif rl_type == 'cs':
+        RLW = CSpace()
+    elif rl_type == 'c2':
+        RLW = C2Space()
+    elif rl_type == 'ssv1':
+        RLW = SSV1Space()
+    
 
     actions = ['Pickup', 'Dropoff', 'N', 'S', 'E', 'W', 'U', 'D']
 
@@ -70,6 +90,12 @@ def experiment(id, seed):
     # stores the actions taken by agent 'M'
     agentMActions = []
 
+    # stores the qtable dumps of agent 'F'
+    agentFtable = []
+
+    # stores the qtable dumps of agent 'M'
+    agentMtable = []
+
     # number of terminal states reached
     terminal = 0
 
@@ -89,10 +115,12 @@ def experiment(id, seed):
         # choose action
         if curAgent == 'F':
             action = agentF.choose_action(RW)
-            agentFActions.append(action)
+            if produce_history:
+                agentFActions.append(action)
         elif curAgent == 'M':
             action = agentM.choose_action(RW)
-            agentMActions.append(action)
+            if produce_history:
+                agentMActions.append(action)
 
         # perform action
         reward = RW.perform_action(curAgent, action)
@@ -105,6 +133,13 @@ def experiment(id, seed):
             agentM.update(RW, reward)
 
         rewardList.append(reward)
+
+        # dump qtable
+        if dump_table:
+            if curAgent == 'F':
+                agentFtable.append(agentF.extract_table(copy.deepcopy(RW)))
+            elif curAgent == 'M':
+                agentMtable.append(agentM.extract_table(copy.deepcopy(RW)))
 
         if RW.is_first_dropoff_filled():
             # TODO dump qtable
@@ -133,7 +168,11 @@ def experiment(id, seed):
                 q.put('M')
             elif id == '4' and terminal == 6:
                 print(f"Total number of terminal states reached: {terminal}") # 6
-                write_actions(agentFActions, agentMActions)
+                if produce_history:
+                    write_actions(agentFActions, agentMActions)
+                if dump_table:
+                    #print(agentFtable)
+                    write_table(agentFtable, agentMtable)
                 break
             elif id != '4':
                 RW = StateSpace('original')
@@ -176,7 +215,11 @@ def experiment(id, seed):
         if n == 10000:
             # TODO dump qtable
             print(f"\nTotal number of terminal states reached: {terminal}")
-            write_actions(agentFActions, agentMActions)
+            if produce_history:
+                write_actions(agentFActions, agentMActions)
+            if dump_table:
+                #print(agentFtable)
+                write_table(agentFtable, agentMtable)
             break
 
 
@@ -189,8 +232,23 @@ def main():
         help="Produce history for visualization",
         required=False,
         action="store_true")
+    arg_parser.add_argument("--dump-tables",
+        dest="dump_tables",
+        help="Dump Q-tables to files m_table.txt and f_table.txt",
+        required=False,
+        action="store_true")
+    arg_parser.add_argument("--rl",
+        dest="rl_type",
+        help="Choose RL state space type",
+        required=False,
+        type=str,
+        default='ss')
     args = arg_parser.parse_args()
-    experiment(args.experiment, args.seed)
+    experiment(args.experiment, 
+               args.seed, 
+               args.produce_history, 
+               args.dump_tables, 
+               args.rl_type)
 
 if __name__ == "__main__":
     main()

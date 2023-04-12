@@ -1,4 +1,6 @@
 import numpy as np
+import random
+import copy
 from action import Action
 from policy import PGreedy, PExploit, PRandom
 
@@ -8,7 +10,7 @@ MAX_HISTORY = 10
 ACTIONS = ['Pickup', 'Dropoff', 'N', 'S', 'E', 'W', 'U', 'D']
 
 class Agent:
-    def __init__(self, agent, rlstate, policy, init_state, learning='ql', alpha=0.5, gamma=0.5):
+    def __init__(self, agent, rlstate, policy, init_state, alpha=0.5, gamma=0.5):
         """
         Constructor for generic agent.
 
@@ -32,7 +34,7 @@ class Agent:
         self.rlstate = rlstate
         self.policy = policy
         self.seed = self.policy.seed
-        self.learning = learning
+        self.learning = 'ql'
         self.table = self._initialize_table()
         self.history = [[self.rlstate.map_state(init_state, self.agent), None, 0]]
         self.alpha = alpha
@@ -131,3 +133,29 @@ class Agent:
         Reduce the size of the history that the agents keep, to avoid memory leaks
         """
         self.history = self.history[-2:]
+
+    def extract_table(self, state):
+        """
+        Extract the Q-table state at the present for the agent, in the form suitable for history.
+        The format uses a (3,3,3) matrix encoding the direction and strength of the action with strongest Q value of the agent at that space,
+        for the current RL state space information regarding the location of the other agent, block carrying status, and state of the rest of the world
+        """
+        strength = [0] * 27
+        moves = ['' for i in range(27)]
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    state.update_agent_loc(self.agent, (i,j,k))
+                    actions = copy.deepcopy(self.actions)
+                    random.shuffle(actions)
+                    cur_rlstate = self.rlstate.map_state(state, self.agent)
+                    max_q = 0
+                    max_act = ''
+                    for a in actions:
+                        temp = self.table[a][cur_rlstate]
+                        if temp > max_q:
+                            max_q = temp
+                            max_act = a
+                    strength[i*9 + j*3 + k] = max_q
+                    moves[i*9 + j*3 + k] = max_act
+        return (strength, moves)
