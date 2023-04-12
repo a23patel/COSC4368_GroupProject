@@ -92,7 +92,7 @@ class PGreedy(Policy):
             return 'Dropoff'
         else:
             # avoid blockage problem
-            random.shuffle(valid_actions)
+            self.rng.shuffle(valid_actions)
             
             best_q = -2**32
             best_a = None
