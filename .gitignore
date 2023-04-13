@@ -1,2 +1,5 @@
 f_actions
 m_actions
+experiment_id
+experiment_seed
+__pycache__

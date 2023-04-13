@@ -13,14 +13,17 @@ def distance(locF, locM):
             + abs(locF[1] - locM[1])
             + abs(locF[2] - locM[2]))
 
-def write_actions(agentFActions, agentMActions):
-    # write move lists to files
+def write_actions(agentFActions, agentMActions, id, seed):
     with open('f_actions', 'w', encoding="utf-8") as f:
         for action in agentFActions:
             f.write('%s\n' % action)
     with open('m_actions', 'w', encoding="utf-8") as f:
         for action in agentMActions:
             f.write('%s\n' % action)
+    with open('experiment_id', 'w', encoding="utf-8") as f:
+        f.write(id)
+    with open('experiment_seed', 'w', encoding="utf-8") as f:
+        f.write(seed)
 
 def write_table(agentFtable, agentMtable):
     with open('f_table.txt', 'w', encoding="utf-8") as f:
@@ -39,9 +42,6 @@ def experiment(id, seed, produce_history, dump_table, rl_type):
     """
     alpha = 0.3
     
-    with open('experiment_id', 'w', encoding="utf-8") as f:
-        f.write(id)
-
     print(f"\n### Experiment {id} running with seed {seed} ###\n")
     if id == '1a' or id == '1b' or id == '1c' or id == '2' or id == '4':
         alpha = 0.3
@@ -68,13 +68,11 @@ def experiment(id, seed, produce_history, dump_table, rl_type):
     elif rl_type == 'ssv1':
         RLW = SSV1Space()
     
-
     actions = ['Pickup', 'Dropoff', 'N', 'S', 'E', 'W', 'U', 'D']
 
     policyF = PRandom('F', RLW, actions, seed=seed)
     policyM = PRandom('M', RLW, actions, seed=seed)
 
-    # TODO pass list or obj? -> agent needs RW object
     agentF = Agent('F', RLW, policyF, RW, alpha, gamma)
     agentM = Agent('M', RLW, policyM, RW, alpha, gamma)
 
@@ -173,7 +171,7 @@ def experiment(id, seed, produce_history, dump_table, rl_type):
             elif id == '4' and terminal == 6:
                 print(f"Total number of terminal states reached: {terminal}") # 6
                 if produce_history:
-                    write_actions(agentFActions, agentMActions)
+                    write_actions(agentFActions, agentMActions, id, str(seed))
                 if dump_table:
                     #print(agentFtable)
                     write_table(agentFtable, agentMtable)
@@ -220,7 +218,7 @@ def experiment(id, seed, produce_history, dump_table, rl_type):
             # TODO dump qtable
             print(f"\nTotal number of terminal states reached: {terminal}")
             if produce_history:
-                write_actions(agentFActions, agentMActions)
+                write_actions(agentFActions, agentMActions, id, str(seed))
             if dump_table:
                 #print(agentFtable)
                 write_table(agentFtable, agentMtable)

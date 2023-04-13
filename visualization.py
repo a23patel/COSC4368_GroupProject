@@ -6,6 +6,27 @@ import numpy as np
 import argparse
 
 ################## GLOBALS ##################
+# import action lists
+agentFActions = []
+agentMActions = []
+with open('f_actions', 'r', encoding="utf-8") as f:
+    for line in f:
+        x = line[:-1]
+        agentFActions.append(x)
+with open('m_actions', 'r', encoding="utf-8") as f:
+    for line in f:
+        x = line[:-1]
+        agentMActions.append(x)
+
+# import experiment id
+with open('experiment_id', 'r', encoding="utf-8") as f:
+    for line in f:
+        id = line
+
+# import experiment seed
+with open('experiment_seed', 'r', encoding="utf-8") as f:
+    for line in f:
+        seed = line
 
 # controls overall size
 SCALE = 1.05
@@ -13,7 +34,8 @@ SCALE = 1.05
 # window
 WIDTH, HEIGHT = (SCALE*1200), (SCALE*400)
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Reinforcement Learning Visualization")
+
+pygame.display.set_caption(f"Reinforcement Learning Visualization | Experiment: {id} | Seed: {seed}")
 
 # colors
 WHITE = (255, 255, 255)
@@ -168,64 +190,13 @@ LOC_MATRIX[0,2,2] = LOC_133
 LOC_MATRIX[1,2,2] = LOC_233
 LOC_MATRIX[2,2,2] = LOC_333
 
-if LOC_MATRIX[1][2][0] == LOC_231:
-    print("Correctly built")
-else:
-    print("Incorrectly built")
-
-
-
-# TODO block stack locations
-
-
-# move offset values
-# E, W -> +x, -x
-# N, S -> -y, +y
-# U, D -> +x, -x
 MOVE_OFFSET_NESW = SCALE*120
 MOVE_OFFSET_UD = SCALE*410
-
-
 ################ END GLOBALS ################
-
-###########
-# TODO implement function to draw stacked blocks - Alex
-
-# modifiedBlock_one_x = (SCALE * 103)
-# modifiedBlock_one_y =(SCALE* 106)
-# modifiedBlock_two_x = (SCALE * 1040)
-# modifiedBlock_two_y = (SCALE * 106)
-
-# block1 = (modifiedBlock_one_x,modifiedBlock_one_y)
-# block2 = (modifiedBlock_two_x,modifiedBlock_two_y)
-
-# block_arr_one = [] #floor 1 
-# block_arr_two = [] #floor 2
-
-# block_one_y = (223 * SCALE)
-# block_two_y = (107 * SCALE)
-# block_one_x = (SCALE * 220)
-# block_two_x = (SCALE * 750)
-
-# offset = 11 * SCALE
-
-# for i in range(10):
-#     block1 = (block_one_x,block_one_y)
-#     block2 = (block_two_x,block_two_y)
-#     block_arr_one.append(block1)
-#     block_arr_two.append(block2)
-#     block_one_y = block_one_y - offset
-#     block_two_y = block_two_y - offset
-
-
-################
-# p_list = ["right", "right","down","up"]
-# p2_list = ["right", "right","down","up"]
 
 class Agent:
     def __init__(self, _id, _loc, _asset, _actionList):
         self.id = _id # F or M
-        # TODO represent cell locations in 3D array to avoid compounding errors
         self.loc = _loc
         self.asset = _asset
         self.actionList = _actionList
@@ -235,56 +206,31 @@ class Agent:
         self.asset = _asset
 
     def move_east(self):
-        # update loc
-        # self.loc = (self.loc[0]+MOVE_OFFSET_NESW, self.loc[1])
-        # check bounds
-        # if self.loc[0] < 2:
         self.loc = (self.loc[0]+1, self.loc[1], self.loc[2])
         self.index += 1
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def move_west(self):
-        # update loc
-        # self.loc = (self.loc[0]-MOVE_OFFSET_NESW, self.loc[1])
-        # check bounds
-        # if self.loc[0] > 0:
         self.loc = (self.loc[0]-1, self.loc[1], self.loc[2])
         self.index += 1
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
   
-
     def move_north(self):
-        # update loc
-        # self.loc = (self.loc[0], self.loc[1]-MOVE_OFFSET_NESW)
-        # check bounds
-        # if self.loc[1] < 2:
         self.loc = (self.loc[0], self.loc[1]+1, self.loc[2])
         self.index += 1
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def move_south(self):
-        # update loc
-        # check bounds
-        # if self.loc[1] > 0:
         self.loc = (self.loc[0], self.loc[1]-1, self.loc[2])
         self.index += 1
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def move_up(self):
-        # update loc
-        # check bounds
-        
         self.loc = (self.loc[0], self.loc[1], self.loc[2]+1)
-        if self.loc[2] > 2:
-            print(f"agent {self.id} z coordinate = {self.loc[2]}")
-            print(f"problematic move on line {self.index+1}")
         self.index += 1
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
     
     def move_down(self):
-        # update loc
-        # check bounds
-        # if self.loc[2] > 0:
         self.loc = (self.loc[0], self.loc[1], self.loc[2]-1)
         self.index += 1
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
@@ -305,25 +251,6 @@ class Agent:
         self.index += 1
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
-# import action lists
-agentFActions = []
-agentMActions = []
-with open('f_actions', 'r', encoding="utf-8") as f:
-    for line in f:
-        x = line[:-1]
-        agentFActions.append(x)
-with open('m_actions', 'r', encoding="utf-8") as f:
-    for line in f:
-        x = line[:-1]
-        agentMActions.append(x)
-
-# import experiment id
-with open('experiment_id', 'r', encoding="utf-8") as f:
-    for line in f:
-        id = line
-print(id)
-
-# TODO consider experiment 4 with modified RW state space
 def draw_window(c, agent, b):
     WIN.fill(LIGHT_YELLOW)
 
@@ -334,16 +261,13 @@ def draw_window(c, agent, b):
     WIN.blit(Z1_LABEL, Z1_LABEL_LOCATION)
     WIN.blit(Z2_LABEL, Z2_LABEL_LOCATION)
     WIN.blit(Z3_LABEL, Z3_LABEL_LOCATION)
-    
+
     if c.is_modified:
         WIN.blit(p, P_LOCATION_131)
         WIN.blit(p, P_LOCATION_233)
     else:
         WIN.blit(p, P_LOCATION_221)
         WIN.blit(p, P_LOCATION_332)
-
-    # WIN.blit(p, P_LOCATION_221)
-    # WIN.blit(p, P_LOCATION_332)
 
     WIN.blit(d, D_LOCATION_311)
     WIN.blit(d, D_LOCATION_112)
@@ -358,51 +282,12 @@ def draw_window(c, agent, b):
         WIN.blit(m_not_carrying, LOC_MATRIX[2][1][2])
     else:
         draw_action(c, agent, b)
-        
-        # pass
-    
-    # testing movement functions
-    
-    # WIN.blit(f_not_carrying,(F_START[0], F_START[1]))
-    # agent.move_west()
-    # WIN.blit(m_not_carrying,(M_START[0], M_START[1]))
 
     pygame.display.update()
 
-modifiedBlock_one_x = (SCALE * 103)
-modifiedBlock_one_y =(SCALE* 106)
-modifiedBlock_two_x = (SCALE * 1040)
-modifiedBlock_two_y = (SCALE * 106)
-
-# block1 = (modifiedBlock_one_x,modifiedBlock_one_y)
-# block2 = (modifiedBlock_two_x,modifiedBlock_two_y)
-
-# block_arr_one = [] #floor 1 
-# block_arr_two = [] #floor 2
-
-# block_one_y = (223 * SCALE)
-# block_two_y = (107 * SCALE)
-# block_one_x = (SCALE * 220)
-# block_two_x = (SCALE * 750)
-
-# offset = 11 * SCALE
-
-# for i in range(10):
-#     block1 = (block_one_x,block_one_y)
-#     block2 = (block_two_x,block_two_y)
-#     block_arr_one.append(block1)
-#     block_arr_two.append(block2)
-#     block_one_y = block_one_y - offset
-#     block_two_y = block_two_y - offset
-
 def draw_action(c, agent, b):
-    # conditionally blit dynamic assets (agents, blocks)
-    # TODO draw blocks
     i = agent.index
-
     action = agent.actionList[i]
-    # if c.numTerminal == 8:
-    #     print(f"Agent {agent.id}'s index is {agent.index} and performing {action}")
     if action == 'E':
         agent.move_east()
     elif action == 'W':
@@ -415,19 +300,12 @@ def draw_action(c, agent, b):
         agent.move_up()
     elif action == 'D':
         agent.move_down()
+   
     elif action == 'Pickup':
         agent.pickup()
-    elif action == 'Dropoff':
-        agent.dropoff()
-        c.numDropoff += 1
 
-    
-    #pickup code
-    if action == 'Pickup':
-        
         if c.is_modified and c.numTerminal == 3 and not c.has_switched:
             c.has_switched = True
-            # print("Pickup locaitons modified")
             b.modifiy_pickup_block_locations()
 
         # original pickup locations
@@ -445,29 +323,13 @@ def draw_action(c, agent, b):
             b.pickup_one -= 1
         if c.id == '4' and c.numTerminal >= 3 and agent.loc == (1,2,2):
             b.pickup_two -= 1
-
-        # experiment != 4  
-        # if agent.loc == (1,1,0):
-        #     b.pickup_one -= 1
-        # elif agent.loc == (2,2,1):
-        #     b.pickup_two -= 1
-
-    for itr in range(b.pickup_one):
-        game_block1 = b.block_arr_one[itr]
-        # print(b.block_arr_one[itr])
-        WIN.blit(block,(game_block1[0], game_block1[1]))
-
-    for itr_ in range(b.pickup_two):
-        game_block2 = b.block_arr_two[itr_]
-        # print(b.block_arr_two[itr_])
-        WIN.blit(block,(game_block2[0],game_block2[1]))
-
-    #dropoff code
-    if action == 'Dropoff':
+    
+    elif action == 'Dropoff':
+        agent.dropoff()
+        c.numDropoff += 1
         if agent.loc == (2,0,0):
             if b.itr1 != 0: #itr is 0 here so we dont want to minus the offset yet
                 b.y1 = b.y1 - b.offset
-                # print(b.y1,"<---y1 val")
             dropoff_block = (SCALE * 340, b.y1)
             b.itr1 += 1
             b.drop_off_one.append(dropoff_block)
@@ -490,6 +352,16 @@ def draw_action(c, agent, b):
             b.itr4 += 1
             b.drop_off_four.append(dropoff_block_four)
 
+    # blit pickup blocks
+    for itr in range(b.pickup_one):
+        game_block1 = b.block_arr_one[itr]
+        WIN.blit(block,(game_block1[0], game_block1[1]))
+
+    for itr_ in range(b.pickup_two):
+        game_block2 = b.block_arr_two[itr_]
+        WIN.blit(block,(game_block2[0],game_block2[1]))
+
+    # blit dropoff blocks
     if b.itr1 != 0:
         for l in range(b.itr1):
             drp1 = b.drop_off_one[l]
@@ -509,8 +381,6 @@ def draw_action(c, agent, b):
         for h in range(b.itr4):
             drp4 = b.drop_off_four[h]
             WIN.blit(block,(drp4[0],drp4[1]))
-    
-
 class Conditions:
     def __init__(self):
         self.numDropoff = 0
@@ -519,7 +389,6 @@ class Conditions:
         self.id = None
         self.is_modified = False
         self.has_switched = False
-
 class Block:
     def __init__(self):
         self.pickup_one = 10
@@ -566,15 +435,10 @@ class Block:
         for i in range(10):
             block1 = (self.modifiedBlock_one_x,self.modifiedBlock_one_y)
             block2 = (self.modifiedBlock_two_x,self.modifiedBlock_two_y)
-
-            # block1 = (self.modifiedBlock_one_x,SCALE*106)
-            # block2 = (self.modifiedBlock_two_x,SCALE*106)
-
             self.block_arr_one.append(block1)
             self.block_arr_two.append(block2)
             self.modifiedBlock_one_y = self.modifiedBlock_one_y - self.offset
             self.modifiedBlock_two_y = self.modifiedBlock_two_y - self.offset
-
 
 def main():
     
@@ -598,6 +462,7 @@ def main():
 
     c = Conditions()
     c.id = id
+    
     b = Block()
 
     F = Agent('F', [0,0,0], f_not_carrying, agentFActions)
@@ -623,8 +488,6 @@ def main():
 
         draw_window(c, curAgent, b)
         c.numActions += 1
-        # draw_window(0, F)
-
         q.put(curAgent)
         
         # redraw inactive agent
@@ -635,7 +498,7 @@ def main():
                 WIN.blit(F.asset, LOC_MATRIX[F.loc[0]][F.loc[1]][F.loc[2]])
             pygame.display.update()
 
-        # check terminal state & reset if true
+        # check terminal state
         if c.numDropoff == 20:
             c.numTerminal += 1
             if id == '4' and c.numTerminal == 3:
@@ -668,8 +531,6 @@ def main():
         if n >= 10000 or (id == '4' and c.numTerminal == 6):
             break # leave window open, TODO indicate end of experiment
         
-        
-
     pygame.quit()
 
 if __name__ == "__main__":
