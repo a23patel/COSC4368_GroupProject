@@ -24,7 +24,7 @@ def write_actions(agentFActions, agentMActions, id, seed):
         f.write(id)
     with open('experiment_seed', 'w', encoding="utf-8") as f:
         f.write(seed)
-
+            
 def write_table(agentFtable, agentMtable):
     with open('f_table.txt', 'w', encoding="utf-8") as f:
         for table in agentFtable:

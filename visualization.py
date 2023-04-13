@@ -38,14 +38,13 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption(f"Reinforcement Learning Visualization | Experiment: {id} | Seed: {seed}")
 
 # colors
-WHITE = (255, 255, 255)
 LIGHT_YELLOW = (255, 255, 204)
 PURPLE = (128, 0, 128)
 
 # speed of execution
 FPS = 60
 
-# import assets
+# importing assets
 
 # 3x3 grid
 Z_LEVEL = pygame.image.load(os.path.join('assets', 'grid.png'))
@@ -125,13 +124,13 @@ F_START = (SCALE*55, SCALE*285)
 M_START = (SCALE*(990+120), SCALE*(120+55))
 
 # Z=1 agent blit locations
-LOC_111 = (SCALE*55, SCALE*285) # F <- LOC_MATRIX[0][0][0]
+LOC_111 = (SCALE*55, SCALE*285) 
 LOC_211 = (SCALE*175, SCALE*285)
 LOC_311 = (SCALE*295, SCALE*285)
 LOC_121 = (SCALE*55, SCALE*165)
 LOC_221 = (SCALE*175, SCALE*165)
 LOC_321 = (SCALE*295, SCALE*165)
-LOC_131 = (SCALE*55, SCALE*45) # LOC_MATRIX[0][2][0]
+LOC_131 = (SCALE*55, SCALE*45) 
 LOC_231 = (SCALE*175, SCALE*45)
 LOC_331 = (SCALE*295, SCALE*45)
 
@@ -152,17 +151,17 @@ LOC_213 = (SCALE*995, SCALE*285)
 LOC_313 = (SCALE*1115, SCALE*285)
 LOC_123 = (SCALE*875, SCALE*165)
 LOC_223 = (SCALE*995, SCALE*165)
-LOC_323 = (SCALE*1115, SCALE*165) # M <- LOC_MATRIX[2][1][2]
+LOC_323 = (SCALE*1115, SCALE*165) 
 LOC_133 = (SCALE*875, SCALE*45)
 LOC_233 = (SCALE*995, SCALE*45)
 LOC_333 = (SCALE*1115, SCALE*45)
 
-# put into 3d array
+# put agent blit locations into 3d array
 LOC_MATRIX = np.empty(shape=(3, 3, 3), dtype=object, order='C')
 
 LOC_MATRIX[0,0,0] = LOC_111
 LOC_MATRIX[1,0,0] = LOC_211
-LOC_MATRIX[2,0,0] = LOC_311 #drop1
+LOC_MATRIX[2,0,0] = LOC_311 
 LOC_MATRIX[0,1,0] = LOC_121
 LOC_MATRIX[1,1,0] = LOC_221
 LOC_MATRIX[2,1,0] = LOC_321
@@ -170,7 +169,7 @@ LOC_MATRIX[0,2,0] = LOC_131
 LOC_MATRIX[1,2,0] = LOC_231
 LOC_MATRIX[2,2,0] = LOC_331
 
-LOC_MATRIX[0,0,1] = LOC_112 #drop 2
+LOC_MATRIX[0,0,1] = LOC_112 
 LOC_MATRIX[1,0,1] = LOC_212
 LOC_MATRIX[2,0,1] = LOC_312 
 LOC_MATRIX[0,1,1] = LOC_122
@@ -180,12 +179,12 @@ LOC_MATRIX[0,2,1] = LOC_132
 LOC_MATRIX[1,2,1] = LOC_232
 LOC_MATRIX[2,2,1] = LOC_332
 
-LOC_MATRIX[0,0,2] = LOC_113 #drop3?
+LOC_MATRIX[0,0,2] = LOC_113 
 LOC_MATRIX[1,0,2] = LOC_213
 LOC_MATRIX[2,0,2] = LOC_313
 LOC_MATRIX[0,1,2] = LOC_123
 LOC_MATRIX[1,1,2] = LOC_223
-LOC_MATRIX[2,1,2] = LOC_323 #drop4?
+LOC_MATRIX[2,1,2] = LOC_323 
 LOC_MATRIX[0,2,2] = LOC_133
 LOC_MATRIX[1,2,2] = LOC_233
 LOC_MATRIX[2,2,2] = LOC_333
@@ -529,7 +528,7 @@ def main():
 
         n += 1
         if n >= 10000 or (id == '4' and c.numTerminal == 6):
-            break # leave window open, TODO indicate end of experiment
+            break # indicates end of experiment
         
     pygame.quit()
 
