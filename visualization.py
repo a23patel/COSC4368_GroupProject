@@ -4,6 +4,7 @@ from pygame.font import Font
 from queue import Queue
 import numpy as np
 import argparse
+import ast
 
 ################## GLOBALS ##################
 # import action lists
@@ -71,6 +72,17 @@ MALE_AGENT_SIMPLE = pygame.image.load(os.path.join('assets', 'male_agent_simple.
 
 # block to pickup/dropoff
 BLOCK = pygame.image.load(os.path.join('assets', 'block.png'))
+
+# arrow for q-table viz
+ARROW = {}
+ARROW['D'] = pygame.image.load(os.path.join('assets', 'temp_arrow.png'))
+ARROW['U'] = pygame.image.load(os.path.join('assets', 'temp_arrow.png'))
+ARROW['E'] = pygame.image.load(os.path.join('assets', 'temp_arrow.png'))
+ARROW['W'] = pygame.image.load(os.path.join('assets', 'temp_arrow.png'))
+ARROW['N'] = pygame.image.load(os.path.join('assets', 'temp_arrow.png'))
+ARROW['S'] = pygame.image.load(os.path.join('assets', 'temp_arrow.png'))
+ARROW['Pickup'] = pygame.image.load(os.path.join('assets', 'temp_arrow.png'))
+ARROW['Dropoff'] = pygame.image.load(os.path.join('assets', 'temp_arrow.png'))
 
 # define new asset sizes
 RESIZED_Z_LEVEL = (SCALE*360,SCALE*360)
@@ -194,11 +206,12 @@ MOVE_OFFSET_UD = SCALE*410
 ################ END GLOBALS ################
 
 class Agent:
-    def __init__(self, _id, _loc, _asset, _actionList):
+    def __init__(self, _id, _loc, _asset, _actionList, _qtable = None):
         self.id = _id # F or M
         self.loc = _loc
         self.asset = _asset
         self.actionList = _actionList
+        self.qtable = _qtable
         self.index = 0
     
     def set_asset(self, _asset):
@@ -250,6 +263,13 @@ class Agent:
         self.index += 1
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
+    def set_table(self, qtable):
+        self.qtable = qtable
+
+    def get_table_state(self):
+        if self.qtable:
+            return self.qtable[self.index]
+
 def draw_window(c, agent, b):
     WIN.fill(LIGHT_YELLOW)
 
@@ -281,6 +301,32 @@ def draw_window(c, agent, b):
         WIN.blit(m_not_carrying, LOC_MATRIX[2][1][2])
     else:
         draw_action(c, agent, b)
+
+    pygame.display.update()
+
+def draw_qtable(c, agent, b):
+    #print(agent.get_table_state())
+    q_values, q_directions = agent.get_table_state()
+    max_q = np.max(q_values)
+    min_q = np.min(q_values)
+    print(f"Max q is {max_q}, min q is {min_q}")
+    def scale(x):
+        if (min_q == max_q):
+            return 1.0
+        return (x-min_q)/(max_q - min_q)
+    for i in range(3):
+        for j in range(3):
+            for k in range(3):
+                index = i*9+j*3+k
+                q_direction = q_directions[index]
+                if q_direction == '':
+                    continue
+                q_value = q_values[index]
+                rect = pygame.Rect(LOC_MATRIX[i,j,k], (64,64))
+                rect.scale_by_ip(scale(q_value))
+                print(f"Rectangle scaled by {scale(q_value)}")
+                print(f"Rectangle {i*9+j*3+k} is ")
+                WIN.blit(ARROW[q_direction], rect)
 
     pygame.display.update()
 
@@ -456,6 +502,11 @@ def main():
         required=False,
         type=int,
         default=60)
+    arg_parser.add_argument("--qtable",
+        dest="qtable",
+        help="Visualize Q-table each turn",
+        required=False,
+        action="store_true")
     args = arg_parser.parse_args()
     FPS = args.speed
 
@@ -477,6 +528,24 @@ def main():
     # number of total iterations
     n = 0
 
+    # load Q-table data
+    if args.qtable:
+        f_table = []
+        m_table = []
+        with open('f_table.txt', 'r') as f:
+            for line in f:
+                x = line[:-1]
+                parsed = ast.literal_eval(x)
+                f_table.append(parsed)
+                print(parsed[0])
+        with open('m_table.txt', 'r') as f:
+            for line in f:
+                x = line[:-1]
+                parsed = ast.literal_eval(x)
+                m_table.append(parsed)
+        F.set_table(f_table)
+        M.set_table(m_table)
+
     while run:
         clock.tick(FPS)
         for event in pygame.event.get():
@@ -488,6 +557,9 @@ def main():
         draw_window(c, curAgent, b)
         c.numActions += 1
         q.put(curAgent)
+
+        if args.qtable:
+            draw_qtable(c, curAgent, b)
         
         # redraw inactive agent
         if c.numActions != 0:
