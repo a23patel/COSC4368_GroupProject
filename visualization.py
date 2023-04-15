@@ -75,14 +75,14 @@ BLOCK = pygame.image.load(os.path.join('assets', 'block.png'))
 
 # arrow for q-table viz
 ARROW = {}
-ARROW['D'] = pygame.image.load(os.path.join('assets', 'temp_arrow.png'))
-ARROW['U'] = pygame.image.load(os.path.join('assets', 'temp_arrow.png'))
-ARROW['E'] = pygame.image.load(os.path.join('assets', 'temp_arrow.png'))
-ARROW['W'] = pygame.image.load(os.path.join('assets', 'temp_arrow.png'))
-ARROW['N'] = pygame.image.load(os.path.join('assets', 'temp_arrow.png'))
-ARROW['S'] = pygame.image.load(os.path.join('assets', 'temp_arrow.png'))
-ARROW['Pickup'] = pygame.image.load(os.path.join('assets', 'temp_arrow.png'))
-ARROW['Dropoff'] = pygame.image.load(os.path.join('assets', 'temp_arrow.png'))
+ARROW['D'] = pygame.image.load(os.path.join('assets', 'arrow_D.png'))
+ARROW['U'] = pygame.image.load(os.path.join('assets', 'arrow_U.png'))
+ARROW['E'] = pygame.image.load(os.path.join('assets', 'arrow_E.png'))
+ARROW['W'] = pygame.image.load(os.path.join('assets', 'arrow_W.png'))
+ARROW['N'] = pygame.image.load(os.path.join('assets', 'arrow_N.png'))
+ARROW['S'] = pygame.image.load(os.path.join('assets', 'arrow_S.png'))
+ARROW['Pickup'] = pygame.image.load(os.path.join('assets', 'arrow_Pickup.png'))
+ARROW['Dropoff'] = pygame.image.load(os.path.join('assets', 'arrow_Dropoff.png'))
 
 # define new asset sizes
 RESIZED_Z_LEVEL = (SCALE*360,SCALE*360)
@@ -305,28 +305,49 @@ def draw_window(c, agent, b):
     pygame.display.update()
 
 def draw_qtable(c, agent, b):
+    if agent.id == 'F':
+        return
     #print(agent.get_table_state())
     q_values, q_directions = agent.get_table_state()
     max_q = np.max(q_values)
     min_q = np.min(q_values)
-    print(f"Max q is {max_q}, min q is {min_q}")
+    alpha = 0.2
+    beta = 1.0
+    a = (np.exp(beta)-np.exp(alpha))/(max_q - min_q)
+    b = (np.exp(alpha)*max_q - np.exp(beta)*min_q)/(max_q - min_q)
     def scale(x):
         if (min_q == max_q):
             return 1.0
-        return (x-min_q)/(max_q - min_q)
+        return np.log(a*x+b)
+    print(f"Max q is {max_q}, min q is {min_q}")
+    # def scale(x):
+    #     if (min_q == max_q):
+    #         return 1.0
+    #     return (x-min_q)/(max_q - min_q)
     for i in range(3):
         for j in range(3):
             for k in range(3):
                 index = i*9+j*3+k
+                # if (i != 0 or j != 0 or k != 0):
+                #     break
                 q_direction = q_directions[index]
+                #q_direction = np.random.choice(['D', 'U', 'W', 'E', 'N', 'S'])
                 if q_direction == '':
                     continue
-                q_value = q_values[index]
-                rect = pygame.Rect(LOC_MATRIX[i,j,k], (64,64))
-                rect.scale_by_ip(scale(q_value))
-                print(f"Rectangle scaled by {scale(q_value)}")
-                print(f"Rectangle {i*9+j*3+k} is ")
-                WIN.blit(ARROW[q_direction], rect)
+                q_value = scale(q_values[index]) // (1/ 64.)
+                scaled = (q_value, q_value)
+                #q_value = np.random.rand() // (1/64.)
+                offset = 64 - q_value
+                draw_x = LOC_MATRIX[i,j,k][0]+(offset // 2)
+                draw_y = LOC_MATRIX[i,j,k][1]+(offset // 2)
+                rect = pygame.Rect((draw_x, draw_y), scaled)
+                print(f"Rectangle scaled to {(q_value, q_value)}, and will be blitted at {rect.topleft}")
+                scaled_img = pygame.transform.scale(ARROW[q_direction], scaled)
+                WIN.blit(scaled_img, rect)
+                mask = pygame.Surface(scaled, pygame.SRCALPHA)
+                mask.fill(pygame.Color(0, 0, 0, int(255*scale(q_values[index]))))
+                WIN.blit(mask, rect, special_flags=pygame.BLEND_RGBA_MAX)
+
 
     pygame.display.update()
 
@@ -485,6 +506,9 @@ class Block:
             self.modifiedBlock_one_y = self.modifiedBlock_one_y - self.offset
             self.modifiedBlock_two_y = self.modifiedBlock_two_y - self.offset
 
+def save_image(filename):
+    pygame.image.save(WIN, filename)
+
 def main():
     
     # Argument parsing code for setting options
@@ -546,11 +570,21 @@ def main():
         F.set_table(f_table)
         M.set_table(m_table)
 
+    paused = False
     while run:
         clock.tick(FPS)
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                paused = True if not paused else False
+            if paused and event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
+                single_step = True
+            if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_q:
                 run = False
+
+        if paused and not single_step:
+            continue
+
+        pygame.display.set_caption(f"Reinforcement Learning Visualization | Experiment: {id} | Seed: {seed} | n: {n}")
 
         curAgent = q.get()
 
@@ -601,6 +635,8 @@ def main():
         n += 1
         if n >= 10000 or (id == '4' and c.numTerminal == 6):
             break # indicates end of experiment
+
+        single_step = False
         
     pygame.quit()
 
