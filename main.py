@@ -177,7 +177,7 @@ def experiment(id, seed, produce_history, dump_table, rl_type):
             elif id == '4' and terminal == 6:
                 print(f"Total number of terminal states reached: {terminal}") # 6
                 if produce_history:
-                    write_actions(agentFActions, agentMActions, id, str(seed))
+                    write_actions(agentFActions, agentMActions, id, str(seed), rewardList, distList)
                 if dump_table:
                     #print(agentFtable)
                     write_table(agentFtable, agentMtable)
