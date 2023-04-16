@@ -6,6 +6,7 @@ from rlw import VSSpace, SSSpace, CSpace, C2Space, SSV1Space
 from policy import PGreedy, PExploit, PRandom
 import argparse
 import copy
+import csv
 
 # Manhattan
 def distance(locF, locM):
@@ -13,7 +14,7 @@ def distance(locF, locM):
             + abs(locF[1] - locM[1])
             + abs(locF[2] - locM[2]))
 
-def write_actions(agentFActions, agentMActions, id, seed):
+def write_actions(agentFActions, agentMActions, id, seed, rewardList, distList):
     with open('f_actions', 'w', encoding="utf-8") as f:
         for action in agentFActions:
             f.write('%s\n' % action)
@@ -24,6 +25,11 @@ def write_actions(agentFActions, agentMActions, id, seed):
         f.write(id)
     with open('experiment_seed', 'w', encoding="utf-8") as f:
         f.write(seed)
+    with open('var_visualization.csv', 'w', newline='',encoding="utf-8") as f:
+        write = csv.writer(f, delimiter='\t')
+        write.writerow(['Index','Rewards', ' Distance'])
+        for i, (rewards, distance) in enumerate(zip(rewardList, distList)):
+            write.writerow([f"{i:<10}{rewards:<10}{distance}"])
             
 def write_table(agentFtable, agentMtable):
     with open('f_table.txt', 'w', encoding="utf-8") as f:
@@ -218,7 +224,7 @@ def experiment(id, seed, produce_history, dump_table, rl_type):
             # TODO dump qtable
             print(f"\nTotal number of terminal states reached: {terminal}")
             if produce_history:
-                write_actions(agentFActions, agentMActions, id, str(seed))
+                write_actions(agentFActions, agentMActions, id, str(seed), rewardList, distList)
             if dump_table:
                 #print(agentFtable)
                 write_table(agentFtable, agentMtable)
