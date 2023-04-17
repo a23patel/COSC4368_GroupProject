@@ -75,14 +75,20 @@ BLOCK = pygame.image.load(os.path.join('assets', 'block.png'))
 
 # arrow for q-table viz
 ARROW = {}
-ARROW['D'] = pygame.image.load(os.path.join('assets', 'arrow_D.png'))
-ARROW['U'] = pygame.image.load(os.path.join('assets', 'arrow_U.png'))
-ARROW['E'] = pygame.image.load(os.path.join('assets', 'arrow_E.png'))
-ARROW['W'] = pygame.image.load(os.path.join('assets', 'arrow_W.png'))
-ARROW['N'] = pygame.image.load(os.path.join('assets', 'arrow_N.png'))
-ARROW['S'] = pygame.image.load(os.path.join('assets', 'arrow_S.png'))
-ARROW['Pickup'] = pygame.image.load(os.path.join('assets', 'arrow_Pickup.png'))
-ARROW['Dropoff'] = pygame.image.load(os.path.join('assets', 'arrow_Dropoff.png'))
+ARROW['F'] = {}
+ARROW['M'] = {}
+MALE_ARROW = pygame.image.load(os.path.join('assets', 'male-arrow.png'))
+FEMALE_ARROW = pygame.image.load(os.path.join('assets', 'female-arrow.png'))
+for g in ['F', 'M']:
+    CUR_ARROW = MALE_ARROW if g == 'M' else FEMALE_ARROW
+    ARROW[g]['N'] = CUR_ARROW
+    ARROW[g]['W'] = pygame.transform.rotate(CUR_ARROW, 90)
+    ARROW[g]['S'] = pygame.transform.rotate(CUR_ARROW, 180)
+    ARROW[g]['E'] = pygame.transform.rotate(CUR_ARROW, 270)
+    ARROW[g]['U'] = pygame.image.load(os.path.join('assets', 'arrow_U.png'))
+    ARROW[g]['D'] = pygame.image.load(os.path.join('assets', 'arrow_D.png'))
+    ARROW[g]['Pickup'] = pygame.image.load(os.path.join('assets', 'arrow_Pickup.png'))
+    ARROW[g]['Dropoff'] = pygame.image.load(os.path.join('assets', 'arrow_Dropoff.png'))
 
 # define new asset sizes
 RESIZED_Z_LEVEL = (SCALE*360,SCALE*360)
@@ -305,8 +311,8 @@ def draw_window(c, agent, b):
     pygame.display.update()
 
 def draw_qtable(c, agent, b):
-    if agent.id == 'F':
-        return
+    # if agent.id == 'F':
+    #     return
     #print(agent.get_table_state())
     q_values, q_directions = agent.get_table_state()
     max_q = np.max(q_values)
@@ -342,14 +348,11 @@ def draw_qtable(c, agent, b):
                 draw_y = LOC_MATRIX[i,j,k][1]+(offset // 2)
                 rect = pygame.Rect((draw_x, draw_y), scaled)
                 print(f"Rectangle scaled to {(q_value, q_value)}, and will be blitted at {rect.topleft}")
-                scaled_img = pygame.transform.scale(ARROW[q_direction], scaled)
+                scaled_img = pygame.transform.scale(ARROW[agent.id][q_direction], scaled)
                 WIN.blit(scaled_img, rect)
                 mask = pygame.Surface(scaled, pygame.SRCALPHA)
                 mask.fill(pygame.Color(0, 0, 0, int(255*scale(q_values[index]))))
                 WIN.blit(mask, rect, special_flags=pygame.BLEND_RGBA_MAX)
-
-
-    pygame.display.update()
 
 def draw_action(c, agent, b):
     i = agent.index
@@ -520,19 +523,26 @@ def main():
     #     required=False,
     #     type=int,
     #     default=1)
-    arg_parser.add_argument("--speed",
-        dest="speed",
-        help="Multiplier on speed (number of steps per second)",
+    arg_parser.add_argument("--fps",
+        dest="fps",
+        help="Framerate of display updates (default 60)",
         required=False,
         type=int,
         default=60)
+    arg_parser.add_argument("--speed",
+        dest="speed",
+        help="Multiplier of # of actions by each agent per frame (default 1)",
+        required=False,
+        type=int,
+        default=1)
     arg_parser.add_argument("--qtable",
         dest="qtable",
         help="Visualize Q-table each turn",
         required=False,
         action="store_true")
     args = arg_parser.parse_args()
-    FPS = args.speed
+    FPS = args.fps
+    SPEED = args.speed
 
     c = Conditions()
     c.id = id
@@ -571,8 +581,19 @@ def main():
         M.set_table(m_table)
 
     paused = False
+
+    draw_countdown = 0
+    draw_now = True
     while run:
-        clock.tick(FPS)
+        if draw_countdown == -2:
+            draw_now = False
+            draw_countdown = 2*SPEED - 2
+        if draw_countdown == 0 or draw_countdown == -1:
+            draw_now = True
+        draw_countdown -= 1
+        print(f"n: {n}, draw_countdown: {draw_countdown}")
+        if draw_now:
+            clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 paused = True if not paused else False
@@ -584,24 +605,27 @@ def main():
         if paused and not single_step:
             continue
 
-        pygame.display.set_caption(f"Reinforcement Learning Visualization | Experiment: {id} | Seed: {seed} | n: {n}")
+        if draw_now:
+            pygame.display.set_caption(f"Reinforcement Learning Visualization | Experiment: {id} | Seed: {seed} | n: {n}")
 
         curAgent = q.get()
 
-        draw_window(c, curAgent, b)
+        if draw_now:
+            draw_window(c, curAgent, b)
         c.numActions += 1
         q.put(curAgent)
 
-        if args.qtable:
+        if args.qtable and draw_now:
             draw_qtable(c, curAgent, b)
         
         # redraw inactive agent
-        if c.numActions != 0:
-            if curAgent.id == 'F':
-                WIN.blit(M.asset, LOC_MATRIX[M.loc[0]][M.loc[1]][M.loc[2]])
-            else:
-                WIN.blit(F.asset, LOC_MATRIX[F.loc[0]][F.loc[1]][F.loc[2]])
-            pygame.display.update()
+        if draw_now:
+            if c.numActions != 0:
+                if curAgent.id == 'F':
+                    WIN.blit(M.asset, LOC_MATRIX[M.loc[0]][M.loc[1]][M.loc[2]])
+                else:
+                    WIN.blit(F.asset, LOC_MATRIX[F.loc[0]][F.loc[1]][F.loc[2]])
+                pygame.display.update()
 
         # check terminal state
         if c.numDropoff == 20:
