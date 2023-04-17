@@ -1,8 +1,6 @@
 from cell import Cell
 from action import Action
 import numpy as np
-import cv2
-
 
 class StateSpace:
     def __init__(self, experiment):
@@ -12,7 +10,7 @@ class StateSpace:
         Argument:
         experiment - 'original' or 'modified'
         original corresponds to experiments 1, 2, 3, & part of 4
-        modified corresponds to part of experiment 4
+        modified corresponds to part of experiment 4 after 3rd terminal state is reached
 
         Properties:
         state_space - a 3D NumPy array of Cells
@@ -58,7 +56,6 @@ class StateSpace:
             self.state_space[1, 2, 2].set_type('Pickup')
             self.locPick.append([1, 2, 2])
             
-
         # dropoff cells
         self.state_space[0, 0, 1].set_type('Dropoff')
         self.locDrop.append([0, 0, 1])
@@ -169,8 +166,18 @@ class StateSpace:
         
         return state
     
+    # TODO - correct logic
     def is_first_dropoff_filled(self):
-        return (self.state_space[self.locDrop[0][0], self.locDrop[0][1], self.locDrop[0][2]].get_num_blocks()) == 5
+        """
+        returns True if any Pickup cells contain 5 blocks and False otherwise
+        """
+        if (self.state_space[self.locDrop[0][0], self.locDrop[0][1], self.locDrop[0][2]].get_num_blocks() == 5 ^   
+            self.state_space[self.locDrop[1][0], self.locDrop[1][1], self.locDrop[1][2]].get_num_blocks() == 5 ^   
+            self.state_space[self.locDrop[2][0], self.locDrop[2][1], self.locDrop[2][2]].get_num_blocks() == 5 ^   
+            self.state_space[self.locDrop[3][0], self.locDrop[3][1], self.locDrop[3][2]].get_num_blocks() == 5):
+            return True
+        else:
+            return False
     
     def perform_action(self, agent, action):
         """
@@ -182,7 +189,6 @@ class StateSpace:
         agent - 'F' for female agent; 'M' for male agent
         action - 'Pickup', 'Dropoff', 'E', 'W', 'N', 'S', 'U', or 'D'
         """
-        # check risk
         loc = self.get_location(agent)
         reward = self.state_space[loc[0], loc[1], loc[2]].get_cost()
 
@@ -207,59 +213,6 @@ class StateSpace:
             a.move_down(agent, self)
 
         return reward
-
-    def visualize(self):
-        block_size = 50  # size of each cell in pixels
-        grid_width = self.state_space.shape[0] * block_size
-        grid_height = self.state_space.shape[1] * block_size
-
-        # initialize grid as black image
-        grid = np.zeros((grid_height, grid_width, 3), dtype=np.uint8)
-
-        cell = Cell()
-
-        # draw cells onto the grid
-        for x in range(self.state_space.shape[0]):
-            for y in range(self.state_space.shape[1]):
-                for z in range(self.state_space.shape[2]):
-                    self.state_space[x, y, z]
-                    agent = cell.which_agent()
-                    block_type = cell.get_type()
-
-                    # calculate top-left corner of cell
-                    top_left = (x * block_size, y * block_size)
-
-                    # draw cell as a rectangle
-                    color = (255, 255, 255)  # white color for normal cell
-                    if block_type == 'Pickup':
-                        color = (0, 255, 0)  # green color for pickup cell
-                    elif block_type == 'Dropoff':
-                        color = (0, 0, 255)  # red color for dropoff cell
-                    cv2.rectangle(
-                        grid, top_left, (top_left[0] + block_size, top_left[1] + block_size), color, -1)
-
-                    # draw agent in a cell
-                    if agent is not None:
-                        self.get_location(agent)
-                        cv2.circle(grid, (int(top_left[0] + block_size/2), int(top_left[1] + block_size/2)), int(
-                            block_size/4), (255, 255, 0), -1)  # yellow circle for agent
-
-        cv2.imshow('State Space', grid)
-        cv2.waitKey(0)
-
-    def print_ss(self):
-        """
-        prints information about each cell in state_space
-        """
-        for z in range(3):
-            for y in range(3):
-                for x in range(3):
-                    cell = self.state_space[x, y, z]
-                    print(f"({x+1},{y+1},{z+1})\n"
-                          f"\ttype:\t{cell.get_type()}\n"
-                          f"\tagent:\t{cell.which_agent()}\n"
-                          f"\tblocks:\t{cell.get_num_blocks()}\n"
-                          f"\tcost:\t{cell.get_cost()}")
 
     def is_complete(self):
         """

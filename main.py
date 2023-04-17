@@ -45,6 +45,9 @@ def experiment(id, seed, produce_history, dump_table, rl_type):
     arguments:
     id - '1a', '1b', '1c', '2', '3a', '3b', '4'
     seed - seed value for reproducibility
+    produce_history - 
+    dumpy_table - 
+    rl_type - 
     """
     alpha = 0.3
     
@@ -60,7 +63,6 @@ def experiment(id, seed, produce_history, dump_table, rl_type):
     # real world state space
     RW = StateSpace('original')
 
-    # TODO add an argument to determine this?
     # reinforcement learning state space
     RLW = SSSpace()
     if rl_type == 'ss':
