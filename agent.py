@@ -1,8 +1,6 @@
 import numpy as np
 import random
 import copy
-from action import Action
-from policy import PGreedy, PExploit, PRandom
 
 # Constant determining how often to prune the history the agents keep track of
 MAX_HISTORY = 10
@@ -17,17 +15,19 @@ class Agent:
         Arguments:
         agent - 'M' for male agent, 'F' for female agent
         rlstate - A RLState object which provides a mapping from the real-world state space to RL states
-        policy - a Policy object, which provides a function that, given an RL state, returns an action
-        learning - the learning type, either 'ql' or 'sarsa'
+            This is used to initialize 'table' that implements Q-tables
+        policy - A Policy object, which provides a function that, given an RL state, returns an action
+        learning - The learning type, either 'ql' or 'sarsa'
         init_state - The initial state of the world, a StateSpace object
         alpha - The learning rate
         gamma - The discounting factor for future Q values
 
         API:
-        choose_action - agent takes current RW state, chooses an action and returns it
+        choose_action - agent takes current RW state, chooses an applicable action by policy and returns it
         update - agent updates RL state given new RW state and reward for last action
         set_policy - agent changes policy to passed policy
-        set_learning - agent changes learning method
+        set_learning - agent changes learning method to learning method specified
+        extract_table - get the current table state in a suitable for for dumping
         """
         self.agent = agent
         self.actions = ACTIONS
@@ -56,8 +56,6 @@ class Agent:
         """
         Given the current state of the world, use policy to determine next action, and return that action
         """
-        # TODO for now, this is requiring both Real-World and RL states, because Policy module needs to
-        # determine whether an action is applicable even if that is impossible to know with just the RL state
         action_taken = self.policy.execute(state, self.rlstate.map_state(state, self.agent), self.table) # added self.agent arg to map_state call
         self.history[-1][1] = action_taken
         return action_taken
@@ -70,7 +68,6 @@ class Agent:
         self.history.append([self.rlstate.map_state(new_state, self.agent), None, 0])
         self.history[-2][2] = reward
         self._update_table()
-        # TODO modify this for performance later?
         if len(self.history) > MAX_HISTORY:
             self._prune_history()
 
@@ -97,7 +94,7 @@ class Agent:
     
     def _update_table_ql(self):
         """
-        Updates Q-tablet using Q-learning
+        Updates Q-table using Q-learning
         """
         prev_step = self.history[-2]
         prev_state = prev_step[0]
@@ -105,11 +102,9 @@ class Agent:
         reward = prev_step[2]
         new_state = self.history[-1][0]
         old_q = self.table[action][prev_state]
-        best_next_action = None
         best_next_action_q = -2**32
         for ap in self.actions:
             if self.table[ap][new_state] > best_next_action_q:
-                best_next_action = ap
                 best_next_action_q = self.table[ap][new_state]
         self.table[action][prev_state] = (1-self.alpha)*old_q + self.alpha*(reward + self.gamma*best_next_action_q)
 
@@ -130,15 +125,18 @@ class Agent:
 
     def _prune_history(self):
         """
-        Reduce the size of the history that the agents keep, to avoid memory leaks
+        Reduce the size of the history that the agents keep
         """
         self.history = self.history[-2:]
 
     def extract_table(self, state):
         """
-        Extract the Q-table state at the present for the agent, in the form suitable for history.
+        Extract part of the Q-table state at the present for the agent, in the form suitable for dumping
         The format uses a (3,3,3) matrix encoding the direction and strength of the action with strongest Q value of the agent at that space,
         for the current RL state space information regarding the location of the other agent, block carrying status, and state of the rest of the world
+
+        In the case of ties for the strongest, the possible actions are shuffled
+        to make any of the tied best actions equally probable
         """
         strength = [0] * 27
         moves = ['' for i in range(27)]
