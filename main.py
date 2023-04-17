@@ -2,7 +2,7 @@ from queue import Queue
 from stateSpace import StateSpace
 from action import Action
 from agent import Agent
-from rlw import VSSpace, SSSpace, C2Space, SSV1Space
+from rlw import VSSpace, SSSpace, C2Space, SSV1Space, MSpace
 from policy import PGreedy, PExploit, PRandom
 import argparse
 import copy
@@ -118,6 +118,8 @@ def experiment(args):
         RLW = SSSpace()
     elif rl_type == 'vs':
         RLW = VSSpace()
+    elif rl_type == 'ms':
+        RLW = MSpace()
     elif rl_type == 'c2':
         RLW = C2Space()
     elif rl_type == 'ssv1':
