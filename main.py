@@ -197,7 +197,7 @@ def experiment(id, seed, produce_history, dump_table, rl_type):
         # RW.visualize()
 
         # store distance between agents after 'M' moves
-        if n % 2 != 0:
+        if curAgent == 'M':
             distList.append(distance(RW.locF, RW.locM))
         
         if not justTerminated:
