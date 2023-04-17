@@ -14,7 +14,7 @@ def distance(locF, locM):
             + abs(locF[1] - locM[1])
             + abs(locF[2] - locM[2]))
 
-def write_actions(agentFActions, agentMActions, id, seed, rewardList, distList):
+def write_actions(agentFActions, agentMActions, id, seed, rewardList, distList, vizFile, movingAgent):
     with open('f_actions', 'w', encoding="utf-8") as f:
         for action in agentFActions:
             f.write('%s\n' % action)
@@ -25,12 +25,19 @@ def write_actions(agentFActions, agentMActions, id, seed, rewardList, distList):
         f.write(id)
     with open('experiment_seed', 'w', encoding="utf-8") as f:
         f.write(seed)
-    with open('var_visualization.csv', 'w', newline='',encoding="utf-8") as f:
+    with open(vizFile, 'w', newline='',encoding="utf-8") as f:
         write = csv.writer(f, delimiter='\t')
         write.writerow(['Index','Rewards', ' Distance'])
-        for i, (rewards, distance) in enumerate(zip(rewardList, distList)):
-            write.writerow([f"{i:<10}{rewards:<10}{distance}"])
-            
+        for i, (rewards, distance, agent) in enumerate(zip(rewardList, distList, movingAgent)):
+            write.writerow([f"{i+1:<10}{rewards:<10}{distance:<10}{agent}"])
+
+def write_terminal_states(terminal_states):
+    with open('terminal_states', 'w', encoding="utf-8") as f:
+        write = csv.writer(f, delimiter=',')
+        write.writerow(['Steps'])
+        for s in terminal_states:
+            write.writerow([s])
+
 def write_table(agentFtable, agentMtable):
     with open('f_table.txt', 'w', encoding="utf-8") as f:
         for table in agentFtable:
@@ -39,7 +46,7 @@ def write_table(agentFtable, agentMtable):
         for table in agentMtable:
             f.write('%s\n' % str(table))
 
-def experiment(id, seed, produce_history, dump_table, rl_type):
+def experiment(id, seed, produce_history, dump_table, rl_type, vizFile):
     """
     Implements the event loop for experiments
     arguments:
@@ -69,8 +76,6 @@ def experiment(id, seed, produce_history, dump_table, rl_type):
         RLW = SSSpace()
     elif rl_type == 'vs':
         RLW = VSSpace()
-    elif rl_type == 'cs':
-        RLW = CSpace()
     elif rl_type == 'c2':
         RLW = C2Space()
     elif rl_type == 'ssv1':
@@ -109,6 +114,12 @@ def experiment(id, seed, produce_history, dump_table, rl_type):
     # number of terminal states reached
     terminal = 0
 
+    # agent that is moving (for CSV)
+    movingAgent = []
+
+    # terminal states (for performance)
+    terminal_states = []
+
     # number of iterations
     n = 0
 
@@ -121,6 +132,8 @@ def experiment(id, seed, produce_history, dump_table, rl_type):
     while True:
         # 'F' or 'M'
         curAgent = q.get()
+
+        movingAgent.append(curAgent)
 
         # choose action
         if curAgent == 'F':
@@ -161,6 +174,7 @@ def experiment(id, seed, produce_history, dump_table, rl_type):
             # TODO dump qtable
             terminal += 1
             print(f"Terminal state {terminal} reached after {numActions} actions\n")
+            terminal_states.append(numActions)
             numActions = 0
             if id == '4' and (terminal == 1 or terminal == 2):
                 RW = StateSpace('original')
@@ -179,7 +193,8 @@ def experiment(id, seed, produce_history, dump_table, rl_type):
             elif id == '4' and terminal == 6:
                 print(f"Total number of terminal states reached: {terminal}") # 6
                 if produce_history:
-                    write_actions(agentFActions, agentMActions, id, str(seed), rewardList, distList)
+                    write_actions(agentFActions, agentMActions, id, str(seed), rewardList, distList, vizFile, movingAgent)
+                    write_terminal_states(terminal_states)
                 if dump_table:
                     #print(agentFtable)
                     write_table(agentFtable, agentMtable)
@@ -226,7 +241,8 @@ def experiment(id, seed, produce_history, dump_table, rl_type):
             # TODO dump qtable
             print(f"\nTotal number of terminal states reached: {terminal}")
             if produce_history:
-                write_actions(agentFActions, agentMActions, id, str(seed), rewardList, distList)
+                write_actions(agentFActions, agentMActions, id, str(seed), rewardList, distList, vizFile, movingAgent)
+                write_terminal_states(terminal_states)
             if dump_table:
                 #print(agentFtable)
                 write_table(agentFtable, agentMtable)
@@ -253,12 +269,19 @@ def main():
         required=False,
         type=str,
         default='ss')
+    arg_parser.add_argument("--viz",
+        dest="vizFile",
+        help="Choose destination of visualization CSV",
+        required=False,
+        type=str,
+        default='visualization.csv')
     args = arg_parser.parse_args()
     experiment(args.experiment, 
                args.seed, 
                args.produce_history, 
                args.dump_tables, 
-               args.rl_type)
+               args.rl_type,
+               args.vizFile)
 
 if __name__ == "__main__":
     main()
