@@ -166,19 +166,18 @@ class StateSpace:
         
         return state
     
-    # TODO - correct logic
+
     def is_first_dropoff_filled(self):
         """
-        returns True if any Pickup cells contain 5 blocks and False otherwise
+        returns True if exactly 1 dropoff cell contains 5 blocks and False otherwise
         """
-        if (self.state_space[self.locDrop[0][0], self.locDrop[0][1], self.locDrop[0][2]].get_num_blocks() == 5 ^   
-            self.state_space[self.locDrop[1][0], self.locDrop[1][1], self.locDrop[1][2]].get_num_blocks() == 5 ^   
-            self.state_space[self.locDrop[2][0], self.locDrop[2][1], self.locDrop[2][2]].get_num_blocks() == 5 ^   
-            self.state_space[self.locDrop[3][0], self.locDrop[3][1], self.locDrop[3][2]].get_num_blocks() == 5):
-            return True
-        else:
-            return False
-    
+        counter = 0
+        for i in range(4):
+            counter += max(0, self.state_space[self.locDrop[i][0], self.locDrop[i][1], self.locDrop[i][2]].get_num_blocks() - 4)
+        
+        return True if counter == 1 else False
+        
+
     def perform_action(self, agent, action):
         """
         performs action by calling appropriate Action method
