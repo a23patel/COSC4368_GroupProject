@@ -32,10 +32,9 @@ def write_actions(agentFActions, agentMActions, id, seed, rewardList, distList, 
     with open('experiment_seed', 'w', encoding="utf-8") as f:
         f.write(seed)
     with open(vizFile, 'w', newline='',encoding="utf-8") as f:
-        write = csv.writer(f, delimiter='\t')
-        write.writerow(['Index','Rewards', ' Distance'])
+        write = csv.writer(f)
         for i, (rewards, distance, agent) in enumerate(zip(rewardList, distList, movingAgent)):
-            write.writerow([f"{i+1:<10}{rewards:<10}{distance:<10}{agent}"])
+            write.writerow([i+1, rewards, distance, agent])
 
 def write_terminal_states(terminal_states):
     """
