@@ -2,7 +2,7 @@ from queue import Queue
 from stateSpace import StateSpace
 from action import Action
 from agent import Agent
-from rlw import VSSpace, SSSpace, CSpace, C2Space, SSV1Space
+from rlw import VSSpace, SSSpace, C2Space, SSV1Space
 from policy import PGreedy, PExploit, PRandom
 import argparse
 import copy
@@ -15,6 +15,12 @@ def distance(locF, locM):
             + abs(locF[2] - locM[2]))
 
 def write_actions(agentFActions, agentMActions, id, seed, rewardList, distList, vizFile, movingAgent):
+    """
+    Write agent history and other performance metrics to files
+    These are used for analysis and for offline visualization
+    This is run at the end of simulation when the --history
+    flag is supplied
+    """
     with open('f_actions', 'w', encoding="utf-8") as f:
         for action in agentFActions:
             f.write('%s\n' % action)
@@ -32,6 +38,12 @@ def write_actions(agentFActions, agentMActions, id, seed, rewardList, distList, 
             write.writerow([f"{i+1:<10}{rewards:<10}{distance:<10}{agent}"])
 
 def write_terminal_states(terminal_states):
+    """
+    Write a CSV file containing the terminal state times
+    These are used for analysis of performance
+    This is run at the end of simulation when the --history
+    flag is supplied
+    """
     with open('terminal_states', 'w', encoding="utf-8") as f:
         write = csv.writer(f, delimiter=',')
         write.writerow(['Steps'])
@@ -39,6 +51,12 @@ def write_terminal_states(terminal_states):
             write.writerow([s])
 
 def write_table(agentFtable, agentMtable):
+    """
+    Write the entire Q-table for each agent to file
+    This is used for the offline visualization of the entire run
+    This is called appropriately at the end of the simulation
+    when the --dump-tables option is supplied
+    """
     with open('f_table.txt', 'w', encoding="utf-8") as f:
         for table in agentFtable:
             f.write('%s\n' % str(table))
@@ -46,19 +64,43 @@ def write_table(agentFtable, agentMtable):
         for table in agentMtable:
             f.write('%s\n' % str(table))
 
-def experiment(id, seed, produce_history, dump_table, rl_type, vizFile):
+def write_table_state(agentFtable, agentMtable, name, n):
+    """
+    Write the state of the Q-tables at a particular timestep
+    This is used for providing visualizations for the report
+    This is called appropriately in the simulation
+    when the --dump-tables option is supplied
+    """
+    with open(f'f_table_at_{name}.txt', 'w', encoding='utf-8') as f:
+        f.write(str(n) + '\n')
+        f.write(str(agentFtable[-1]))
+    with open(f'm_table_at_{name}.txt', 'w', encoding='utf-8') as f:
+        f.write(str(n) + '\n')
+        f.write(str(agentFtable[-1]))
+
+def experiment(args):
     """
     Implements the event loop for experiments
-    arguments:
+    argparse object args has the following parameters:
     id - '1a', '1b', '1c', '2', '3a', '3b', '4'
     seed - seed value for reproducibility
-    produce_history - 
-    dumpy_table - 
-    rl_type - 
+    produce_history - whether to write agent history/analytics to file
+    dump_table - whether to dump complete agent Q-table history to file
+    rl_type - type of RL state space to use (options: 'vs', 'c2', 'ss')
+    vizFile - filename for providing analytics
     """
-    alpha = 0.3
+    # Parse argument options
+    id = args.experiment
+    seed = args.seed
+    produce_history = args.produce_history
+    dump_table = args.dump_tables
+    rl_type = args.rl_type
+    vizFile = args.vizFile
     
     print(f"\n### Experiment {id} running with seed {seed} ###\n")
+    
+    # Setting hyperparameters appropriately
+    alpha = 0.3
     if id == '1a' or id == '1b' or id == '1c' or id == '2' or id == '4':
         alpha = 0.3
     elif id == '3a':
@@ -67,10 +109,10 @@ def experiment(id, seed, produce_history, dump_table, rl_type, vizFile):
         alpha = 0.5
     gamma = 0.5
 
-    # real world state space
+    # Setting real world state space object RW
     RW = StateSpace('original')
 
-    # reinforcement learning state space
+    # Setting RL state space object RLW
     RLW = SSSpace()
     if rl_type == 'ss':
         RLW = SSSpace()
@@ -83,15 +125,22 @@ def experiment(id, seed, produce_history, dump_table, rl_type, vizFile):
     
     actions = ['Pickup', 'Dropoff', 'N', 'S', 'E', 'W', 'U', 'D']
 
+    # Initialize agents with PRANDOM and appropriate arguments
+
     policyF = PRandom('F', RLW, actions, seed=seed)
     policyM = PRandom('M', RLW, actions, seed=seed)
 
     agentF = Agent('F', RLW, policyF, RW, alpha, gamma)
     agentM = Agent('M', RLW, policyM, RW, alpha, gamma)
 
+    # We utilize a Queue to store the order of the agents
+
     q = Queue(maxsize=2)
     q.put('F')
     q.put('M')
+
+    # Here we create some Lists to store the results
+    # from the simulation for offline visualization and analytics
 
     # stores the rewards obtained for analytics
     rewardList = []
@@ -114,13 +163,13 @@ def experiment(id, seed, produce_history, dump_table, rl_type, vizFile):
     # number of terminal states reached
     terminal = 0
 
-    # agent that is moving (for CSV)
+    # agent that is moving for each iteration (for CSV)
     movingAgent = []
 
-    # terminal states (for performance)
-    terminal_states = []
+    # actions required for each terminal state (for performance)
+    terminal_state_actions = []
 
-    # number of iterations
+    # iteration number
     n = 0
 
     # number of actions between terminal states
@@ -128,6 +177,16 @@ def experiment(id, seed, produce_history, dump_table, rl_type, vizFile):
 
     # just terminated flag
     justTerminated = False
+
+    # MAIN EVENT LOOP
+    # Briefly, the agent whose turn it is, chooses an action
+    # History/analytics objects are updated as appropriate
+    # RW is updated by the results of the action, and a reward is calculated
+    # The agent that moved is updated and using this reward performs SARSA/QL
+    # Various states are tested, and policies/dropoffs change depending on experiment
+    # If the RW indicates that a terminal state is reached, RW is reset
+    # The end result of the experiment is tested and analytic objects
+    # are written to a file as necessary before exiting
 
     while True:
         # 'F' or 'M'
@@ -164,17 +223,18 @@ def experiment(id, seed, produce_history, dump_table, rl_type, vizFile):
             elif curAgent == 'M':
                 agentMtable.append(agentM.extract_table(copy.deepcopy(RW)))
 
-        if RW.is_first_dropoff_filled():
-            # TODO dump qtable
-            pass
+        # When the first dropoff is filled, dump qtable
+        if dump_table and RW.is_first_dropoff_filled():
+            write_table_state(agentFtable, agentMtable, 'first_dropoff', n)            
 
         # check completion criterion
         if RW.is_complete():
             justTerminated = True
-            # TODO dump qtable
             terminal += 1
+            if dump_table:
+                write_table_state(agentFtable, agentMtable, f'terminal_state_{terminal}', n)
             print(f"Terminal state {terminal} reached after {numActions} actions\n")
-            terminal_states.append(numActions)
+            terminal_state_actions.append(numActions)
             numActions = 0
             if id == '4' and (terminal == 1 or terminal == 2):
                 RW = StateSpace('original')
@@ -194,7 +254,7 @@ def experiment(id, seed, produce_history, dump_table, rl_type, vizFile):
                 print(f"Total number of terminal states reached: {terminal}") # 6
                 if produce_history:
                     write_actions(agentFActions, agentMActions, id, str(seed), rewardList, distList, vizFile, movingAgent)
-                    write_terminal_states(terminal_states)
+                    write_terminal_states(terminal_state_actions)
                 if dump_table:
                     #print(agentFtable)
                     write_table(agentFtable, agentMtable)
@@ -206,15 +266,16 @@ def experiment(id, seed, produce_history, dump_table, rl_type, vizFile):
                 q.put('F')
                 q.put('M')
 
-        # TODO visualization in pyGame
+        # Provide progress updates of RW periodically to stdout
         if n % (250-1) == 0:
             print(RW.get_state_representation())
-        # RW.visualize()
 
-        # store distance between agents after 'M' moves
+        # Store distance between agents after 'M' moves
         if curAgent == 'M':
             distList.append(distance(RW.locF, RW.locM))
         
+        # This tests if the game was just completed
+
         if not justTerminated:
             q.put(curAgent)
         
@@ -242,46 +303,46 @@ def experiment(id, seed, produce_history, dump_table, rl_type, vizFile):
             print(f"\nTotal number of terminal states reached: {terminal}")
             if produce_history:
                 write_actions(agentFActions, agentMActions, id, str(seed), rewardList, distList, vizFile, movingAgent)
-                write_terminal_states(terminal_states)
+                write_terminal_states(terminal_state_actions)
             if dump_table:
                 #print(agentFtable)
+                write_table_state(agentFtable, agentMtable, 'end', n)
                 write_table(agentFtable, agentMtable)
             break
 
 
 def main():
+    """
+    Entry point of the simulation
+    Arguments are parsed and passed to experiment()
+    """
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("experiment", help="Experiment to run", type=str)
     arg_parser.add_argument("seed", help="Random seed to use", type=int)
-    arg_parser.add_argument("--history",
+    arg_parser.add_argument("-i", "--history",
         dest="produce_history",
         help="Produce history for visualization",
         required=False,
         action="store_true")
-    arg_parser.add_argument("--dump-tables",
+    arg_parser.add_argument("-d", "--dump-tables",
         dest="dump_tables",
         help="Dump Q-tables to files m_table.txt and f_table.txt",
         required=False,
         action="store_true")
-    arg_parser.add_argument("--rl",
+    arg_parser.add_argument("-r", "--rl", 
         dest="rl_type",
         help="Choose RL state space type",
         required=False,
         type=str,
         default='ss')
-    arg_parser.add_argument("--viz",
+    arg_parser.add_argument("-v", "--viz",
         dest="vizFile",
         help="Choose destination of visualization CSV",
         required=False,
         type=str,
         default='visualization.csv')
     args = arg_parser.parse_args()
-    experiment(args.experiment, 
-               args.seed, 
-               args.produce_history, 
-               args.dump_tables, 
-               args.rl_type,
-               args.vizFile)
+    experiment(args)
 
 if __name__ == "__main__":
     main()
