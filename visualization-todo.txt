@@ -1,4 +1,0 @@
-# TODO list
-# 1. Draw blocks
-# 2. Display someting to indicate end of experiment
-# 3. Consider experiment 4 (experiment ends after terminal state 6)
