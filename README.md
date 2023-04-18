@@ -29,3 +29,50 @@
 <li>Develop and learn coordination strategies for collaborating agents</li>
 <li>Creating solutions for 3D visualization problems</li>
 <li>Learning to develop AI software in a team</li>
+</ul>
+
+<h2>How to run the code</h2>
+<ol>
+  <li>Install the dependencies in <i>requirements.txt</i>.</li>
+  <li>Simulate an experiment by running <i>main.py</i> with arguments. Required arguments are:
+    <ul>
+      <li>experiment</li>
+      <li>seed</li>
+    </ul>
+    Acceptable experiment arguments are <code>1a</code>, <code>1b</code>, <code>1c</code>,<code>2</code>, <code>3a</code>, <code>3b</code> and <code>4</code>.
+    Acceptable seed arguments include any integer greater than or equal to zero such as <code>42</code>.
+    Optional arguments are:
+    <ul>
+      <li><code>--history</code> which writes history information to files used during offline visualization</li>
+      <li><code>--dump-tables</code> which writes Q-table information to files used during offline visualization</li>
+      <li><code>--rl</code> followed by any one of the following reinforcement learning state spaces <code>ss</code>, <code>vs</code>, <code>ms</code>, <code>ss</code>, <code>cs</code> or <code>ssv1</code>. This selects the reinforcement learning state space used by the agents. If not provided, the default value is <code>ss</code>.</li>
+      <li><code>--viz</code> followed by a destination for a <i>.csv</i> file. This file is used in <i>performanceMetrics.ipynb</i>. If not provided the default value is <code>out/visualization.csv</code></li>
+    </ul>
+  </li>
+  <li>Visualize a simulated experiment by running <i>visualization.py</i>. <b>Note that you must run <i>main.py</i> beforehand with the optional <code>--history</code> flag in order to generate the files needed to run <i>visualization.py</i> without arguments. </b>You may optionally provide command line arguments when running <i>visualization.py</i>. Optional arguments are:
+    <ul>
+      <li><code>--fps</code> followed by an integer such as <code>30</code> to set the framerate of the display updates. If not provided, the default value is <code>60</code>.</li>
+      <li><code>--speed</code> followed by an integer such as <code>2</code> to set the number of actions taken by each agent per frame. If not provided, the default value is <code>1</code>.</li>
+      <li><code>--qtable</code> which, when provided, also visualizes the Q-tables of the agents. <b>Note that you must run <i>main.py</i> beforehand with the optional <code>--dump-tables</code> flag in order to produce the files needed to run <i>visualization.py</i> with this flag.</b></li>
+    </ul>
+  </li>
+</ol>
+<h4>Example use after installing the dependencies </h4>
+
+<p>
+Consider the case where you wish to simulate experiment 1c with seed 2 and visualize it. To accomplish this, perform the following steps.
+</p>
+<ol>
+  <li><code>python main.py 1a 2 --history</code></li>
+  <li><code>python visualization.py</code></li>
+</ol>
+
+<p>
+Consider the case where you wish to simulate experiment 4 with seed 39 and visualize it with Q-table information. Perphas you also want to set the framerate to 30 fps and bump up the speed to 3. To accomplish this, perform the following steps.
+</p>
+<ol>
+  <li><code>python main.py 4 39 --history --dump-tables</code></li>
+  <li><code>python visualization.py --fps 30 --speed 3 --qtable</code></li>
+</ol>
+
+<p><b>Note that you can toggle pause/play using the spacebar when visualizing experiments.</b></p>
