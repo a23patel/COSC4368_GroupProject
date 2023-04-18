@@ -21,15 +21,15 @@ def write_actions(agentFActions, agentMActions, id, seed, rewardList, distList, 
     This is run at the end of simulation when the --history
     flag is supplied
     """
-    with open('f_actions', 'w', encoding="utf-8") as f:
+    with open('out/f_actions', 'w', encoding="utf-8") as f:
         for action in agentFActions:
             f.write('%s\n' % action)
-    with open('m_actions', 'w', encoding="utf-8") as f:
+    with open('out/m_actions', 'w', encoding="utf-8") as f:
         for action in agentMActions:
             f.write('%s\n' % action)
-    with open('experiment_id', 'w', encoding="utf-8") as f:
+    with open('out/experiment_id', 'w', encoding="utf-8") as f:
         f.write(id)
-    with open('experiment_seed', 'w', encoding="utf-8") as f:
+    with open('out/experiment_seed', 'w', encoding="utf-8") as f:
         f.write(seed)
     with open(vizFile, 'w', newline='',encoding="utf-8") as f:
         write = csv.writer(f)
@@ -43,7 +43,7 @@ def write_terminal_states(terminal_states):
     This is run at the end of simulation when the --history
     flag is supplied
     """
-    with open('terminal_states', 'w', encoding="utf-8") as f:
+    with open('out/terminal_states', 'w', encoding="utf-8") as f:
         write = csv.writer(f, delimiter=',')
         write.writerow(['Steps'])
         for s in terminal_states:
@@ -56,10 +56,10 @@ def write_table(agentFtable, agentMtable):
     This is called appropriately at the end of the simulation
     when the --dump-tables option is supplied
     """
-    with open('f_table.txt', 'w', encoding="utf-8") as f:
+    with open('out/f_table.txt', 'w', encoding="utf-8") as f:
         for table in agentFtable:
             f.write('%s\n' % str(table))
-    with open('m_table.txt', 'w', encoding="utf-8") as f:
+    with open('out/m_table.txt', 'w', encoding="utf-8") as f:
         for table in agentMtable:
             f.write('%s\n' % str(table))
 
@@ -70,10 +70,10 @@ def write_table_state(agentFtable, agentMtable, name, n):
     This is called appropriately in the simulation
     when the --dump-tables option is supplied
     """
-    with open(f'f_table_at_{name}.txt', 'w', encoding='utf-8') as f:
+    with open(f'out/f_table_at_{name}.txt', 'w', encoding='utf-8') as f:
         f.write(str(n) + '\n')
         f.write(str(agentFtable[-1]))
-    with open(f'm_table_at_{name}.txt', 'w', encoding='utf-8') as f:
+    with open(f'out/m_table_at_{name}.txt', 'w', encoding='utf-8') as f:
         f.write(str(n) + '\n')
         f.write(str(agentFtable[-1]))
 
@@ -286,7 +286,7 @@ def experiment(args):
                 if id == '1b':
                     agentF.set_policy(PGreedy('F', RLW, actions, seed=seed))
                     agentM.set_policy(PGreedy('M', RLW, actions, seed=seed))
-                elif id == '1c' or id == '2' or id == '3' or id == '4':
+                elif id == '1c' or id == '2' or id == '3a' or id == '3b' or id == '4':
                     agentF.set_policy(PExploit('F', RLW, actions, seed=seed))
                     agentM.set_policy(PExploit('M', RLW, actions, seed=seed))
                 if id == '2':
@@ -337,7 +337,7 @@ def main():
         help="Choose destination of visualization CSV",
         required=False,
         type=str,
-        default='visualization.csv')
+        default='out/visualization.csv')
     args = arg_parser.parse_args()
     experiment(args)
 

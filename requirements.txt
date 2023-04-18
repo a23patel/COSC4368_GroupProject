@@ -1,5 +1,4 @@
 numpy
-opencv-python
 pygame
 pandas
 plotly==5.14.1

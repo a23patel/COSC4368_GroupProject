@@ -10,22 +10,22 @@ import ast
 # import action lists
 agentFActions = []
 agentMActions = []
-with open('f_actions', 'r', encoding="utf-8") as f:
+with open('out/f_actions', 'r', encoding="utf-8") as f:
     for line in f:
         x = line[:-1]
         agentFActions.append(x)
-with open('m_actions', 'r', encoding="utf-8") as f:
+with open('out/m_actions', 'r', encoding="utf-8") as f:
     for line in f:
         x = line[:-1]
         agentMActions.append(x)
 
 # import experiment id
-with open('experiment_id', 'r', encoding="utf-8") as f:
+with open('out/experiment_id', 'r', encoding="utf-8") as f:
     for line in f:
         id = line
 
 # import experiment seed
-with open('experiment_seed', 'r', encoding="utf-8") as f:
+with open('out/experiment_seed', 'r', encoding="utf-8") as f:
     for line in f:
         seed = line
 
@@ -566,13 +566,13 @@ def main():
     if args.qtable:
         f_table = []
         m_table = []
-        with open('f_table.txt', 'r') as f:
+        with open('out/f_table.txt', 'r') as f:
             for line in f:
                 x = line[:-1]
                 parsed = ast.literal_eval(x)
                 f_table.append(parsed)
                 print(parsed[0])
-        with open('m_table.txt', 'r') as f:
+        with open('out/m_table.txt', 'r') as f:
             for line in f:
                 x = line[:-1]
                 parsed = ast.literal_eval(x)
