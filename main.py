@@ -77,6 +77,12 @@ def write_table_state(agentFtable, agentMtable, name, n):
         f.write(str(n) + '\n')
         f.write(str(agentFtable[-1]))
 
+def reload_queue(q):
+    # empty queue and load F first then M
+    q.get()
+    q.put('F')
+    q.put('M')
+
 def experiment(args):
     """
     Implements the event loop for experiments
@@ -239,18 +245,12 @@ def experiment(args):
             numActions = 0
             if id == '4' and (terminal == 1 or terminal == 2):
                 RW = StateSpace('original')
-                # empty queue and load F first then M
-                q.get()
-                q.put('F')
-                q.put('M')
+                reload_queue(q)
             elif id == '4' and (terminal == 3 or terminal == 4 or terminal == 5):
                 if terminal == 3:
                     print("Pickup locations modified\n")
                 RW = StateSpace('modified')
-                # empty queue and load F first then M
-                q.get()
-                q.put('F')
-                q.put('M')
+                reload_queue(q)
             elif id == '4' and terminal == 6:
                 print(f"Total number of terminal states reached: {terminal}") # 6
                 if produce_history:
@@ -262,11 +262,7 @@ def experiment(args):
                 break
             elif id != '4':
                 RW = StateSpace('original')
-                # empty queue and load F first then M
-                q.get()
-                q.put('F')
-                q.put('M')
-
+                reload_queue(q)
         # Provide progress updates of RW periodically to stdout
         if n % (250-1) == 0:
             print(RW.get_state_representation())
