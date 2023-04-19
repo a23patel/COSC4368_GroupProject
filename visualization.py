@@ -78,15 +78,16 @@ ARROW['M'] = {}
 MALE_ARROW = pygame.image.load(os.path.join('assets', 'male-arrow.png'))
 FEMALE_ARROW = pygame.image.load(os.path.join('assets', 'female-arrow.png'))
 for g in ['F', 'M']:
+    gender = 'female' if g == 'F' else 'male'
     CUR_ARROW = MALE_ARROW if g == 'M' else FEMALE_ARROW
     ARROW[g]['N'] = CUR_ARROW
     ARROW[g]['W'] = pygame.transform.rotate(CUR_ARROW, 90)
     ARROW[g]['S'] = pygame.transform.rotate(CUR_ARROW, 180)
     ARROW[g]['E'] = pygame.transform.rotate(CUR_ARROW, 270)
-    ARROW[g]['U'] = pygame.image.load(os.path.join('assets', 'arrow_U.png'))
-    ARROW[g]['D'] = pygame.image.load(os.path.join('assets', 'arrow_D.png'))
-    ARROW[g]['Pickup'] = pygame.image.load(os.path.join('assets', 'arrow_Pickup.png'))
-    ARROW[g]['Dropoff'] = pygame.image.load(os.path.join('assets', 'arrow_Dropoff.png'))
+    ARROW[g]['U'] = pygame.image.load(os.path.join('assets', f'{gender}-up-arrow.png'))
+    ARROW[g]['D'] = pygame.image.load(os.path.join('assets', f'{gender}-down-arrow.png'))
+    ARROW[g]['Pickup'] = pygame.image.load(os.path.join('assets', f'{gender}-pickup-label.png'))
+    ARROW[g]['Dropoff'] = pygame.image.load(os.path.join('assets', f'{gender}-dropoff-label.png'))
 
 # define new asset sizes
 RESIZED_Z_LEVEL = (SCALE*360,SCALE*360)
@@ -432,46 +433,41 @@ def draw_window(c, agent, b):
 def draw_qtable(c, agent, b):
     """
     draws the Q-table assets at each state
+    The Q-table values are scaled logarithmically to the range [0.5, 1.0]
+    These scaled values are used to resize a sprite corresponding to the action
+    This sprite is blitted on the square
     """
-    # if agent.id == 'F':
-    #     return
     q_values, q_directions = agent.get_table_state()
     max_q = np.max(q_values)
     min_q = np.min(q_values)
-    alpha = 0.2
+    alpha = 0.5
     beta = 1.0
-    a = (np.exp(beta)-np.exp(alpha))/(max_q - min_q)
-    b = (np.exp(alpha)*max_q - np.exp(beta)*min_q)/(max_q - min_q)
     def scale(x):
         if (min_q == max_q):
             return 1.0
+        a = (np.exp(beta)-np.exp(alpha))/(max_q - min_q)
+        b = (np.exp(alpha)*max_q - np.exp(beta)*min_q)/(max_q - min_q)
         return np.log(a*x+b)
-    # def scale(x):
-    #     if (min_q == max_q):
-    #         return 1.0
-    #     return (x-min_q)/(max_q - min_q)
+
     for i in range(3):
         for j in range(3):
             for k in range(3):
                 index = i*9+j*3+k
-                # if (i != 0 or j != 0 or k != 0):
-                #     break
                 q_direction = q_directions[index]
-                #q_direction = np.random.choice(['D', 'U', 'W', 'E', 'N', 'S'])
+                # If there is no favored direction in the Q-table, don't draw any visualization
                 if q_direction == '':
                     continue
+                # q_values are used to produce scaled image sizes
                 q_value = scale(q_values[index]) // (1/ 64.)
                 scaled = (q_value, q_value)
-                #q_value = np.random.rand() // (1/64.)
+                # The location we draw to has to be offset so that it remains centered after resizing
                 offset = 64 - q_value
                 draw_x = LOC_MATRIX[i,j,k][0]+(offset // 2)
                 draw_y = LOC_MATRIX[i,j,k][1]+(offset // 2)
+                # The appropriate image is scaled and blitted to the screen in the proper location
                 rect = pygame.Rect((draw_x, draw_y), scaled)
                 scaled_img = pygame.transform.scale(ARROW[agent.id][q_direction], scaled)
                 WIN.blit(scaled_img, rect)
-                mask = pygame.Surface(scaled, pygame.SRCALPHA)
-                mask.fill(pygame.Color(0, 0, 0, int(255*scale(q_values[index]))))
-                WIN.blit(mask, rect, special_flags=pygame.BLEND_RGBA_MAX)
 
 def draw_action(c, agent, b):
     """
