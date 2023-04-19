@@ -579,13 +579,6 @@ def main():
     """
     # Argument parsing code for setting options
     arg_parser = argparse.ArgumentParser()
-    # TODO this is disabled for now...
-    # arg_parser.add_argument("--scale",
-    #     dest="scale",
-    #     help="Visual scale factor",
-    #     required=False,
-    #     type=int,
-    #     default=1)
     arg_parser.add_argument("--fps",
         dest="fps",
         help="Framerate of display updates (default 60)",
