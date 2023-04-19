@@ -56,6 +56,8 @@
       <li><code>--qtable</code> which, when provided, also visualizes the Q-tables of the agents. <b>Note that you must run <i>main.py</i> beforehand with the optional <code>--dump-tables</code> flag in order to produce the files needed to run <i>visualization.py</i> with this flag.</b></li>
     </ul>
   </li>
+  <li>The performance variable data was aggregated for all experiments using the script <i>generate_csv.py</i>. This produces files <i>visualizationN.csv</i> and <i>terminal_statesN.csv</i> files in the <i>out</i> subdirectory. The Jupyter Notebook <i>performanceMetrics_visualization.ipynb</i> is used to generate the figure images in the report.
+  </li>
 </ol>
 <h4>Example use after installing the dependencies </h4>
 
@@ -76,3 +78,5 @@ Consider the case where you wish to simulate experiment 4 with seed 39 and visua
 </ol>
 
 <p><b>Note that you can toggle pause/play using the spacebar when visualizing experiments.</b></p>
+
+<h4>Use of </h4>
