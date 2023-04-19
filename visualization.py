@@ -6,7 +6,6 @@ import numpy as np
 import argparse
 import ast
 
-################## GLOBALS ##################
 # import action lists
 agentFActions = []
 agentMActions = []
@@ -30,12 +29,11 @@ with open('out/experiment_seed', 'r', encoding="utf-8") as f:
         seed = line
 
 # controls overall size
-SCALE = 1.05
+SCALE = 1.0
 
-# window
+# create window
 WIDTH, HEIGHT = (SCALE*1200), (SCALE*400)
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-
 pygame.display.set_caption(f"Reinforcement Learning Visualization | Experiment: {id} | Seed: {seed}")
 
 # colors
@@ -209,9 +207,20 @@ LOC_MATRIX[2,2,2] = LOC_333
 
 MOVE_OFFSET_NESW = SCALE*120
 MOVE_OFFSET_UD = SCALE*410
-################ END GLOBALS ################
 
 class Agent:
+    """
+    Class which allows us to pass many attributes related to an agent by reference 
+    and call methods to modify those attributes.
+
+    Properties:
+    id - 'F' or 'M'
+    loc - (x,y) coordinates on display window
+    asset - image used to represent agent visually
+    actionList - list of actions agent will perform generated from prior simulation
+    qtable - Q-table of agent generated from prior simulation
+    index - used to access agent's actionList
+    """
     def __init__(self, _id, _loc, _asset, _actionList, _qtable = None):
         self.id = _id # F or M
         self.loc = _loc
@@ -221,39 +230,69 @@ class Agent:
         self.index = 0
     
     def set_asset(self, _asset):
+        """
+        sets the asset of the agent
+        """
         self.asset = _asset
 
     def move_east(self):
+        """
+        moves the agent east by updating its location
+        returns nothing
+        """
         self.loc = (self.loc[0]+1, self.loc[1], self.loc[2])
         self.index += 1
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def move_west(self):
+        """
+        moves the agent west by updating its location
+        returns nothing
+        """
         self.loc = (self.loc[0]-1, self.loc[1], self.loc[2])
         self.index += 1
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
   
     def move_north(self):
+        """
+        moves the agent north by updating its location
+        returns nothing
+        """
         self.loc = (self.loc[0], self.loc[1]+1, self.loc[2])
         self.index += 1
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def move_south(self):
+        """
+        moves the agent south by updating its location
+        returns nothing
+        """
         self.loc = (self.loc[0], self.loc[1]-1, self.loc[2])
         self.index += 1
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def move_up(self):
+        """
+        moves the agent up by updating its location
+        returns nothing
+        """
         self.loc = (self.loc[0], self.loc[1], self.loc[2]+1)
         self.index += 1
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
     
     def move_down(self):
+        """
+        moves the agent down by updating its location
+        returns nothing
+        """
         self.loc = (self.loc[0], self.loc[1], self.loc[2]-1)
         self.index += 1
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def pickup(self):
+        """
+        performs pickup action by changing agent's asset to colored version
+        """
         if self.id == 'F':
             self.asset = f_carrying
         elif self.id == 'M':
@@ -262,6 +301,9 @@ class Agent:
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def dropoff(self):
+        """
+        performs dropoff action by changing agent's asset to simple version
+        """
         if self.id == 'F':
             self.asset = f_not_carrying
         elif self.id == 'M':
@@ -270,13 +312,90 @@ class Agent:
         WIN.blit(self.asset, LOC_MATRIX[self.loc[0]][self.loc[1]][self.loc[2]])
 
     def set_table(self, qtable):
+        """
+        sets the Q-table of the agent
+        """
         self.qtable = qtable
 
     def get_table_state(self):
+        """
+        returns the state of agent's Q-table
+        """
         if self.qtable:
             return self.qtable[self.index]
 
+class Conditions:
+    """
+    Class which allows us to pass conditions by reference and 
+    update attributes as events occur during visualizaiton
+    """
+    def __init__(self):
+        self.numDropoff = 0
+        self.numActions = 0
+        self.numTerminal = 0
+        self.id = None
+        self.is_modified = False
+        self.has_switched = False
+class Block:
+    """
+    Class which defines Pickup & Dropoff block blit locations and
+    allows us to pass many block attributes by reference
+    """
+    def __init__(self):
+        self.pickup_one = 10
+        self.pickup_two = 10
+        self.block_arr_one = [] #floor 1 
+        self.block_arr_two = [] #floor 2
+
+        self.block_one_y = (SCALE*223 )
+        self.block_two_y = (SCALE*107)
+        self.block_one_x = (SCALE*220)
+        self.block_two_x = (SCALE*750)
+
+        self.offset = 11 * SCALE
+
+        for i in range(10):
+            block1 = (self.block_one_x,self.block_one_y)
+            block2 = (self.block_two_x,self.block_two_y)
+            self.block_arr_one.append(block1)
+            self.block_arr_two.append(block2)
+            self.block_one_y = self.block_one_y - self.offset
+            self.block_two_y = self.block_two_y - self.offset
+
+        self.drop_off_one = [] 
+        self.drop_off_two = []
+        self.drop_off_three = []
+        self.drop_off_four = []
+        self.itr1 = 0
+        self.itr2 = 0
+        self.itr3 = 0
+        self.itr4 = 0
+        self.y1 = SCALE * 341
+        self.y2 = SCALE * 341
+        self.y3 = SCALE * 341
+        self.y4 = SCALE * 223
+
+        self.modifiedBlock_one_x = (SCALE * 103)
+        self.modifiedBlock_one_y =(SCALE * 106)
+        self.modifiedBlock_two_x = (SCALE * 1040)
+        self.modifiedBlock_two_y = (SCALE * 106)
+
+    def modifiy_pickup_block_locations(self):
+        self.block_arr_one = []
+        self.block_arr_two = []
+        for i in range(10):
+            block1 = (self.modifiedBlock_one_x,self.modifiedBlock_one_y)
+            block2 = (self.modifiedBlock_two_x,self.modifiedBlock_two_y)
+            self.block_arr_one.append(block1)
+            self.block_arr_two.append(block2)
+            self.modifiedBlock_one_y = self.modifiedBlock_one_y - self.offset
+            self.modifiedBlock_two_y = self.modifiedBlock_two_y - self.offset
+
 def draw_window(c, agent, b):
+    """
+    draws the window for each frame by blitting static assets and
+    conditionally blitting dynamic assets
+    """
     WIN.fill(LIGHT_YELLOW)
 
     WIN.blit(grid, Z1_LOCATION)
@@ -311,9 +430,11 @@ def draw_window(c, agent, b):
     pygame.display.update()
 
 def draw_qtable(c, agent, b):
+    """
+    draws the Q-table assets at each state
+    """
     # if agent.id == 'F':
     #     return
-    #print(agent.get_table_state())
     q_values, q_directions = agent.get_table_state()
     max_q = np.max(q_values)
     min_q = np.min(q_values)
@@ -325,7 +446,6 @@ def draw_qtable(c, agent, b):
         if (min_q == max_q):
             return 1.0
         return np.log(a*x+b)
-    print(f"Max q is {max_q}, min q is {min_q}")
     # def scale(x):
     #     if (min_q == max_q):
     #         return 1.0
@@ -347,7 +467,6 @@ def draw_qtable(c, agent, b):
                 draw_x = LOC_MATRIX[i,j,k][0]+(offset // 2)
                 draw_y = LOC_MATRIX[i,j,k][1]+(offset // 2)
                 rect = pygame.Rect((draw_x, draw_y), scaled)
-                print(f"Rectangle scaled to {(q_value, q_value)}, and will be blitted at {rect.topleft}")
                 scaled_img = pygame.transform.scale(ARROW[agent.id][q_direction], scaled)
                 WIN.blit(scaled_img, rect)
                 mask = pygame.Surface(scaled, pygame.SRCALPHA)
@@ -355,6 +474,9 @@ def draw_qtable(c, agent, b):
                 WIN.blit(mask, rect, special_flags=pygame.BLEND_RGBA_MAX)
 
 def draw_action(c, agent, b):
+    """
+    draws agent & block assets conditionally based on action performed
+    """
     i = agent.index
     action = agent.actionList[i]
     if action == 'E':
@@ -450,70 +572,15 @@ def draw_action(c, agent, b):
         for h in range(b.itr4):
             drp4 = b.drop_off_four[h]
             WIN.blit(block,(drp4[0],drp4[1]))
-class Conditions:
-    def __init__(self):
-        self.numDropoff = 0
-        self.numActions = 0
-        self.numTerminal = 0
-        self.id = None
-        self.is_modified = False
-        self.has_switched = False
-class Block:
-    def __init__(self):
-        self.pickup_one = 10
-        self.pickup_two = 10
-        self.block_arr_one = [] #floor 1 
-        self.block_arr_two = [] #floor 2
-
-        self.block_one_y = (223 * SCALE)
-        self.block_two_y = (107 * SCALE)
-        self.block_one_x = (SCALE * 220)
-        self.block_two_x = (SCALE * 750)
-
-        self.offset = 11 * SCALE
-
-        for i in range(10):
-            block1 = (self.block_one_x,self.block_one_y)
-            block2 = (self.block_two_x,self.block_two_y)
-            self.block_arr_one.append(block1)
-            self.block_arr_two.append(block2)
-            self.block_one_y = self.block_one_y - self.offset
-            self.block_two_y = self.block_two_y - self.offset
-
-        self.drop_off_one = [] 
-        self.drop_off_two = []
-        self.drop_off_three = []
-        self.drop_off_four = []
-        self.itr1 = 0
-        self.itr2 = 0
-        self.itr3 = 0
-        self.itr4 = 0
-        self.y1 = SCALE * 341
-        self.y2 = SCALE * 341
-        self.y3 = SCALE * 341
-        self.y4 = SCALE * 223
-
-        self.modifiedBlock_one_x = (SCALE * 103)
-        self.modifiedBlock_one_y =(SCALE * 106)
-        self.modifiedBlock_two_x = (SCALE * 1040)
-        self.modifiedBlock_two_y = (SCALE * 106)
-
-    def modifiy_pickup_block_locations(self):
-        self.block_arr_one = []
-        self.block_arr_two = []
-        for i in range(10):
-            block1 = (self.modifiedBlock_one_x,self.modifiedBlock_one_y)
-            block2 = (self.modifiedBlock_two_x,self.modifiedBlock_two_y)
-            self.block_arr_one.append(block1)
-            self.block_arr_two.append(block2)
-            self.modifiedBlock_one_y = self.modifiedBlock_one_y - self.offset
-            self.modifiedBlock_two_y = self.modifiedBlock_two_y - self.offset
 
 def save_image(filename):
     pygame.image.save(WIN, filename)
 
 def main():
-    
+    """
+    Driver code to run PyGame visualization by iterating through the agents'
+    action lists and Q-tables
+    """
     # Argument parsing code for setting options
     arg_parser = argparse.ArgumentParser()
     # TODO this is disabled for now...
@@ -571,7 +638,6 @@ def main():
                 x = line[:-1]
                 parsed = ast.literal_eval(x)
                 f_table.append(parsed)
-                print(parsed[0])
         with open('out/m_table.txt', 'r') as f:
             for line in f:
                 x = line[:-1]
@@ -591,7 +657,6 @@ def main():
         if draw_countdown == 0 or draw_countdown == -1:
             draw_now = True
         draw_countdown -= 1
-        print(f"n: {n}, draw_countdown: {draw_countdown}")
         if draw_now:
             clock.tick(FPS)
         for event in pygame.event.get():
@@ -632,7 +697,6 @@ def main():
             c.numTerminal += 1
             if id == '4' and c.numTerminal == 3:
                 c.is_modified = True
-            print(f"terminal state {c.numTerminal} reached")
             c.numActions = 0
             c.numDropoff = 0
             F.loc = [0,0,0]
