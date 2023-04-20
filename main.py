@@ -233,8 +233,8 @@ def experiment(args):
 
         # When the first dropoff is filled, dump qtable
         if dump_table and RW.is_first_dropoff_filled() and dropoff_timing_not_written:
-            print(f"Recording {n} in report timings")
-            timings.append(n)  
+            print(f"Recording {n+1} in report timings")
+            timings.append(n+1)
             dropoff_timing_not_written = False      
 
         # check completion criterion
