@@ -595,10 +595,25 @@ def main():
         dest="qtable",
         help="Visualize Q-table each turn",
         required=False,
-        action="store_true")
+        type=str,
+        default='')
+    arg_parser.add_argument("--report",
+        dest="report",
+        help="Run in batch mode, and produce images as specified for the report",
+        required=False,
+        type=str,
+        default=None)
     args = arg_parser.parse_args()
     FPS = args.fps
     SPEED = args.speed
+
+    report_timings = []
+    if args.report:
+        with open(args.report, 'r') as f:
+            for line in f:
+                x = line[:-1]
+                report_timings.append(int(x))
+        print(f"timings: {report_timings}")
 
     c = Conditions()
     c.id = id
@@ -640,6 +655,9 @@ def main():
     draw_countdown = 0
     draw_now = True
     while run:
+        if args.report and n in report_timings:
+            draw_now = True
+            draw_countdown = 0
         if draw_countdown == -2:
             draw_now = False
             draw_countdown = 2*SPEED - 2
@@ -670,8 +688,11 @@ def main():
         q.put(curAgent)
 
         if args.qtable and draw_now:
-            draw_qtable(c, curAgent, b)
-        
+            if args.qtable == 'M':
+                draw_qtable(c, M, b)
+            elif args.qtable == 'F':
+                draw_qtable(c, F, b)
+
         # redraw inactive agent
         if draw_now:
             if c.numActions != 0:
@@ -680,6 +701,10 @@ def main():
                 else:
                     WIN.blit(F.asset, LOC_MATRIX[F.loc[0]][F.loc[1]][F.loc[2]])
                 pygame.display.update()
+
+        if args.report and n in report_timings:
+            print(f'We are going to save image now')
+            save_image(f'report_{args.qtable}_{n}.png')
 
         # check terminal state
         if c.numDropoff == 20:

@@ -63,19 +63,16 @@ def write_table(agentFtable, agentMtable):
         for table in agentMtable:
             f.write('%s\n' % str(table))
 
-def write_table_state(agentFtable, agentMtable, name, n):
+def write_report_timing(timings):
     """
-    Write the state of the Q-tables at a particular timestep
+    Write the timesteps for report Q-table dumps
     This is used for providing visualizations for the report
     This is called appropriately in the simulation
-    when the --dump-tables option is supplied
+    when the --report option is supplied
     """
-    with open(f'out/f_table_at_{name}.txt', 'w', encoding='utf-8') as f:
-        f.write(str(n) + '\n')
-        f.write(str(agentFtable[-1]))
-    with open(f'out/m_table_at_{name}.txt', 'w', encoding='utf-8') as f:
-        f.write(str(n) + '\n')
-        f.write(str(agentFtable[-1]))
+    with open(f'out/report_timings.txt', 'w', encoding='utf-8') as f:
+        for t in timings:
+            f.write(str(t) + '\n')
 
 def reload_queue(q):
     # empty queue and load F first then M
@@ -176,6 +173,10 @@ def experiment(args):
     # actions required for each terminal state (for performance)
     terminal_state_actions = []
 
+    # timings for Q-table dumps in the visualization
+    timings = []
+    dropoff_timing_not_written = True
+
     # iteration number
     n = 0
 
@@ -231,15 +232,18 @@ def experiment(args):
                 agentMtable.append(agentM.extract_table(copy.deepcopy(RW)))
 
         # When the first dropoff is filled, dump qtable
-        if dump_table and RW.is_first_dropoff_filled():
-            write_table_state(agentFtable, agentMtable, 'first_dropoff', n)            
+        if dump_table and RW.is_first_dropoff_filled() and dropoff_timing_not_written:
+            print(f"Recording {n} in report timings")
+            timings.append(n)  
+            dropoff_timing_not_written = False      
 
         # check completion criterion
         if RW.is_complete():
             justTerminated = True
             terminal += 1
             if dump_table:
-                write_table_state(agentFtable, agentMtable, f'terminal_state_{terminal}', n)
+                print(f"Recording {n+1} in report timings")
+                timings.append(n+1)
             print(f"Terminal state {terminal} reached after {numActions} actions\n")
             terminal_state_actions.append(numActions)
             numActions = 0
@@ -297,13 +301,16 @@ def experiment(args):
         # stop after 10,000 moves
         if n == 10000:
             # TODO dump qtable
+            print(f"Recording {n} in report timings")
+            timings.append(n)
             print(f"\nTotal number of terminal states reached: {terminal}")
             if produce_history:
                 write_actions(agentFActions, agentMActions, id, str(seed), rewardList, distList, vizFile, movingAgent)
                 write_terminal_states(terminal_state_actions)
             if dump_table:
                 #print(agentFtable)
-                write_table_state(agentFtable, agentMtable, 'end', n)
+                print(timings)
+                write_report_timing(timings)
                 write_table(agentFtable, agentMtable)
             break
 
