@@ -2,7 +2,7 @@ from queue import Queue
 from stateSpace import StateSpace
 from action import Action
 from agent import Agent
-from rlw import VSSpace, SSSpace, C2Space, SSV1Space, MSpace
+from rlw import VSSpace, SSSpace, MSpace
 from policy import PGreedy, PExploit, PRandom
 import argparse
 import copy
