@@ -599,21 +599,27 @@ def main():
         default='')
     arg_parser.add_argument("--report",
         dest="report",
-        help="Run in batch mode, and produce images as specified for the report",
+        help="Produce images as specified for the report",
         required=False,
-        type=str,
-        default=None)
+        action="store_true")
+    arg_parser.add_argument("--ss",
+        dest="single_step",
+        help="Start in single-step mode",
+        required=False,
+        action="store_true")
     args = arg_parser.parse_args()
+    single_step = args.single_step
+    paused = True if single_step else False
     FPS = args.fps
     SPEED = args.speed
 
-    report_timings = []
-    if args.report:
-        with open(args.report, 'r') as f:
-            for line in f:
-                x = line[:-1]
-                report_timings.append(int(x))
-        print(f"timings: {report_timings}")
+    #report_timings = []
+    # if args.report:
+    #     with open('out/report_timings.txt', 'r') as f:
+    #         for line in f:
+    #             x = line[:-1]
+    #             report_timings.append(int(x))
+    #     print(f"timings: {report_timings}")
 
     c = Conditions()
     c.id = id
@@ -631,7 +637,7 @@ def main():
     clock = pygame.time.Clock()
 
     # number of total iterations
-    n = 0
+    n = -1
 
     # load Q-table data
     if args.qtable:
@@ -650,14 +656,10 @@ def main():
         F.set_table(f_table)
         M.set_table(m_table)
 
-    paused = False
-
     draw_countdown = 0
     draw_now = True
+    screengrab = False
     while run:
-        if args.report and n in report_timings:
-            draw_now = True
-            draw_countdown = 0
         if draw_countdown == -2:
             draw_now = False
             draw_countdown = 2*SPEED - 2
@@ -671,8 +673,19 @@ def main():
                 paused = True if not paused else False
             if paused and event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
                 single_step = True
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
+                FPS = min(FPS*2, 120)
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_s:
+                FPS = max(FPS//2, 1)
+            elif paused and event.type == pygame.KEYDOWN and event.key == pygame.K_g:
+                screengrab = True
             if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_q:
                 run = False
+
+        if screengrab:
+            print(f'We are going to save image now')
+            save_image(f'out/report_{args.qtable}_{n}.png')
+            screengrab = False
 
         if paused and not single_step:
             continue
@@ -702,9 +715,8 @@ def main():
                     WIN.blit(F.asset, LOC_MATRIX[F.loc[0]][F.loc[1]][F.loc[2]])
                 pygame.display.update()
 
-        if args.report and n in report_timings:
-            print(f'We are going to save image now')
-            save_image(f'report_{args.qtable}_{n}.png')
+
+
 
         # check terminal state
         if c.numDropoff == 20:
