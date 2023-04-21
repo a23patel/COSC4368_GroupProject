@@ -613,13 +613,13 @@ def main():
     FPS = args.fps
     SPEED = args.speed
 
-    #report_timings = []
-    # if args.report:
-    #     with open('out/report_timings.txt', 'r') as f:
-    #         for line in f:
-    #             x = line[:-1]
-    #             report_timings.append(int(x))
-    #     print(f"timings: {report_timings}")
+    report_timings = []
+    if args.report:
+        with open('out/report_timings.txt', 'r') as f:
+            for line in f:
+                x = line[:-1]
+                report_timings.append(int(x))
+        print(f"timings: {report_timings}")
 
     c = Conditions()
     c.id = id
@@ -637,7 +637,7 @@ def main():
     clock = pygame.time.Clock()
 
     # number of total iterations
-    n = -1
+    n = 0
 
     # load Q-table data
     if args.qtable:
@@ -682,9 +682,9 @@ def main():
             if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_q:
                 run = False
 
-        if screengrab:
+        if screengrab or (args.report and n in report_timings):
             print(f'We are going to save image now')
-            save_image(f'out/report_{args.qtable}_{n}.png')
+            save_image(f'out/report_{seed}_exp{id}_{args.qtable}_{n}.png')
             screengrab = False
 
         if paused and not single_step:
@@ -746,7 +746,8 @@ def main():
             b.itr3 = 0
             b.itr4 = 0
 
-        n += 1
+        if c.numActions != 0:
+            n += 1
         if n >= 10000 or (id == '4' and c.numTerminal == 6):
             break # indicates end of experiment
 
