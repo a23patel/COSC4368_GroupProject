@@ -46,3 +46,23 @@ class SSSpace(RLSpace):
     
     def shape(self):
         return (3, 3, 3, 2, 5, 5, 5)
+    
+class MSpace(RLSpace):
+    """
+    "Medium" complexity RL space: stores the agent position/block status, and the status of the pickup-dropoff only (not other agent)
+    """
+    def map_state(self, state, agent):
+        loc = state.get_location(agent)
+        #other_loc = state.get_location('F' if agent == 'M' else 'M')
+        is_carrying = state.is_agent_carrying(agent)
+        dropoff_1, dropoff_2, dropoff_3, dropoff_4, pickup_1, pickup_2 = state.get_state_representation()[8:]
+        return (loc[0], loc[1], loc[2], 1 if is_carrying else 0,  
+            1 if dropoff_1 < 5 else 0,
+            1 if dropoff_2 < 5 else 0,
+            1 if dropoff_3 < 5 else 0,
+            1 if dropoff_4 < 5 else 0,
+            1 if pickup_1 > 0 else 0,
+            1 if pickup_2 > 0 else 0)
+
+    def shape(self):
+        return (3, 3, 3, 2, 2, 2, 2, 2, 2, 2)
