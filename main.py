@@ -122,10 +122,6 @@ def experiment(args):
         RLW = VSSpace()
     elif rl_type == 'ms':
         RLW = MSpace()
-    elif rl_type == 'c2':
-        RLW = C2Space()
-    elif rl_type == 'ssv1':
-        RLW = SSV1Space()
     
     actions = ['Pickup', 'Dropoff', 'N', 'S', 'E', 'W', 'U', 'D']
 

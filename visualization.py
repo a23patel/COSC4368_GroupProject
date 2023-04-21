@@ -684,7 +684,7 @@ def main():
 
         if screengrab or (args.report and n in report_timings):
             print(f'We are going to save image now')
-            save_image(f'out/report_{seed}_exp{id}_{args.qtable}_{n}.png')
+            save_image(f'qtables/report_{seed}_exp{id}_{args.qtable}_{n}.png')
             screengrab = False
 
         if paused and not single_step:
