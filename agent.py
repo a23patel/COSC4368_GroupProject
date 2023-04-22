@@ -32,6 +32,7 @@ class Agent:
         self.agent = agent
         self.actions = ACTIONS
         self.rlstate = rlstate
+        self.rwstate = init_state
         self.policy = policy
         self.seed = self.policy.seed
         self.learning = 'ql'
@@ -66,6 +67,7 @@ class Agent:
         Then run a Q-table update
         """
         self.history.append([self.rlstate.map_state(new_state, self.agent), None, 0])
+        self.rwstate=new_state
         self.history[-2][2] = reward
         self._update_table()
         if len(self.history) > MAX_HISTORY:
@@ -103,7 +105,7 @@ class Agent:
         new_state = self.history[-1][0]
         old_q = self.table[action][prev_state]
         best_next_action_q = -2**32
-        for ap in self.actions:
+        for ap in self.policy.get_applicable_actions(self.rwstate):
             if self.table[ap][new_state] > best_next_action_q:
                 best_next_action_q = self.table[ap][new_state]
         self.table[action][prev_state] = (1-self.alpha)*old_q + self.alpha*(reward + self.gamma*best_next_action_q)
