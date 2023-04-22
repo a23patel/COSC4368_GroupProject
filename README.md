@@ -45,7 +45,7 @@
     <ul>
       <li><code>--history</code> which writes history information to files used during offline visualization</li>
       <li><code>--dump-tables</code> which writes Q-table information to files used during offline visualization</li>
-      <li><code>--rl</code> followed by any one of the following reinforcement learning state spaces <code>ss</code>, <code>vs</code>, <code>ms</code>, <code>ss</code>, <code>cs</code> or <code>ssv1</code>. This selects the reinforcement learning state space used by the agents. If not provided, the default value is <code>ss</code>.</li>
+      <li><code>--rl</code> followed by any one of the following reinforcement learning state spaces <code>ss</code>, <code>vs</code>, <code>ms</code>. This selects the reinforcement learning state space used by the agents. If not provided, the default value is <code>ss</code>.</li>
       <li><code>--viz</code> followed by a destination for a <i>.csv</i> file. This file is used in <i>performanceMetrics.ipynb</i>. If not provided the default value is <code>out/visualization.csv</code></li>
     </ul>
   </li>
@@ -53,7 +53,9 @@
     <ul>
       <li><code>--fps</code> followed by an integer such as <code>30</code> to set the framerate of the display updates. If not provided, the default value is <code>60</code>.</li>
       <li><code>--speed</code> followed by an integer such as <code>2</code> to set the number of actions taken by each agent per frame. If not provided, the default value is <code>1</code>.</li>
-      <li><code>--qtable</code> which, when provided, also visualizes the Q-tables of the agents. <b>Note that you must run <i>main.py</i> beforehand with the optional <code>--dump-tables</code> flag in order to produce the files needed to run <i>visualization.py</i> with this flag.</b></li>
+      <li><code>--qtable</code> followed by <code>F</code> or <code>M</code> which also visualizes the Q-table of corresponding agent. <b>Note that you must run <i>main.py</i> beforehand with the optional <code>--dump-tables</code> flag in order to produce the files needed to run <i>visualization.py</i> with this flag.</b></li>
+      <li><code>--report</code> which generates Q-table images at key moments in an experiment.</li>
+      <li><code>--paused</code> which sets the visualization to begin in paused mode. You may take single steps with the right arrow key while paused, or toggle normal playback mode with the spacebar.</li>
     </ul>
   </li>
   <li>The performance variable data was aggregated for all experiments using the script <i>generate_csv.py</i>. This produces files <i>visualizationN.csv</i> and <i>terminal_statesN.csv</i> files in the <i>out</i> subdirectory. The Jupyter Notebook <i>performanceMetrics_visualization.ipynb</i> is used to generate the figure images in the report.
@@ -70,13 +72,19 @@ Consider the case where you wish to simulate experiment 1c with seed 2 and visua
 </ol>
 
 <p>
-Consider the case where you wish to simulate experiment 4 with seed 39 and visualize it with Q-table information. Perphas you also want to set the framerate to 30 fps and bump up the speed to 3. To accomplish this, perform the following steps.
+Consider the case where you wish to simulate experiment 4 with seed 39 and visualize it with agent M's Q-table information. Perphas you also want to set the framerate to 30 fps and bump up the speed to 3. To accomplish this, perform the following steps.
 </p>
 <ol>
   <li><code>python main.py 4 39 --history --dump-tables</code></li>
-  <li><code>python visualization.py --fps 30 --speed 3 --qtable</code></li>
+  <li><code>python visualization.py --fps 30 --speed 3 --qtable M</code></li>
+</ol>
+
+<p>
+Consider the case where you wish to simulate experiment 1b with seed 42 and visualize it with agent F's Q-table information. Perphas you also want to conduct the simulation with the ms reinforcement learning state space. To accomplish this, perform the following steps.
+</p>
+<ol>
+  <li><code>python main.py 1b 42 --history --rl ms --dump-tables</code></li>
+  <li><code>python visualization.py --qtable F</code></li>
 </ol>
 
 <p><b>Note that you can toggle pause/play using the spacebar when visualizing experiments.</b></p>
-
-<h4>Use of </h4>
