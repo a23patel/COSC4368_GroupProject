@@ -138,22 +138,25 @@ class Agent:
         In the case of ties for the strongest, the possible actions are shuffled
         to make any of the tied best actions equally probable
         """
-        strength = [0] * 27
-        moves = ['' for i in range(27)]
-        for i in range(3):
-            for j in range(3):
-                for k in range(3):
-                    state.update_agent_loc(self.agent, (i,j,k))
-                    actions = copy.deepcopy(self.actions)
-                    random.shuffle(actions)
-                    cur_rlstate = self.rlstate.map_state(state, self.agent)
-                    max_q = 0
-                    max_act = ''
-                    for a in actions:
-                        temp = self.table[a][cur_rlstate]
-                        if temp > max_q:
-                            max_q = temp
-                            max_act = a
-                    strength[i*9 + j*3 + k] = max_q
-                    moves[i*9 + j*3 + k] = max_act
+        strength = [0] * 54
+        moves = ['' for i in range(54)]
+        for has_block in [True, False]:
+            state.update_agent_carrying(self.agent, has_block)
+            for i in range(3):
+                for j in range(3):
+                    for k in range(3):
+                        index = i*18 + j*6 + k*2 + has_block
+                        state.update_agent_loc(self.agent, (i,j,k))
+                        actions = copy.deepcopy(self.actions)
+                        random.shuffle(actions)
+                        cur_rlstate = self.rlstate.map_state(state, self.agent)
+                        max_q = 0
+                        max_act = ''
+                        for a in actions:
+                            temp = self.table[a][cur_rlstate]
+                            if temp > max_q:
+                                max_q = temp
+                                max_act = a
+                        strength[index] = max_q
+                        moves[index] = max_act
         return (strength, moves)
