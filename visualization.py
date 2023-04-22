@@ -229,6 +229,7 @@ class Agent:
         self.actionList = _actionList
         self.qtable = _qtable
         self.index = 0
+        self.has_block = False
     
     def set_asset(self, _asset):
         """
@@ -294,6 +295,7 @@ class Agent:
         """
         performs pickup action by changing agent's asset to colored version
         """
+        self.has_block = True
         if self.id == 'F':
             self.asset = f_carrying
         elif self.id == 'M':
@@ -305,6 +307,7 @@ class Agent:
         """
         performs dropoff action by changing agent's asset to simple version
         """
+        self.has_block = False
         if self.id == 'F':
             self.asset = f_not_carrying
         elif self.id == 'M':
@@ -430,7 +433,7 @@ def draw_window(c, agent, b):
 
     pygame.display.update()
 
-def draw_qtable(c, agent, b):
+def draw_qtable(c, agent, b, has_block = None):
     """
     draws the Q-table assets at each state
     The Q-table values are scaled logarithmically to the range [0.5, 1.0]
@@ -452,7 +455,9 @@ def draw_qtable(c, agent, b):
     for i in range(3):
         for j in range(3):
             for k in range(3):
-                index = i*9+j*3+k
+                if has_block is None:
+                    has_block = agent.has_block
+                index = i*18+j*6+k*2+has_block
                 q_direction = q_directions[index]
                 # If there is no favored direction in the Q-table, don't draw any visualization
                 if q_direction == '':
@@ -597,19 +602,30 @@ def main():
         required=False,
         type=str,
         default='')
+    group = arg_parser.add_mutually_exclusive_group()
+    group.add_argument("--no-block",
+        dest="no_block",
+        help="Whether to display the Q-table only for no-block condition",
+        required=False,
+        action="store_true")
+    group.add_argument("--has-block", 
+        dest="has_block",
+        help="Whether to display the Q-table only for the has-block condition",
+        required=False,
+        action="store_true")
     arg_parser.add_argument("--report",
         dest="report",
         help="Produce images as specified for the report",
         required=False,
         action="store_true")
-    arg_parser.add_argument("--ss",
-        dest="single_step",
+    arg_parser.add_argument("--paused",
+        dest="paused",
         help="Start in single-step mode",
         required=False,
         action="store_true")
     args = arg_parser.parse_args()
-    single_step = args.single_step
-    paused = True if single_step else False
+    block_string = 'B' if args.has_block - args.no_block == 1 else 'N'
+    paused = args.paused
     FPS = args.fps
     SPEED = args.speed
 
@@ -659,6 +675,7 @@ def main():
     draw_countdown = 0
     draw_now = True
     screengrab = False
+    single_step = True
     while run:
         if draw_countdown == -2:
             draw_now = False
@@ -684,7 +701,7 @@ def main():
 
         if screengrab or (args.report and n in report_timings):
             print(f'We are going to save image now')
-            save_image(f'qtables/report_{seed}_exp{id}_{args.qtable}_{n}.png')
+            save_image(f'qtables/report_{seed}_exp{id}_{args.qtable}_{n}_{block_string}.png')
             screengrab = False
 
         if paused and not single_step:
@@ -701,10 +718,13 @@ def main():
         q.put(curAgent)
 
         if args.qtable and draw_now:
+            change_block = None
+            if args.has_block or args.no_block:
+                change_block = args.has_block
             if args.qtable == 'M':
-                draw_qtable(c, M, b)
+                draw_qtable(c, M, b, change_block)
             elif args.qtable == 'F':
-                draw_qtable(c, F, b)
+                draw_qtable(c, F, b, change_block)
 
         # redraw inactive agent
         if draw_now:

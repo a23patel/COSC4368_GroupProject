@@ -297,8 +297,8 @@ def experiment(args):
         # stop after 10,000 moves
         if n == 10000:
             # TODO dump qtable
-            print(f"Recording {n} in report timings")
-            timings.append(n)
+            print(f"Recording {n-1} in report timings")
+            timings.append(n-1)
             print(f"\nTotal number of terminal states reached: {terminal}")
             if produce_history:
                 write_actions(agentFActions, agentMActions, id, str(seed), rewardList, distList, vizFile, movingAgent)
