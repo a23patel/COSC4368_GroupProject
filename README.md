@@ -54,6 +54,8 @@
       <li><code>--fps</code> followed by an integer such as <code>30</code> to set the framerate of the display updates. If not provided, the default value is <code>60</code>.</li>
       <li><code>--speed</code> followed by an integer such as <code>2</code> to set the number of actions taken by each agent per frame. If not provided, the default value is <code>1</code>.</li>
       <li><code>--qtable</code> followed by <code>F</code> or <code>M</code> which also visualizes the Q-table of corresponding agent. <b>Note that you must run <i>main.py</i> beforehand with the optional <code>--dump-tables</code> flag in order to produce the files needed to run <i>visualization.py</i> with this flag.</b></li>
+      <li><code>--no-block</code> which, when provided, only displays Q-table information as if the agent is not carrying a block. This flag can't be provided if <code>--has-block</code> is also provided. This flag is intended to modify the contents generated when <code>--report</code> is provided.</li>
+      <li><code>--has-block</code> which, when provided, only displays Q-table information as if the agent is carrying a block. This flag can't be provided if <code>--no-block</code> is also provided. This flag is intended to modify the contents generated when <code>--report</code> is provided.</li>
       <li><code>--report</code> which generates Q-table images at key moments in an experiment.</li>
       <li><code>--paused</code> which sets the visualization to begin in paused mode. You may take single steps with the right arrow key while paused, or toggle normal playback mode with the spacebar.</li>
     </ul>
