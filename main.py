@@ -233,6 +233,9 @@ def experiment(args):
             timings.append(n+1)
             dropoff_timing_not_written = False      
 
+        # Store distance between agents after 'M' moves
+        distList.append(distance(RW.locF, RW.locM))
+
         # check completion criterion
         if RW.is_complete():
             justTerminated = True
@@ -266,10 +269,6 @@ def experiment(args):
         # Provide progress updates of RW periodically to stdout
         if n % (250-1) == 0:
             print(RW.get_state_representation())
-
-        # Store distance between agents after 'M' moves
-        if curAgent == 'M':
-            distList.append(distance(RW.locF, RW.locM))
         
         # This tests if the game was just completed
 
