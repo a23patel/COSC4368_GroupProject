@@ -590,12 +590,6 @@ def main():
         required=False,
         type=int,
         default=60)
-    arg_parser.add_argument("--speed",
-        dest="speed",
-        help="Multiplier of # of actions by each agent per frame (default 1)",
-        required=False,
-        type=int,
-        default=1)
     arg_parser.add_argument("--qtable",
         dest="qtable",
         help="Visualize Q-table each turn",
@@ -627,7 +621,6 @@ def main():
     block_string = 'B' if args.has_block - args.no_block == 1 else 'N'
     paused = args.paused
     FPS = args.fps
-    SPEED = args.speed
 
     report_timings = []
     if args.report:
@@ -672,19 +665,10 @@ def main():
         F.set_table(f_table)
         M.set_table(m_table)
 
-    draw_countdown = 0
-    draw_now = True
     screengrab = False
     single_step = True
     while run:
-        if draw_countdown == -2:
-            draw_now = False
-            draw_countdown = 2*SPEED - 2
-        if draw_countdown == 0 or draw_countdown == -1:
-            draw_now = True
-        draw_countdown -= 1
-        if draw_now:
-            clock.tick(FPS)
+        clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 paused = True if not paused else False
@@ -696,28 +680,29 @@ def main():
                 FPS = max(FPS//2, 1)
             elif paused and event.type == pygame.KEYDOWN and event.key == pygame.K_g:
                 screengrab = True
-            if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_q:
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_q):
                 run = False
 
-        if screengrab or (args.report and n in report_timings):
-            print(f'We are going to save image now')
-            save_image(f'qtables/report_{seed}_exp{id}_{args.qtable}_{n}_{block_string}.png')
+        if paused and screengrab:
+            save_image(f'screengrab_{seed}_exp{id}_{n}.png')
+            print('Screengrab captured')
             screengrab = False
+
+        if args.report and n in report_timings:
+            save_image(f'qtables/report_{seed}_exp{id}_{args.qtable}_{n}_{block_string}.png')
 
         if paused and not single_step:
             continue
 
-        if draw_now:
-            pygame.display.set_caption(f"Reinforcement Learning Visualization | Experiment: {id} | Seed: {seed} | n: {n}")
+        pygame.display.set_caption(f"Reinforcement Learning Visualization | Experiment: {id} | Seed: {seed} | n: {n}")
 
         curAgent = q.get()
 
-        if draw_now:
-            draw_window(c, curAgent, b)
+        draw_window(c, curAgent, b)
         c.numActions += 1
         q.put(curAgent)
 
-        if args.qtable and draw_now:
+        if args.qtable:
             change_block = None
             if args.has_block or args.no_block:
                 change_block = args.has_block
@@ -727,13 +712,12 @@ def main():
                 draw_qtable(c, F, b, change_block)
 
         # redraw inactive agent
-        if draw_now:
-            if c.numActions != 0:
-                if curAgent.id == 'F':
-                    WIN.blit(M.asset, LOC_MATRIX[M.loc[0]][M.loc[1]][M.loc[2]])
-                else:
-                    WIN.blit(F.asset, LOC_MATRIX[F.loc[0]][F.loc[1]][F.loc[2]])
-                pygame.display.update()
+        if c.numActions != 0:
+            if curAgent.id == 'F':
+                WIN.blit(M.asset, LOC_MATRIX[M.loc[0]][M.loc[1]][M.loc[2]])
+            else:
+                WIN.blit(F.asset, LOC_MATRIX[F.loc[0]][F.loc[1]][F.loc[2]])
+            pygame.display.update()
 
 
 

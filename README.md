@@ -33,7 +33,12 @@
 
 <h2>How to run the code</h2>
 <ol>
-  <li>Install the dependencies in <i>requirements.txt</i>.</li>
+  <li>Install the dependencies in <i>requirements.txt</i>.
+    <ul>
+      <li>Example using <code>pip</code>: <code>pip install requirements.txt</code></li>
+      <li>Example using <code>conda</code>: <code>conda install -c conda-forge numpy pygame pandas plotly==5.14.1</code></li>
+    </ul>
+  </li>
   <li>Simulate an experiment by running <i>main.py</i> with arguments. Required arguments are:
     <ul>
       <li>experiment</li>
@@ -89,4 +94,4 @@ Consider the case where you wish to simulate experiment 1b with seed 42 and visu
   <li><code>python visualization.py --qtable F</code></li>
 </ol>
 
-<p><b>Note that you can toggle pause/play using the spacebar when visualizing experiments.</b></p>
+<p><b>Note that you can toggle pause/play using the spacebar when visualizing experiments. While paused, using the right arrow key will advance the agents by a single step. The <code>f</code> and <code>s</code> keys increase and decrease the framerate during simulation. The <code>q</code> key exits the simulation, and the <code>g</code> key captures a screenshot in the current working directory.</b></p>
