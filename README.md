@@ -57,7 +57,6 @@
   <li>Visualize a simulated experiment by running <i>visualization.py</i>. <b>Note that you must run <i>main.py</i> beforehand with the optional <code>--history</code> flag in order to generate the files needed to run <i>visualization.py</i> without arguments. </b>You may optionally provide command line arguments when running <i>visualization.py</i>. Optional arguments are:
     <ul>
       <li><code>--fps</code> followed by an integer such as <code>30</code> to set the framerate of the display updates. If not provided, the default value is <code>60</code>.</li>
-      <li><code>--speed</code> followed by an integer such as <code>2</code> to set the number of actions taken by each agent per frame. If not provided, the default value is <code>1</code>.</li>
       <li><code>--qtable</code> followed by <code>F</code> or <code>M</code> which also visualizes the Q-table of corresponding agent. <b>Note that you must run <i>main.py</i> beforehand with the optional <code>--dump-tables</code> flag in order to produce the files needed to run <i>visualization.py</i> with this flag.</b></li>
       <li><code>--no-block</code> which, when provided, only displays Q-table information as if the agent is not carrying a block. This flag can't be provided if <code>--has-block</code> is also provided. This flag is intended to modify the contents generated when <code>--report</code> is provided.</li>
       <li><code>--has-block</code> which, when provided, only displays Q-table information as if the agent is carrying a block. This flag can't be provided if <code>--no-block</code> is also provided. This flag is intended to modify the contents generated when <code>--report</code> is provided.</li>
@@ -79,11 +78,11 @@ Consider the case where you wish to simulate experiment 1c with seed 2 and visua
 </ol>
 
 <p>
-Consider the case where you wish to simulate experiment 4 with seed 39 and visualize it with agent M's Q-table information. Perhaps you also want to set the framerate to 30 fps and bump up the speed to 3. To accomplish this, perform the following steps:
+Consider the case where you wish to simulate experiment 4 with seed 39 and visualize it with agent M's Q-table information. Perhaps you also want to set the framerate to 30 fps. To accomplish this, perform the following steps:
 </p>
 <ol>
   <li><code>python main.py 4 39 --history --dump-tables</code></li>
-  <li><code>python visualization.py --fps 30 --speed 3 --qtable M</code></li>
+  <li><code>python visualization.py --fps 30 --qtable M</code></li>
 </ol>
 
 <p>
