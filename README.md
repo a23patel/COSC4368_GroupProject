@@ -74,7 +74,7 @@ Consider the case where you wish to simulate experiment 1c with seed 2 and visua
 </ol>
 
 <p>
-Consider the case where you wish to simulate experiment 4 with seed 39 and visualize it with agent M's Q-table information. Perphas you also want to set the framerate to 30 fps and bump up the speed to 3. To accomplish this, perform the following steps.
+Consider the case where you wish to simulate experiment 4 with seed 39 and visualize it with agent M's Q-table information. Perphaps you also want to set the framerate to 30 fps and bump up the speed to 3. To accomplish this, perform the following steps.
 </p>
 <ol>
   <li><code>python main.py 4 39 --history --dump-tables</code></li>
